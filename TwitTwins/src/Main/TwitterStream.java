@@ -44,13 +44,13 @@ public class TwitterStream {
 
     public TwitterStream(String[]termArray) {
         List<String> terms = new ArrayList<>();
-//        for(String term: termArray)
-//        {
-//        	terms.add(term);
-//        }
-        terms.add("weert");
-        terms.add("landgraaf");
-        terms.add("amsterdam");
+        for(String term: termArray)
+        {
+        	terms.add(term);
+        }
+        //terms.add("weert");
+        //terms.add("landgraaf");
+        //terms.add("amsterdam");
         query(terms);
         System.out.println("Retrieved " + tweetQueue.size() + " tweets.");
         File f = new File("tweets.txt");
@@ -94,7 +94,7 @@ public class TwitterStream {
             
             System.out.println(query.toString());
             QueryResult result;
-               do {
+               //do {
             result = twitter.search(query);
             List<Status> tweets = result.getTweets();
             for (Status tweet : tweets) {
@@ -103,7 +103,7 @@ public class TwitterStream {
                 System.out.println(t.toString());
                 //     }
             }
-                } while ((query = result.nextQuery()) != null);
+                //} while ((query = result.nextQuery()) != null);
         } catch (TwitterException te) {
             te.printStackTrace();
             System.out.println("Failed to search tweets: " + te.getMessage());

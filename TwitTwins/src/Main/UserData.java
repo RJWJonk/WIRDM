@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package twitterstream.Main;
+package Main;
 
 import java.util.Iterator;
 
@@ -28,6 +28,11 @@ public class UserData implements Iterable {
         @Override
         public User next() {
             return null;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
     }

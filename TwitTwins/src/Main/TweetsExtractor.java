@@ -3,23 +3,11 @@ package Main;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.io.InputStreamReader;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.basic.DefaultOAuthConsumer;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
 import Model.Word;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +19,6 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
-import twitter4j.User;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TweetsExtractor {
@@ -50,7 +37,7 @@ public class TweetsExtractor {
 
 
 
-    public static void main(String[] args) throws IOException, OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
+    public static void main(String[] args) throws IOException {
         TweetsExtractor te = new TweetsExtractor();
         System.out.println(te.toString());
     }
@@ -62,7 +49,7 @@ public class TweetsExtractor {
         ValueComparator wvc = new ValueComparator(wordMap);
         sorted_map = new TreeMap<>(wvc);
         
-        query("landgraaf");
+        queryUser("adamzikacz");
         tokenizing(tweetQueue);
 
         //read stopwords from file and store it in hashmap
@@ -373,7 +360,7 @@ public class TweetsExtractor {
             for (Status tweet : tweets) {
                 Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
                 this.tweetQueue.add(t);
-                System.out.println(t.toString());
+                //System.out.println(t.toString());
                 //     }
                 //}
             } //while ((query = result.nextQuery()) != null);
@@ -384,18 +371,21 @@ public class TweetsExtractor {
     }
     
         public void queryUser(String user) {
-            System.out.println("Hello");
         try {
-            //    do {
-            Paging paging = new Paging(1,100);
+            int i = 1;
+            Paging paging = new Paging(1,200);
             List<Status> tweets = twitter.getUserTimeline(user, paging);
-            for (Status tweet : tweets) {
-                Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
-                this.tweetQueue.add(t);
-                System.out.println(t.toString());
-                //     }
-                //}
-            } //while ((query = result.nextQuery()) != null);
+            while(!tweets.isEmpty())
+            {         
+                for (Status tweet : tweets) {
+                    Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
+                    this.tweetQueue.add(t);
+                }
+                i += 1;
+                paging = new Paging(i,200);
+                tweets = twitter.getUserTimeline(user, paging);
+            }
+            System.out.println("amount of tweets returned of "+user+": "+tweetQueue.size());
         } catch (TwitterException te) {
             te.printStackTrace();
             System.out.println("Failed to search tweets: " + te.getMessage());
