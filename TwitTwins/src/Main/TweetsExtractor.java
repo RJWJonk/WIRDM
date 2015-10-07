@@ -54,7 +54,7 @@ public class TweetsExtractor {
         ValueComparator wvc = new ValueComparator(wordMap);
         sorted_map = new TreeMap<>(wvc);
         
-        queryUser("adamzikacz");
+        queryUser("I_LOVE_NY");
         tokenizing(tweetQueue);
 
         //read stopwords from file and store it in hashmap
@@ -133,88 +133,53 @@ public class TweetsExtractor {
     public void tokenizing(String text) {
         StringTokenizer st = new StringTokenizer(text, delims);
         // extract each single words
+        String concatWord = "";
         while (st.hasMoreTokens()) {
-            String nextWord = st.nextToken().toLowerCase(); //convert everything to lower case
-            if (wordMap.get(nextWord) == null) {
-                identifyTypeOfWord(nextWord);
+            String nextWord = st.nextToken(); //convert everything to lower case
+            if(Character.isUpperCase(nextWord.charAt(0)))
+            {
+                concatWord = concatWord + nextWord + " ";
+            }
+            else
+            {
+                if(concatWord.isEmpty())
+                {
+                    putWordInWordMap(nextWord);
+                }
+                else
+                {
+                    putWordInWordMap(nextWord);
+                    putWordInWordMap(concatWord);
+                    concatWord = "";
+                }
+
+            }
+           // putWordInWordMap(nextWord);
+        }
+        if(!concatWord.isEmpty())
+            putWordInWordMap(concatWord);
+        sorted_map.putAll(wordMap);
+    }
+    
+    public void putWordInWordMap(String word)
+    {
+        if (wordMap.get(word) == null) {
+                identifyTypeOfWord(word);
             } else {
                 //update the word
-                Word tempWord = wordMap.get(nextWord);
+                Word tempWord = wordMap.get(word);
                 tempWord.incrementFreq();
-                wordMap.put(nextWord, tempWord);
-            }
-        }
-        sorted_map.putAll(wordMap);
+                wordMap.put(word, tempWord);
+            }    
     }
     
     public void tokenizing(Queue<Tweet> input) {
         String concat = "";
         for (Tweet t : input) {
-            concat += t.getTweet() + " ";
+            tokenizing(t.getTweet()); 
         }
-        tokenizing(concat);
     }
 
-//    /**
-//     * Using real tweets data to test what kind of results it gives Will be
-//     * changed later on
-//     *
-//     * @return
-//     */
-//    public String readTweetsDemo() {
-//        OAuthConsumer consumer = new DefaultOAuthConsumer(ConsumerKey, ConsumerSecret);
-//        consumer.setTokenWithSecret(AccessToken, AccessSecret);
-//        tweetsTxt = "";
-//        // Prepare request
-//        URL url;
-//        try {
-//            for (int j = 1; j <= 16; j++) {
-//                System.out.println("Loading tweets: " + (float) j / 16 * 100 + "%.");
-//                //REST API - request to return tweets from users as a JSON string 200 tweets max per page
-//                url = new URL("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=" + twitterUser + "&lang=en&count=200&page=+" + j);
-//                HttpURLConnection request = (HttpURLConnection) url.openConnection();
-//                consumer.sign(request);
-//                request.connect();
-//
-//                BufferedReader in = new BufferedReader(
-//                        new InputStreamReader(request.getInputStream()));
-//                String inputLine;
-//                StringBuffer response = new StringBuffer();
-//
-//                while ((inputLine = in.readLine()) != null) {
-//                    response.append(inputLine);
-//                }
-//                in.close();
-//
-//                //parse json
-//                String jsonString = "{\"tweets\":" + response.toString() + "}";
-//                JSONObject obj = new JSONObject(jsonString);
-//
-//                JSONArray arr = obj.getJSONArray("tweets");
-//                for (int i = 0; i < arr.length(); i++) {
-//                    if (arr.getJSONObject(i).has("text")) {
-//                        tweetsTxt += " " + arr.getJSONObject(i).getString("text");
-//                    }
-//                }
-//            }
-//        } catch (MalformedURLException e1) {
-//            // TODO Auto-generated catch block
-//            e1.printStackTrace();
-//        } catch (OAuthMessageSignerException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        } catch (OAuthExpectationFailedException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        } catch (OAuthCommunicationException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//        return tweetsTxt;
-//    }
 
     /**
      * Using the stemming library (source file) provided by Porter. Stemming
@@ -385,7 +350,7 @@ public class TweetsExtractor {
                 Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
 
                 this.tweetQueue.add(t);
-                //System.out.println(t.toString());
+                System.out.println(tweet.getUser().getName());
                 //     }
                 //}
             } //while ((query = result.nextQuery()) != null);
