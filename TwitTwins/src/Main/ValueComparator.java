@@ -15,7 +15,7 @@ class ValueComparator implements Comparator<Object> {
 	@Override
 	public int compare(Object o1, Object o2) {
 		wordMap.get(o1).equals((String)o1);
-		if (wordMap.get(o1).getGetFrequency() >= wordMap.get(o2).getGetFrequency()) {
+		if (wordMap.get(o1).getFrequency() >= wordMap.get(o2).getFrequency()) {
             return -1; 
         } else {
             return 1;

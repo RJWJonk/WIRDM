@@ -45,7 +45,7 @@ public class Word
 	public void setType(int type) {
 		this.type = type;
 	}
-	public int getGetFrequency() {
+	public int getFrequency() {
 		return getFrequency;
 	}
 	public void setFrequency(int getFrequency) {

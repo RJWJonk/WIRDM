@@ -23,34 +23,29 @@ import twitter4j.conf.ConfigurationBuilder;
 
 public class TweetsExtractor {
 
-    //Store tweets in a queue for processing
-    private final Queue<Tweet> tweetQueue = new LinkedList<>();
-    
+
     //Authorization
     private final static Twitter twitter = authenticate();
 
-    
     public static Map<String, Word> wordMap; //hash map with extracted words from tweets
     public static TreeMap<String, Word> sorted_map; // hash map which is sorted by frequenty 
     public static Map<String, String> stopWords;
     public static String delims = ", !.)(\"?\'�_<>-|;";
 
-
-
     public static void main(String[] args) throws IOException {
         TweetsExtractor te = new TweetsExtractor();
         System.out.println(te.toString());
     }
-    
+
     public TweetsExtractor() {
-                //init values
+        //init values
         wordMap = new HashMap<>();
         stopWords = new HashMap<>();
         ValueComparator wvc = new ValueComparator(wordMap);
         sorted_map = new TreeMap<>(wvc);
-        
-        queryUser("adamzikacz");
-        tokenizing(tweetQueue);
+
+        Queue<Tweet> tweets = queryUser("adamzikacz");
+        tokenizing(tweets);
 
         //read stopwords from file and store it in hashmap
         readStoreStopWords();
@@ -124,7 +119,7 @@ public class TweetsExtractor {
         }
         sorted_map.putAll(wordMap);
     }
-    
+
     public void tokenizing(Queue<Tweet> input) {
         String concat = "";
         for (Tweet t : input) {
@@ -193,7 +188,6 @@ public class TweetsExtractor {
 //        }
 //        return tweetsTxt;
 //    }
-
     /**
      * Using the stemming library (source file) provided by Porter. Stemming
      * will be used after tokenizing process and removal of stopwords 1. stemmed
@@ -214,10 +208,10 @@ public class TweetsExtractor {
                 //if stemmed word already exist, sum the current frequency.
                 if (wordMap.get(s.toString()) != null) {
                     //update frequency
-                    freq = ((Word) wordMap.get(s.toString())).getGetFrequency();
+                    freq = ((Word) wordMap.get(s.toString())).getFrequency();
                 }
                 Word newWord = new Word(s.toString(), word.getRealType());
-                newWord.setFrequency(freq + word.getGetFrequency());
+                newWord.setFrequency(freq + word.getFrequency());
                 wordMap.put(s.toString(), newWord);
                 wordMap.remove(word.getWord());
             }
@@ -318,7 +312,7 @@ public class TweetsExtractor {
                 {
                     System.out.println("Word=" + (word.getWord() + " ||"
                             + "Type:" + word.getType() + "|| "
-                            + "Frequency=" + word.getGetFrequency()));
+                            + "Frequency=" + word.getFrequency()));
                 }
             } else {
                 break;
@@ -338,15 +332,16 @@ public class TweetsExtractor {
         return tf.getInstance();
     }
 
-    public void query(List<String> terms) {
+    public Queue<Tweet> query(List<String> terms) {
         String query = "";
         for (String term : terms) {
             query += "(" + term + ")" + " OR ";
         }
-        query(query.substring(0, query.length() - 4));
+        return query(query.substring(0, query.length() - 4));
     }
 
-    public void query(String term) {
+    public Queue<Tweet> query(String term) {
+        Queue<Tweet> tweetQueue = new LinkedList<>();
         try {
             Query query = new Query(term);
             query.setLang("en");
@@ -359,7 +354,7 @@ public class TweetsExtractor {
             List<Status> tweets = result.getTweets();
             for (Status tweet : tweets) {
                 Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
-                this.tweetQueue.add(t);
+                tweetQueue.add(t);
                 //System.out.println(t.toString());
                 //     }
                 //}
@@ -368,28 +363,30 @@ public class TweetsExtractor {
             te.printStackTrace();
             System.out.println("Failed to search tweets: " + te.getMessage());
         }
+        return tweetQueue;
     }
-    
-        public void queryUser(String user) {
+
+    public Queue<Tweet> queryUser(String user) {
+        Queue<Tweet> tweetQueue = new LinkedList<>();
         try {
             int i = 1;
-            Paging paging = new Paging(1,200);
+            Paging paging = new Paging(1, 200);
             List<Status> tweets = twitter.getUserTimeline(user, paging);
-            while(!tweets.isEmpty())
-            {         
+            while (!tweets.isEmpty()) {
                 for (Status tweet : tweets) {
                     Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
-                    this.tweetQueue.add(t);
+                    tweetQueue.add(t);
                 }
                 i += 1;
-                paging = new Paging(i,200);
+                paging = new Paging(i, 200);
                 tweets = twitter.getUserTimeline(user, paging);
             }
-            System.out.println("amount of tweets returned of "+user+": "+tweetQueue.size());
+            System.out.println("amount of tweets returned of " + user + ": " + tweetQueue.size());
         } catch (TwitterException te) {
             te.printStackTrace();
             System.out.println("Failed to search tweets: " + te.getMessage());
         }
+        return tweetQueue;
     }
 
 }
