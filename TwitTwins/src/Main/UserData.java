@@ -89,7 +89,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
 
     }
 
-    private class User implements Iterable {
+    public class User implements Iterable {
 
         private final String name;
         private final int age;
@@ -181,7 +181,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
 
     }
 
-    private class KeyWord {
+    public class KeyWord {
 
         private final String word;
         private int wordCount;

@@ -87,12 +87,13 @@ public class TweetsExtractor {
         {
         	terms.add(term);
         }
-        query(terms);
+        
+        tweets = query(terms);
         File f = new File("tweets.txt");
 
         try {
             PrintStream writer = new PrintStream(f);
-            for (Tweet t : tweetQueue) {
+            for (Tweet t : tweets) {
                 writer.println(t.toString());
                 System.out.println(t.toString());
             }
@@ -100,6 +101,28 @@ public class TweetsExtractor {
         } catch (IOException ex) {
 
         }
+        
+        List<String> kws = new ArrayList();
+        kws.add("Hello"); kws.add("World");
+        UserData ud = new UserData(kws);
+        
+        for (Object u : ud) {
+            UserData.User user = (UserData.User) u;
+            
+            user.getName();
+            user.getTweetCount();
+            user.getWordTweetCount();
+            user.getAge();
+            
+            for (Object kw : user) {
+                UserData.KeyWord word = (UserData.KeyWord) kw;
+                
+                word.getCount();
+                word.getKeyWord();
+                
+            }
+        }
+        
     }
 
     /**
