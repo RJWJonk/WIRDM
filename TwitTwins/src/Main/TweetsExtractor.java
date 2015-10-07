@@ -9,9 +9,14 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import Model.Word;
+import java.io.File;
+import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import twitter4j.Paging;
 import twitter4j.Query;
 import twitter4j.QueryResult;
@@ -82,7 +87,24 @@ public class TweetsExtractor {
             }
 
         }
-        TwitterStream stream = new TwitterStream(termArray);
+                List<String> terms = new ArrayList<>();
+        for(String term: termArray)
+        {
+        	terms.add(term);
+        }
+        query(terms);
+        File f = new File("tweets.txt");
+
+        try {
+            PrintStream writer = new PrintStream(f);
+            for (Tweet t : tweetQueue) {
+                writer.println(t.toString());
+                System.out.println(t.toString());
+            }
+            writer.close();
+        } catch (IOException ex) {
+
+        }
     }
 
     /**
@@ -355,10 +377,13 @@ public class TweetsExtractor {
             System.out.println(query.toString());
             QueryResult result;
             //    do {
+            
             result = twitter.search(query);
+            tweetQueue.clear();
             List<Status> tweets = result.getTweets();
             for (Status tweet : tweets) {
                 Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
+
                 this.tweetQueue.add(t);
                 //System.out.println(t.toString());
                 //     }
