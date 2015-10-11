@@ -151,6 +151,15 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
                 k.next = kw;
             }
         }
+        
+        public getKeyWord(int index) {
+            returnKW = firstKW;
+            while(index > 0) {
+                returnKW = firstKW.next;
+                index--;
+            }
+            return returnKW;
+        }
 
         @Override
         public Iterator iterator() {
