@@ -152,8 +152,8 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             }
         }
         
-        public getKeyWord(int index) {
-            returnKW = firstKW;
+        public KeyWord getKeyWord(int index) {
+            KeyWord returnKW = firstKW;
             while(index > 0) {
                 returnKW = firstKW.next;
                 index--;
