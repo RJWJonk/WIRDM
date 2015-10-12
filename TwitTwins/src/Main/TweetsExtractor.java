@@ -151,27 +151,54 @@ public class TweetsExtractor {
     public void tokenizing(String text) {
         StringTokenizer st = new StringTokenizer(text, delims);
         // extract each single words
+        String concatWord = "";
         while (st.hasMoreTokens()) {
-            String nextWord = st.nextToken().toLowerCase(); //convert everything to lower case
-            if (wordMap.get(nextWord) == null) {
-                identifyTypeOfWord(nextWord);
-            } else {
-                //update the word
-                Word tempWord = wordMap.get(nextWord);
-                tempWord.incrementFreq();
-                wordMap.put(nextWord, tempWord);
+            String nextWord = st.nextToken(); //convert everything to lower case
+            if(Character.isUpperCase(nextWord.charAt(0)))
+            {
+                concatWord = concatWord + nextWord + " ";
             }
+            else
+            {
+                if(concatWord.isEmpty())
+                {
+                    putWordInWordMap(nextWord);
+                }
+                else
+                {
+                    putWordInWordMap(nextWord);
+                    putWordInWordMap(concatWord);
+                    concatWord = "";
+                }
+
+            }
+           // putWordInWordMap(nextWord);
         }
+        if(!concatWord.isEmpty())
+            putWordInWordMap(concatWord);
         sorted_map.putAll(wordMap);
     }
 
+    
+    public void putWordInWordMap(String word)
+    {
+        if (wordMap.get(word) == null) {
+                identifyTypeOfWord(word);
+            } else {
+                //update the word
+                Word tempWord = wordMap.get(word);
+                tempWord.incrementFreq();
+                wordMap.put(word, tempWord);
+            }    
+    }
+    
     public void tokenizing(Queue<Tweet> input) {
         String concat = "";
         for (Tweet t : input) {
-            concat += t.getTweet() + " ";
+            tokenizing(t.getTweet()); 
         }
-        tokenizing(concat);
     }
+
 
 //    /**
 //     * Using real tweets data to test what kind of results it gives Will be
@@ -233,6 +260,7 @@ public class TweetsExtractor {
 //        }
 //        return tweetsTxt;
 //    }
+
     /**
      * Using the stemming library (source file) provided by Porter. Stemming
      * will be used after tokenizing process and removal of stopwords 1. stemmed
@@ -403,7 +431,9 @@ public class TweetsExtractor {
                 Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
                 tweetQueue.add(t);
 
-                //System.out.println(t.toString());
+
+                tweetQueue.add(t);
+                System.out.println(tweet.getUser().getName());
                 //     }
                 //}
             } //while ((query = result.nextQuery()) != null);
