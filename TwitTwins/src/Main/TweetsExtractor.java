@@ -43,13 +43,17 @@ public class TweetsExtractor {
     }
 
     public TweetsExtractor() {
+        
+    }
+    
+    public TreeMap<String, Word> extractUser(String u) {
         //init values
         wordMap = new HashMap<>();
         stopWords = new HashMap<>();
         ValueComparator wvc = new ValueComparator(wordMap);
         sorted_map = new TreeMap<>(wvc);
 
-        Queue<Tweet> tweets = queryUser("adamzikacz");
+        Queue<Tweet> tweets = queryUser(u);
         tokenizing(tweets);
 
         //read stopwords from file and store it in hashmap
@@ -65,64 +69,45 @@ public class TweetsExtractor {
         //apply stemming by provided API
         applyStemming();
         //Test- printing results
-        PrintTestResult();
+        //PrintTestResult();
 
-        int termAmount = 5;
-        String[] termArray = new String[termAmount];
-        int i = 0;
-        for (Object value : sorted_map.values()) {
+//        int termAmount = 5;
+//        String[] termArray = new String[termAmount];
+//        int i = 0;
+//        for (Object value : sorted_map.values()) {
+//
+//            Word word = (Word) value;
+//            if (!isInteger(word.getWord())) {
+//                termArray[i] = word.getWord();
+//                if (i >= termAmount - 1) {
+//                    break;
+//                }
+//                i++;
+//            }
+//
+//        }
+//                List<String> terms = new ArrayList<>();
+//        for(String term: termArray)
+//        {
+//        	terms.add(term);
+//        }
+//        
+//        tweets = query(terms);
+//        File f = new File("tweets.txt");
+//
+//        try {
+//            PrintStream writer = new PrintStream(f);
+//            for (Tweet t : tweets) {
+//                writer.println(t.toString());
+//                //System.out.println(t.toString());
+//            }
+//            writer.close();
+//        } catch (IOException ex) {
+//
+//        }
+//        
 
-            Word word = (Word) value;
-            if (!isInteger(word.getWord())) {
-                termArray[i] = word.getWord();
-                if (i >= termAmount - 1) {
-                    break;
-                }
-                i++;
-            }
-
-        }
-                List<String> terms = new ArrayList<>();
-        for(String term: termArray)
-        {
-        	terms.add(term);
-        }
-        
-        tweets = query(terms);
-        File f = new File("tweets.txt");
-
-        try {
-            PrintStream writer = new PrintStream(f);
-            for (Tweet t : tweets) {
-                writer.println(t.toString());
-                System.out.println(t.toString());
-            }
-            writer.close();
-        } catch (IOException ex) {
-
-        }
-        
-        List<String> kws = new ArrayList();
-        kws.add("Hello"); kws.add("World");
-        UserData ud = new UserData(kws);
-        
-        for (Object u : ud) {
-            UserData.User user = (UserData.User) u;
-            
-            user.getName();
-            user.getTweetCount();
-            user.getWordTweetCount();
-            user.getAge();
-            
-            for (Object kw : user) {
-                UserData.KeyWord word = (UserData.KeyWord) kw;
-                
-                word.getCount();
-                word.getKeyWord();
-                
-            }
-        }
-        
+        return sorted_map;
     }
 
     /**
@@ -148,7 +133,7 @@ public class TweetsExtractor {
      *
      * @param text
      */
-    public void tokenizing(String text) {
+    public TreeMap<String, Word> tokenizing(String text) {
         StringTokenizer st = new StringTokenizer(text, delims);
         // extract each single words
         String concatWord = "";
@@ -177,6 +162,7 @@ public class TweetsExtractor {
         if(!concatWord.isEmpty())
             putWordInWordMap(concatWord);
         sorted_map.putAll(wordMap);
+        return sorted_map;
     }
 
     
@@ -192,11 +178,12 @@ public class TweetsExtractor {
             }    
     }
     
-    public void tokenizing(Queue<Tweet> input) {
+    public TreeMap<String, Word> tokenizing(Queue<Tweet> input) {
         String concat = "";
         for (Tweet t : input) {
             tokenizing(t.getTweet()); 
         }
+        return sorted_map;
     }
 
 
@@ -433,7 +420,7 @@ public class TweetsExtractor {
 
 
                 tweetQueue.add(t);
-                System.out.println(tweet.getUser().getName());
+                //System.out.println(tweet.getUser().getName());
                 //     }
                 //}
             } //while ((query = result.nextQuery()) != null);

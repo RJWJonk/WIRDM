@@ -39,12 +39,18 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
 
         for (String s : keywords) {
             KeyWord k = new KeyWord(s);
-            k.setCount(data.get(s).getFrequency());
+            if (data == null) {
+                System.out.println("RETARD");
+            }
+            Word w = data.get(s);
+            if (w != null) {
+                k.setCount(data.get(s).getFrequency());
+            } else {
+                k.setCount(0);
+            }
             u.setKeyWordAtEnd(k);
         }
 
-        
-        
         u.setTweetWordCount(calcWordTweetCount(data));
         u.setCount(tweetCount);
     }
@@ -56,12 +62,13 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
 
     //helper variable
     private int tempCount;
+
     private int calcWordTweetCount(Map<String, Word> data) {
         tempCount = 0;
         data.forEach(this);
         return tempCount;
     }
-    
+
     @Override
     public void accept(String t, Word w) {
         tempCount += w.getFrequency();
@@ -88,7 +95,6 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         }
 
     }
-    
 
     public class User implements Iterable {
 
@@ -152,10 +158,10 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
                 k.next = kw;
             }
         }
-        
+
         public KeyWord getKeyWord(int index) {
             KeyWord returnKW = firstKW;
-            while(index > 0) {
+            while (index > 0) {
                 returnKW = firstKW.next;
                 index--;
             }
