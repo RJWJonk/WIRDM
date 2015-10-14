@@ -106,7 +106,7 @@ public class TweetsExtractor {
 //
 //        }
 //        
-
+        sorted_map.putAll(wordMap);
         return sorted_map;
     }
 
@@ -114,26 +114,26 @@ public class TweetsExtractor {
      * Read from a txt file to test if tokenizer works
      *
      */
-    public void DemoReadFromTxtFile() {
-        try (BufferedReader br = new BufferedReader(new FileReader("bigtext.txt"))) {
-            String sCurrentLine;
-            //extract text, Just for testing on a large file with text
-            while ((sCurrentLine = br.readLine()) != null) {
-                tokenizing(sCurrentLine);
-            }
-            sorted_map.putAll(wordMap);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void DemoReadFromTxtFile() {
+//        try (BufferedReader br = new BufferedReader(new FileReader("bigtext.txt"))) {
+//            String sCurrentLine;
+//            //extract text, Just for testing on a large file with text
+//            while ((sCurrentLine = br.readLine()) != null) {
+//                tokenizing(sCurrentLine);
+//            }
+//            sorted_map.putAll(wordMap);
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * Tokenizing from text
      *
      * @param text
      */
-    public TreeMap<String, Word> tokenizing(String text) {
+    public Map<String, Word> tokenizing(String text) {
         StringTokenizer st = new StringTokenizer(text, delims);
         // extract each single words
         String concatWord = "";
@@ -147,12 +147,12 @@ public class TweetsExtractor {
             {
                 if(concatWord.isEmpty())
                 {
-                    putWordInWordMap(nextWord);
+                    putWordInWordMap(nextWord.trim());
                 }
                 else
                 {
-                    putWordInWordMap(nextWord);
-                    putWordInWordMap(concatWord);
+                    putWordInWordMap(nextWord.trim());
+                    putWordInWordMap(concatWord.trim());
                     concatWord = "";
                 }
 
@@ -160,9 +160,10 @@ public class TweetsExtractor {
            // putWordInWordMap(nextWord);
         }
         if(!concatWord.isEmpty())
-            putWordInWordMap(concatWord);
-        sorted_map.putAll(wordMap);
-        return sorted_map;
+            putWordInWordMap(concatWord.trim());
+//        sorted_map.putAll(wordMap);
+//        return sorted_map;
+        return wordMap;
     }
 
     
@@ -178,12 +179,12 @@ public class TweetsExtractor {
             }    
     }
     
-    public TreeMap<String, Word> tokenizing(Queue<Tweet> input) {
+    public Map<String, Word> tokenizing(Queue<Tweet> input) {
         String concat = "";
         for (Tweet t : input) {
             tokenizing(t.getTweet()); 
         }
-        return sorted_map;
+        return wordMap;
     }
 
 
@@ -255,7 +256,8 @@ public class TweetsExtractor {
      * word already exist
      */
     public void applyStemming() {
-        for (Object value : sorted_map.values()) {
+        Map<String, Word> tempMap = new HashMap<String,Word>(wordMap);
+        for (Object value : tempMap.values()) {
             Word word = (Word) value;
             Stemmer s = new Stemmer();
             char[] chars = word.getWord().toCharArray();
@@ -276,8 +278,8 @@ public class TweetsExtractor {
                 wordMap.remove(word.getWord());
             }
         }
-        sorted_map.clear(); // must clear it first in order to sort it again
-        sorted_map.putAll(wordMap);
+//        sorted_map.clear(); // must clear it first in order to sort it again
+//        sorted_map.putAll(wordMap);
 
     }
 
@@ -291,14 +293,15 @@ public class TweetsExtractor {
      * The Algorithm below will just remove all stopwords.
      */
     public void removeStopWords() {
-        for (Object value : sorted_map.values()) {
+        Map<String, Word> tempMap = new HashMap<String,Word>(wordMap);
+        for (Object value : tempMap.values()) {
             Word word = (Word) value;
             if (stopWords.get(word.getWord()) != null) {
                 wordMap.remove(word.getWord());
             }
         }
-        sorted_map.clear(); // must clear it first in order to sort it again
-        sorted_map.putAll(wordMap);
+//        sorted_map.clear(); // must clear it first in order to sort it again
+//        sorted_map.putAll(wordMap);
     }
 
     /**
@@ -419,7 +422,7 @@ public class TweetsExtractor {
                 tweetQueue.add(t);
 
 
-                tweetQueue.add(t);
+                //tweetQueue.add(t);
                 //System.out.println(tweet.getUser().getName());
                 //     }
                 //}
@@ -437,7 +440,7 @@ public class TweetsExtractor {
             int i = 1;
             Paging paging = new Paging(1, 200);
             List<Status> tweets = twitter.getUserTimeline(user, paging);
-            while (!tweets.isEmpty()) {
+            while (!tweets.isEmpty() && i < 2) {
                 for (Status tweet : tweets) {
                     Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
                     tweetQueue.add(t);
