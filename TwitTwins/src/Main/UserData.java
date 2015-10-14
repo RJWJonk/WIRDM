@@ -36,13 +36,14 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             last.next = u;
         }
         last = u;
-
+        Map<String, Word> userKeywords = data;
+        Word w = null;
         for (String s : keywords) {
             KeyWord k = new KeyWord(s);
             if (data == null) {
                 System.out.println("RETARD");
             }
-            Word w = data.get(s);
+            w = userKeywords.get(s);
             if (w != null) {
                 k.setCount(data.get(s).getFrequency());
             } else {
