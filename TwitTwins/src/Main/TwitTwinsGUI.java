@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
@@ -163,7 +164,7 @@ public class TwitTwinsGUI extends JFrame {
                     if (s.length() == 0) {
                         return;
                     }
-                    
+
                     if (s.contains(" ")) {
                         addField.setText("");
                         return;
@@ -284,13 +285,140 @@ public class TwitTwinsGUI extends JFrame {
         }
     }
 
-    private class ResultsPanel extends JPanel {
+    private class ResultsPanel extends JPanel implements MouseListener {
 
+        List<RankingEntry> ranking = new ArrayList<>();
+        List<Rectangle> rankingBoxes = new ArrayList<>();
         Dimension preferred = new Dimension(350, 440);
 
+        //basic margins
+        int x_start = 50;
+        int y_start = 40;
+        int totalWidth = 200;
+        int leftMargin = 20;
+        int rightMargin = 20;
+        int totalHeight = 200;
+        int heightMargin = 10;
+
         public ResultsPanel() {
+            ArrayList<String> keys = new ArrayList<>();
+
             this.setPreferredSize(preferred);
-            this.setBackground(Color.yellow);
+            this.addMouseListener(this);
+            
+            keys.add("Formula1");
+            keys.add("Ponies");
+            keys.add("Facebook");
+            keys.add("Cats");
+            ranking.add(new RankingEntry("Adam", "male", "", keys));
+            ranking.add(new RankingEntry("Ben", "male", "", keys));
+            ranking.add(new RankingEntry("Ruben", "male", "", new ArrayList<>()));
+            ranking.add(new RankingEntry("Chunkie", "male", "", new ArrayList<>()));
+            ranking.add(new RankingEntry("Philip", "male", "", keys));
+            ranking.add(new RankingEntry("Mykola", "male", "", new ArrayList<>()));
+            ranking.add(new RankingEntry("Bob", "male", "", new ArrayList<>()));
+            ranking.add(new RankingEntry("Simon", "male", "", new ArrayList<>()));
+            ranking.add(new RankingEntry("Rei", "female", "", keys));
+            ranking.add(new RankingEntry("Obama", "male", "", new ArrayList<>()));
+
+        }
+
+        @Override
+        public void paint(Graphics gr) {
+            rankingBoxes.clear();
+            Graphics2D g = (Graphics2D) gr;
+            Font tfont = new Font("Times New Roman", Font.BOLD, 18);
+            Font rfont = new Font("Times New Roman", Font.BOLD, 16);
+            Font nfont = new Font("Times New Roman", Font.BOLD, 12);
+            Font kfont = new Font("Times New Roman", Font.PLAIN, 12);
+
+            g.setFont(tfont);
+            g.drawString("Top " + ranking.size() + " results:", x_start, y_start - 10);
+
+            int hmargin = 38;
+            int height = 35;
+            int width = 270;
+            int ranknum = 30;
+            int picmargin = 35;
+
+            int row = 0;
+
+            for (RankingEntry re : ranking) {
+
+                g.setColor(Color.BLACK);
+                Rectangle r = new Rectangle(x_start, y_start + row * hmargin, width, height);
+                g.draw(r);
+                rankingBoxes.add(r);
+                g.drawRect(x_start, y_start + row * hmargin, ranknum, height);
+                g.setFont(rfont);
+                g.drawString(row + 1 + ".", x_start + ranknum / 3 - ((row == 9) ? 4 : 0), y_start + 2 * height / 3 + row * hmargin);
+
+                String result1 = re.username + ", " + re.gender;
+                String result2 = "";
+
+                for (String s : re.keywords) {
+                    result2 += s + " ";
+                }
+
+                g.setFont(nfont);
+                g.drawString(result1, x_start + ranknum + picmargin + 5, y_start + row * hmargin + 14);
+                g.setFont(kfont);
+                g.drawString(result2, x_start + ranknum + picmargin + 5, y_start + row * hmargin + 26);
+
+                row++;
+            }
+
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            //do nothing
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            Point p = e.getPoint();
+            for (Rectangle r : rankingBoxes) {
+                if (r.contains(p)) {
+                    RankingEntry re = ranking.get(rankingBoxes.indexOf(r));
+                    System.out.println("Performing QBE on " + re.username + "\nWell, once it works..");
+                    //todo: QBE
+                }
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            //do nothing
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            //do nothing
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+            //do nothing
+        }
+    }
+
+    private class RankingEntry {
+
+        private String username;
+        private String gender;
+        private BufferedImage picture;
+        private List<String> keywords;
+
+        private RankingEntry(String name, String gender, String picture, List<String> keywords) {
+            this.username = name;
+            this.gender = gender;
+            this.picture = null; //todo: retrieve picture!
+            this.keywords = keywords;
+        }
+
+        public String getUserName() {
+            return username;
         }
     }
 
