@@ -406,7 +406,7 @@ public class TweetsExtractor {
     public Queue<Tweet> query(String term) {
         Queue<Tweet> tweetQueue = new LinkedList<>();
         try {
-            Query query = new Query(term);
+            Query query = new Query(term + "+exclude:retweets ");
             query.setLang("en");
             query.setCount(100);
 

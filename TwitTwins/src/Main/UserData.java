@@ -6,6 +6,7 @@
 package Main;
 
 import Model.Word;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -36,16 +37,16 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             last.next = u;
         }
         last = u;
-        Map<String, Word> userKeywords = data;
+        Map<String, Word> userKeywords = new HashMap<String,Word>(data);
         Word w = null;
         for (String s : keywords) {
             KeyWord k = new KeyWord(s);
-            if (data == null) {
+            if (userKeywords == null) {
                 System.out.println("RETARD");
             }
             w = userKeywords.get(s);
             if (w != null) {
-                k.setCount(data.get(s).getFrequency());
+                k.setCount(userKeywords.get(s).getFrequency());
             } else {
                 k.setCount(0);
             }
