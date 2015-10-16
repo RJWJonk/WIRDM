@@ -24,7 +24,7 @@ import java.util.Iterator;
 public class TwitMain {
    
     
-    static int NUMBER_KEYWORDS = 5;
+    public static int NUMBER_KEYWORDS = 5;
     public static void main(String[] args) {
         TweetsExtractor te = new TweetsExtractor();
         TreeMap<String, Word> data = te.extractUser("tferriss");
