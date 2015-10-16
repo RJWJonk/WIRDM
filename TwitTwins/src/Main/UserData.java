@@ -20,7 +20,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
 
     private User firstU;
     private User last;
-
+    private static int userC = 0;
     //list of keywords to be stored in the data
     private List<String> keywords;
     
@@ -49,7 +49,9 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
     public UserData(List<String> keywords) {
         this.keywords = keywords;
     }
-
+    public int userCount(){
+        return userC;
+    }
     public void addUser(String user, int age, String gender, int tweetCount, Map<String, Word> data) {
         User u = new User(user, age, gender);
         if (firstU == null) {
@@ -77,6 +79,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
 
         u.setTweetWordCount(calcWordTweetCount(data));
         u.setCount(tweetCount);
+        userC++;
     }
 
     @Override
