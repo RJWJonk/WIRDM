@@ -193,6 +193,10 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         public int getAge() {
             return age;
         }
+        
+        public String getGender() {
+            return gender;
+        }
 
         public int getTweetCount() {
             return tweetCount;
