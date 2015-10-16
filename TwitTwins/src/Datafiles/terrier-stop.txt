@@ -926,8 +926,3 @@ RT
 @I
 &
 don
-http
-https
-www
-►
-VIDEO
