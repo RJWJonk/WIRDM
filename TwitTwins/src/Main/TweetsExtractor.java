@@ -297,12 +297,12 @@ public class TweetsExtractor {
         Map<String, Word> tempMap = new HashMap<String,Word>(wordMap);
         for (Object value : tempMap.values()) {
             Word word = (Word) value;
-            if (stopWords.get(word.getWord()) != null) {
+            if (stopWords.get(word.getWord()) != null)
                 wordMap.remove(word.getWord());
-            }
-            else if (!word.getWord().matches("[a-zA-Z0-9#-]+")){
+            else if (!word.getWord().matches("[a-zA-Z0-9#-]+"))
                 wordMap.remove(word.getWord());
-            }
+            else if(word.getWord().matches("\\d+"))
+                wordMap.remove(word.getWord());
             
         }
 //        sorted_map.clear(); // must clear it first in order to sort it again
