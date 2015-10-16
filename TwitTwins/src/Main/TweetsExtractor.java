@@ -31,7 +31,7 @@ public class TweetsExtractor {
 
     //Authorization
     private final static Twitter twitter = authenticate();
-
+    public static int collectionFrequncy = 0;
     public static Map<String, Word> wordMap; //hash map with extracted words from tweets
     public static TreeMap<String, Word> sorted_map; // hash map which is sorted by frequenty 
     public static Map<String, String> stopWords;
@@ -169,6 +169,7 @@ public class TweetsExtractor {
     
     public void putWordInWordMap(String word)
     {
+        collectionFrequncy++;
         if (wordMap.get(word) == null) {
                 identifyTypeOfWord(word);
             } else {

@@ -23,7 +23,29 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
 
     //list of keywords to be stored in the data
     private List<String> keywords;
-
+    
+    
+    public void sortByScore(){ // fix this
+        /*
+            User currentU = firstU;
+            int i =0;
+            while(currentU != last && currentU.next != null)  {
+                User nextU = currentU.next;
+                while(nextU != null) {
+                    if (currentU.score > nextU.score){
+                        User tempU = currentU;
+                        currentU = nextU;                       
+                        nextU = tempU;
+                    }
+                   nextU=nextU.next;
+                }
+                //last = nextU;
+                if(i==0) // after the first iteration, the first record is the highest 
+                    firstU = currentU;
+                currentU = currentU.next;
+            }*/
+        }
+    
     public UserData(List<String> keywords) {
         this.keywords = keywords;
     }
@@ -75,6 +97,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
     public void accept(String t, Word w) {
         tempCount += w.getFrequency();
     }
+    
 
     private class UDIterator implements Iterator<User> {
 
@@ -83,7 +106,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         private UDIterator(User firstU) {
             next = firstU;
         }
-
+        
         @Override
         public boolean hasNext() {
             return next != null;
@@ -97,8 +120,9 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         }
 
     }
+    
 
-    public class User implements Iterable {
+    public class User implements Iterable, Comparable<User>  {
 
         private final String name;
         private final int age;
@@ -107,6 +131,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         private int tweetWordCount;
         private KeyWord firstKW;
         private User next;
+        private double score; 
 
         public User(String name, int age, String gender) {
             this.name = name;
@@ -117,6 +142,13 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             firstKW = null;
         }
 
+        public void setScore(double sc) {
+            score = sc;
+        }
+        public double getScore() {
+            return score;
+        }
+        
         public void setCount(int c) {
             tweetCount = c;
         }
@@ -164,7 +196,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         public KeyWord getKeyWord(int index) {
             KeyWord returnKW = firstKW;
             while (index > 0) {
-                returnKW = firstKW.next;
+                returnKW = returnKW.next;
                 index--;
             }
             return returnKW;
@@ -174,6 +206,12 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         public Iterator iterator() {
             return new KWIterator(firstKW);
         }
+        @Override
+        public int compareTo(User u) {
+            if(this.score-u.score>0)
+                return 1;
+            return 0;        
+    }
 
     }
 
