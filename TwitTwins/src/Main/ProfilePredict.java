@@ -32,7 +32,7 @@ import twitter4j.conf.ConfigurationBuilder;
 public class ProfilePredict {
     
         private final static Twitter twitter = authenticate();
-	public static String twitterUser = "Eriksoonieus"; //some given (real) twitter user
+	public static String twitterUser = "SCGOP"; //some given (real) twitter user
         
         public static void main(String[] args) throws FaceppParseException, MalformedURLException, IOException {
             
@@ -58,12 +58,16 @@ public class ProfilePredict {
         frame.setSize(500, 500);//Give it a size
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);//Make it go away on close
         JPanel panel = new JPanel();//Make a panel
-        TextField bio = new TextField("Twitter user:"+twitterUser+ " is "+
-                             result.get("face").get(0).get("attribute").get("age").get("value", FaceppResult.JsonType.INT)+
-                           "(+/-"+result.get("face").get(0).get("attribute").get("age").get("range", FaceppResult.JsonType.INT)+") years old.");
-        TextField bio2 = new TextField("Gender of "+twitterUser+ " is a "+result.get("face").get(0).get("attribute").get("gender").get("value", FaceppResult.JsonType.STRING)+", race is "+ result.get("face").get(0).get("attribute").get("race").get("value", FaceppResult.JsonType.STRING)+".");
+        TextField bio = new TextField("");
+        String a = "" + result.get("face");
+        if (!a.contains("[]")){
+        bio.setText("Twitter user:"+twitterUser+ " is "+
+                            result.get("face").get(0).get("attribute").get("age").get("value", FaceppResult.JsonType.INT)+
+                            "(+/-"+result.get("face").get(0).get("attribute").get("age").get("range", FaceppResult.JsonType.INT)+") years old.");
+        }
+//        TextField bio2 = new TextField("Gender of "+twitterUser+ " is a "+result.get("face").get(0).get("attribute").get("gender").get("value", FaceppResult.JsonType.STRING)+", race is "+ result.get("face").get(0).get("attribute").get("race").get("value", FaceppResult.JsonType.STRING)+".");
         panel.add(bio);
-        panel.add(bio2);
+//        panel.add(bio2);
         panel.add(jp);
         frame.add(panel);//Add it to your frame
         frame.setVisible(true);
@@ -89,6 +93,20 @@ public class ProfilePredict {
                 .setOAuthAccessTokenSecret("t3RtJdrcYaf9EfDRxVgD9vO4FXYh8vIv0XVfC1D4ojkF8");
         TwitterFactory tf = new TwitterFactory(cb.build());
         return tf.getInstance();
+    }
+    
+    public String getGender(String URL) throws FaceppParseException {
+        HttpRequests httpRequests = new HttpRequests("25ad86cdad3ea4ac04204464a210058d", "phbtAB6cTT4LcArmskLCin2O5v6hDZfa");
+        PostParameters postParameters;
+        postParameters = new PostParameters().setUrl(URL).setAttribute("all");
+        httpRequests.detectionDetect(postParameters);
+        FaceppResult result = httpRequests.detectionDetect(postParameters);
+        String s="n.a.";
+        String r=""+result.get("face");
+        if (!r.contains("[]")){
+           s = ""+result.get("face").get(0).get("attribute").get("gender").get("value", FaceppResult.JsonType.STRING); 
+        }
+        return s;
     }
     
 }
