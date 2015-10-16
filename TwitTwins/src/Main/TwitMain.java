@@ -6,6 +6,7 @@
 package Main;
 
 import Model.Word;
+import com.facepp.error.FaceppParseException;
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.TreeMap;
@@ -25,7 +26,7 @@ public class TwitMain {
    
     
     static int NUMBER_KEYWORDS = 5;
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FaceppParseException {
         TweetsExtractor te = new TweetsExtractor();
         TreeMap<String, Word> data = te.extractUser("tferriss");
         int i = NUMBER_KEYWORDS;
@@ -52,14 +53,18 @@ public class TwitMain {
             
             Tweet t = names.poll();
             String name = t.getUser().getScreenName();
+            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
+            ProfilePredict pp = new ProfilePredict();
+            String gender = pp.getGender(ProfilePicURL);
             TreeMap<String, Word> user = te.extractUser(name);
+            
             
             userWordLenght = 0;
             for(Map.Entry<String,Word> entry : user.entrySet()) {
                 Word value = entry.getValue();
                 userWordLenght+= value.getFrequency();
               }
-            udata.addUser(name, 0, null, userWordLenght, user);
+            udata.addUser(name, 0, gender, userWordLenght, user);
             collectionWordLenght+=userWordLenght;
 //            collectionLenght+=TweetCount;
             
@@ -68,6 +73,7 @@ public class TwitMain {
         for (Object o : udata) {
             UserData.User u = (UserData.User) o;
             System.out.println(u.getName());
+            System.out.println(u.getGender());
         }
         
         ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
