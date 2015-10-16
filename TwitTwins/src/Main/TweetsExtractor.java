@@ -35,7 +35,7 @@ public class TweetsExtractor {
     public static Map<String, Word> wordMap; //hash map with extracted words from tweets
     public static TreeMap<String, Word> sorted_map; // hash map which is sorted by frequenty 
     public static Map<String, String> stopWords;
-    public static String delims = ", !.)(\"?\'�_<>-|;";
+    public static String delims = ", !.)(\"?\'�_<>|;:/";
 
     public static void main(String[] args) throws IOException {
         TweetsExtractor te = new TweetsExtractor();
@@ -299,6 +299,10 @@ public class TweetsExtractor {
             if (stopWords.get(word.getWord()) != null) {
                 wordMap.remove(word.getWord());
             }
+            else if (!word.getWord().matches("[a-zA-Z0-9#-]+")){
+                wordMap.remove(word.getWord());
+            }
+            
         }
 //        sorted_map.clear(); // must clear it first in order to sort it again
 //        sorted_map.putAll(wordMap);
@@ -309,7 +313,7 @@ public class TweetsExtractor {
      */
     public void readStoreStopWords() {
         // TODO Auto-generated method stub
-        try (BufferedReader br = new BufferedReader(new FileReader("src\\Datafiles\\terrier-stop.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("src/Datafiles/terrier-stop.txt"))) {
             String sCurrentLine;
             //extract text, Just for testing on a large file with text
             while ((sCurrentLine = br.readLine()) != null) {
@@ -396,15 +400,23 @@ public class TweetsExtractor {
     }
 
     public Queue<Tweet> query(List<String> terms) {
-        String query = "";
-        for (String term : terms) {
-            query += "(" + term + ")" + " OR ";
+        Queue<Tweet> tweetQueue = new LinkedList<>();
+        Map<String, String> diffUsers = new HashMap<String, String>();
+        tweetQueue.clear();
+        for (String term : terms)
+        {
+            query(tweetQueue, diffUsers, term);
         }
-        return query(query.substring(0, query.length() - 4));
+        //String query = "";
+        //for (String term : terms) {
+        //    query += "(" + term + ")" + " OR ";
+        //}
+        //return query(query.substring(0, query.length() - 4));
+        return tweetQueue; 
     }
 
-    public Queue<Tweet> query(String term) {
-        Queue<Tweet> tweetQueue = new LinkedList<>();
+    public Queue<Tweet> query(Queue<Tweet> tweetQueue, Map<String, String> diffUsers, String term) {
+        //Queue<Tweet> tweetQueue = new LinkedList<>();
         try {
             Query query = new Query(term + "+exclude:retweets ");
             query.setLang("en");
@@ -415,11 +427,15 @@ public class TweetsExtractor {
             //    do {
             
             result = twitter.search(query);
-            tweetQueue.clear();
+            //tweetQueue.clear();
             List<Status> tweets = result.getTweets();
             for (Status tweet : tweets) {
-                Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
-                tweetQueue.add(t);
+                if(diffUsers.get(tweet.getUser().getName()) == null)
+                {
+                    Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
+                    tweetQueue.add(t);
+                    diffUsers.put(tweet.getUser().getName(), tweet.getUser().getName());
+                }
 
 
                 //tweetQueue.add(t);
