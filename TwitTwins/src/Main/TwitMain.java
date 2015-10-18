@@ -17,6 +17,12 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Collections;
 import java.util.Iterator;
+import Main.UserData.KeyWord;
+import java.util.Arrays;
+import java.util.HashMap;
+import com.google.common.collect.Sets;
+import java.util.Set;
+
 
 /**
  *
@@ -77,7 +83,95 @@ public class TwitMain {
         }
         
         ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
-        udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);    
+        udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
+        
+        // Rank users to query using VSR method
+        String[] q = { "co","to","and","http","t" }; // Enter query keywords here
+        ArrayList<String> query = new ArrayList<>();
+        query.addAll( Arrays.asList(q) );
+        Ranking(udata, query);
     }
     
+    public static void Ranking(UserData udata, ArrayList<String> query ) {
+        String word;
+        Double tf;
+        Map KwTfdata = new HashMap(); //KeyWord + TermFrequency data of single user
+        Map QueryData = new HashMap(); // Store the query in a Map (for processing in VectorIR class)
+        ArrayList<Map> KwTfdataList = new ArrayList<>(); //KeyWord + TermFrequency data of all users
+        List<Score> scores = new ArrayList<Score>(); // Stores the cosine similarity score between query and all users
+        
+        for (int i = 0; i < query.size(); i++) {
+            QueryData.put(query.get(i), 1.0);
+        }    
+        // Retrieve all keywords (including their term frequency) from every user and put it in a map
+        for (Object o : udata) {
+            UserData.User u = (UserData.User) o;
+            KwTfdata.clear(); 
+            Iterator iter = u.iterator();
+            while( iter.hasNext() ) {
+                KeyWord keyW = (KeyWord)iter.next(); // Get next keyword of user
+                word = keyW.getKeyWord();
+                tf = (double) keyW.getCount();
+                KwTfdata.put(word, tf);
+                //System.out.println(word +"\t" + tf); //For testing
+            }
+            KwTfdataList.add(KwTfdata);
+        // Calculate cosine similarity of every user with the query and add to scores list.
+        scores.add(new Score( VectorIR.cosine_similarity(QueryData,KwTfdata ), u.getName() )); // Generate a new Score class containing (Score,Username)
+        }
+        
+        // Sort the scores list in ascending order of scores (and their corresponding users)
+        System.out.println("-------- VSR Ranking results --------");
+        Collections.sort(scores);
+        Collections.reverse(scores); // Changes the list to an ascending order.
+        int rank = 0;
+        for (Object o : scores) {
+           Score s = (Score) o;
+           rank++;
+           //System.out.println("Ranked: " + s.getName()+ "with score: " +"\t"+ s.getScore()  ); 
+           System.out.format("#%d: \t %-20s \t (CosineScore: %f)%n", rank, s.getName(), s.getScore());
+        }
+        
+//        // Test users for testing cosine similarity scoring
+//        Map d1 = new HashMap();
+//        Map d2 = new HashMap();
+//        d1.put("Fred", 0.0);
+//        d1.put("Poep", 0.0);
+//        d1.put("CD",0.0);
+//        d1.put("Draak", 0.0);
+//        
+//        d2.put("Girls", 52.0);
+//        d2.put("Pink", 52.0);
+//        d2.put("Barbie",52.0);
+//        d2.put("hoi",52.0);       
+//        System.out.println("Cosine similarity: " + VectorIR.cosine_similarity(QueryData,KwTfdata) );
+        
+    }       
+    
+    
 }
+
+
+    // Used for sorting on cosine scores of users
+    class Score implements Comparable<Score> {
+        double score;
+        String name;
+
+        public Score(double score, String name) {
+        this.score = score;
+        this.name = name;
+        }
+
+        @Override
+        public int compareTo(Score o) {
+            return score < o.score ? -1 : score > o.score ? 1 : 0;
+        }
+            
+        public double getScore() {
+            return score;
+        }
+            
+        public String getName() {
+            return name;
+        }
+    }
