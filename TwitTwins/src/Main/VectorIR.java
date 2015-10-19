@@ -28,6 +28,8 @@ public class VectorIR {
         this.u2 = v2;
     }
 
+    
+    
     static double cosine_similarity(Map<String, Double> v1, Map<String, Double> v2) {
             Set<String> both = Sets.newHashSet(v1.keySet());
             both.retainAll(v2.keySet());

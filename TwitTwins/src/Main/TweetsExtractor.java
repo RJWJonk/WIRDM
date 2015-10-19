@@ -9,6 +9,10 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import Model.Word;
+import edu.smu.tspell.wordnet.NounSynset;
+import edu.smu.tspell.wordnet.Synset;
+import edu.smu.tspell.wordnet.SynsetType;
+import edu.smu.tspell.wordnet.WordNetDatabase;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -68,6 +72,8 @@ public class TweetsExtractor {
         removeStopWords();
         //apply stemming by provided API
         applyStemming();
+        //check for synonyms and use the most common keyword
+        checkForSynonyms();
         //Test- printing results
         //PrintTestResult();
 
@@ -142,10 +148,10 @@ public class TweetsExtractor {
                 concatWord = concatWord + nextWord + " ";
             } else {
                 if (concatWord.isEmpty()) {
-                    putWordInWordMap(nextWord.trim());
+                    putWordInWordMap(nextWord.trim().toLowerCase());
                 } else {
-                    putWordInWordMap(nextWord.trim());
-                    putWordInWordMap(concatWord.trim());
+                    putWordInWordMap(nextWord.trim().toLowerCase());
+                    putWordInWordMap(concatWord.trim().toLowerCase());
                     concatWord = "";
                 }
 
@@ -153,7 +159,7 @@ public class TweetsExtractor {
             // putWordInWordMap(nextWord);
         }
         if (!concatWord.isEmpty()) {
-            putWordInWordMap(concatWord.trim());
+            putWordInWordMap(concatWord.trim().toLowerCase());
         }
 //        sorted_map.putAll(wordMap);
 //        return sorted_map;
@@ -289,7 +295,7 @@ public class TweetsExtractor {
             Word word = (Word) value;
             if (stopWords.get(word.getWord()) != null) {
                 wordMap.remove(word.getWord());
-            } else if (!word.getWord().matches("[a-zA-Z0-9#-]+")) {
+            } else if (!word.getWord().matches("[a-zA-Z0-9 #-]+")) {
                 wordMap.remove(word.getWord());
             } else if (word.getWord().matches("\\d+")) {
                 wordMap.remove(word.getWord());
@@ -383,19 +389,19 @@ public class TweetsExtractor {
     private static Twitter authenticate() {
 
         Random r = new Random();
-        int choice = r.nextInt(2);
+        int choice = r.nextInt(3);
 
         ConfigurationBuilder cb = new ConfigurationBuilder();
         TwitterFactory tf;
 
         switch (choice) {
-
+ 
             case 2:
                 cb.setDebugEnabled(true)
-                        .setOAuthConsumerKey("b0DV73vfaiAinFwkc0BsaGWRi")
-                        .setOAuthConsumerSecret("lM35xfcnaJQDaUuoZsB749bNv1GbA8dbItDH9VlglmbAefUZn5")
-                        .setOAuthAccessToken("2387531042-QRMVloVxBoNYntQMvKs7dZHN8ybe3ciwS34JzBz")
-                        .setOAuthAccessTokenSecret("t3RtJdrcYaf9EfDRxVgD9vO4FXYh8vIv0XVfC1D4ojkF8");
+                        .setOAuthConsumerKey("w1T44RXxbwX2lTnd9E8p5Lvcj")
+                        .setOAuthConsumerSecret("SMUclndm8hXAmGgGc6L3zZALOr2G9hzf9oVZ4wspAolMvjsOVd")
+                        .setOAuthAccessToken("1186203860-VgllGCnzwmZw6RxvY3dq6Mr9Aofc4gKuUmetHbQ")
+                        .setOAuthAccessTokenSecret("w1SssJ4lWFtrUy3qsnZcmzYwew5JONN7Y1kuPzBQPiiZo");
                 tf = new TwitterFactory(cb.build());
                 return tf.getInstance();
             case 1:
@@ -409,10 +415,10 @@ public class TweetsExtractor {
             case 0:
             default:
                 cb.setDebugEnabled(true)
-                        .setOAuthConsumerKey("b0DV73vfaiAinFwkc0BsaGWRi")
-                        .setOAuthConsumerSecret("lM35xfcnaJQDaUuoZsB749bNv1GbA8dbItDH9VlglmbAefUZn5")
-                        .setOAuthAccessToken("2387531042-QRMVloVxBoNYntQMvKs7dZHN8ybe3ciwS34JzBz")
-                        .setOAuthAccessTokenSecret("t3RtJdrcYaf9EfDRxVgD9vO4FXYh8vIv0XVfC1D4ojkF8");
+                        .setOAuthConsumerKey("kw5huUc5CmdzkhXUjC229GPqa")
+                        .setOAuthConsumerSecret("ZjwZhzLJQzPXPCtUKZPJu703SgTvBhFKM3t3Zw30lZ7ceYK4e9")
+                        .setOAuthAccessToken("3781208477-LrQhxUXOn5Uq2xI24OYZhv6Mv8bq5meP0nIamcJ")
+                        .setOAuthAccessTokenSecret("O29jnk6k2DGHwPlZten6C4T67OTN6V3ybsQnOUlZAjKVN");
                 tf = new TwitterFactory(cb.build());
                 return tf.getInstance();
 
@@ -490,4 +496,36 @@ public class TweetsExtractor {
         return tweetQueue;
     }
 
+        /**
+     * Check for synonyms, and use the most common words. e.g. ny --> New York
+     * Notice, it will only perform for the 50 most occured words, otherwise it will takes to much time.
+     * 
+     */
+    public void checkForSynonyms() {
+        sorted_map.putAll(wordMap);
+        System.setProperty("wordnet.database.dir", "WordNet-3.0//dict//");
+        NounSynset nounSynset; 
+        int i =50;
+        for (Object value : sorted_map.values()) {
+            if (i == 0) break; else i--;
+            Word word = (Word) value;
+            WordNetDatabase database = WordNetDatabase.getFileInstance(); 
+            Synset[] synsets = database.getSynsets(word.getWord(), SynsetType.NOUN, true); 
+            if(synsets.length > 0)
+            {
+                nounSynset = (NounSynset)(synsets[0]);    
+                int freq = 0;
+                //if synonym already exist, sum the current frequency.
+                if (wordMap.get(nounSynset.getWordForms()[0].toLowerCase()) != null) {
+                    //update frequency
+                    freq = ((Word) wordMap.get(nounSynset.getWordForms()[0].toLowerCase())).getFrequency();
+                }
+                Word newWord = new Word(nounSynset.getWordForms()[0].toLowerCase(), word.getRealType());
+                newWord.setFrequency(freq + word.getFrequency());
+                wordMap.put(nounSynset.getWordForms()[0].toLowerCase(), newWord);
+                wordMap.remove(word.getWord());
+            }
+        }
+        sorted_map.clear();
+    }
 }

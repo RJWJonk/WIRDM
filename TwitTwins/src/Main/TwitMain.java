@@ -53,11 +53,12 @@ public class TwitMain {
         
         int collectionWordLenght = 0;
         int userWordLenght;
-        int n = 10;
+        int n = 20;
         while (n > 0 && !names.isEmpty()) {
             n--;
             
             Tweet t = names.poll();
+            //t.g
             String name = t.getUser().getScreenName();
            /* String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
             ProfilePredict pp = new ProfilePredict();
@@ -87,33 +88,8 @@ public class TwitMain {
             System.out.println(u.getGender());
         }
         
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         //Clustering
-       // KMeans kClustering = new KMeans(3, udata);
+        KMeans kClustering = new KMeans(7, udata);
         
         // Do not delte
 
@@ -123,14 +99,15 @@ public class TwitMain {
         // Do not delte
         ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
-        
+
         // Rank users to query using VSR method
-        String[] q = { "co","to","and","http","t" }; // Enter query keywords here
-        ArrayList<String> query = new ArrayList<>();
-        query.addAll( Arrays.asList(q) );
-        Ranking(udata, query);
-        udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);    
-   
+            //String[] q = { "co","to","and","http","t" }; // Enter query keywords here
+            //ArrayList<String> query = new ArrayList<>();
+            //query.addAll( Arrays.asList(q) );
+        Ranking(udata, keywords);
+
+        //testing and print some scores
+        printScores(udata);
     }
     
     public static void Ranking(UserData udata, ArrayList<String> query ) {
@@ -159,6 +136,7 @@ public class TwitMain {
             KwTfdataList.add(KwTfdata);
         // Calculate cosine similarity of every user with the query and add to scores list.
         scores.add(new Score( VectorIR.cosine_similarity(QueryData,KwTfdata ), u.getName() )); // Generate a new Score class containing (Score,Username)
+        
         }
         
         // Sort the scores list in ascending order of scores (and their corresponding users)
@@ -188,6 +166,22 @@ public class TwitMain {
 //        System.out.println("Cosine similarity: " + VectorIR.cosine_similarity(QueryData,KwTfdata) );
         
     }       
+
+    private static void printScores(UserData udata) {
+       
+         for (Object o : udata) {
+            UserData.User u = (UserData.User) o;
+            String userInfo = u.getName() + " - Keywords:";
+            UserData.KeyWord keyword = u.getFirstKeyWord();
+            Iterator iter = u.iterator();
+            while(iter.hasNext()) {
+                UserData.KeyWord keyW = (UserData.KeyWord)iter.next();
+                userInfo = userInfo + "|"+keyW.getKeyWord()+ ":"+keyW.getCount()+"|";
+            }
+
+            System.out.println(userInfo);
+        }
+    }
     
     
 }
