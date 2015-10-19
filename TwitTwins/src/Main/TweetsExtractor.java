@@ -9,6 +9,10 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import Model.Word;
+import edu.smu.tspell.wordnet.NounSynset;
+import edu.smu.tspell.wordnet.Synset;
+import edu.smu.tspell.wordnet.SynsetType;
+import edu.smu.tspell.wordnet.WordNetDatabase;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -68,6 +72,8 @@ public class TweetsExtractor {
         removeStopWords();
         //apply stemming by provided API
         applyStemming();
+        //check for synonyms and use the most common keyword
+        checkForSynonyms();
         //Test- printing results
         //PrintTestResult();
 
@@ -142,10 +148,10 @@ public class TweetsExtractor {
                 concatWord = concatWord + nextWord + " ";
             } else {
                 if (concatWord.isEmpty()) {
-                    putWordInWordMap(nextWord.trim());
+                    putWordInWordMap(nextWord.trim().toLowerCase());
                 } else {
-                    putWordInWordMap(nextWord.trim());
-                    putWordInWordMap(concatWord.trim());
+                    putWordInWordMap(nextWord.trim().toLowerCase());
+                    putWordInWordMap(concatWord.trim().toLowerCase());
                     concatWord = "";
                 }
 
@@ -153,7 +159,7 @@ public class TweetsExtractor {
             // putWordInWordMap(nextWord);
         }
         if (!concatWord.isEmpty()) {
-            putWordInWordMap(concatWord.trim());
+            putWordInWordMap(concatWord.trim().toLowerCase());
         }
 //        sorted_map.putAll(wordMap);
 //        return sorted_map;
@@ -289,7 +295,7 @@ public class TweetsExtractor {
             Word word = (Word) value;
             if (stopWords.get(word.getWord()) != null) {
                 wordMap.remove(word.getWord());
-            } else if (!word.getWord().matches("[a-zA-Z0-9#-]+")) {
+            } else if (!word.getWord().matches("[a-zA-Z0-9 #-]+")) {
                 wordMap.remove(word.getWord());
             } else if (word.getWord().matches("\\d+")) {
                 wordMap.remove(word.getWord());
@@ -490,4 +496,36 @@ public class TweetsExtractor {
         return tweetQueue;
     }
 
+        /**
+     * Check for synonyms, and use the most common words. e.g. ny --> New York
+     * Notice, it will only perform for the 50 most occured words, otherwise it will takes to much time.
+     * 
+     */
+    public void checkForSynonyms() {
+        sorted_map.putAll(wordMap);
+        System.setProperty("wordnet.database.dir", "WordNet-3.0//dict//");
+        NounSynset nounSynset; 
+        int i =50;
+        for (Object value : sorted_map.values()) {
+            if (i == 0) break; else i--;
+            Word word = (Word) value;
+            WordNetDatabase database = WordNetDatabase.getFileInstance(); 
+            Synset[] synsets = database.getSynsets(word.getWord(), SynsetType.NOUN, true); 
+            if(synsets.length > 0)
+            {
+                nounSynset = (NounSynset)(synsets[0]);    
+                int freq = 0;
+                //if synonym already exist, sum the current frequency.
+                if (wordMap.get(nounSynset.getWordForms()[0]) != null) {
+                    //update frequency
+                    freq = ((Word) wordMap.get(nounSynset.getWordForms()[0])).getFrequency();
+                }
+                Word newWord = new Word(nounSynset.getWordForms()[0], word.getRealType());
+                newWord.setFrequency(freq + word.getFrequency());
+                wordMap.put(nounSynset.getWordForms()[0], newWord);
+                wordMap.remove(word.getWord());
+            }
+        }
+        sorted_map.clear();
+    }
 }
