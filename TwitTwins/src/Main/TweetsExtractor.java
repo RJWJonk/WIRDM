@@ -415,10 +415,10 @@ public class TweetsExtractor {
             case 0:
             default:
                 cb.setDebugEnabled(true)
-                        .setOAuthConsumerKey("b0DV73vfaiAinFwkc0BsaGWRi")
-                        .setOAuthConsumerSecret("lM35xfcnaJQDaUuoZsB749bNv1GbA8dbItDH9VlglmbAefUZn5")
-                        .setOAuthAccessToken("2387531042-QRMVloVxBoNYntQMvKs7dZHN8ybe3ciwS34JzBz")
-                        .setOAuthAccessTokenSecret("t3RtJdrcYaf9EfDRxVgD9vO4FXYh8vIv0XVfC1D4ojkF8");
+                        .setOAuthConsumerKey("kw5huUc5CmdzkhXUjC229GPqa")
+                        .setOAuthConsumerSecret("ZjwZhzLJQzPXPCtUKZPJu703SgTvBhFKM3t3Zw30lZ7ceYK4e9")
+                        .setOAuthAccessToken("3781208477-LrQhxUXOn5Uq2xI24OYZhv6Mv8bq5meP0nIamcJ")
+                        .setOAuthAccessTokenSecret("O29jnk6k2DGHwPlZten6C4T67OTN6V3ybsQnOUlZAjKVN");
                 tf = new TwitterFactory(cb.build());
                 return tf.getInstance();
 
