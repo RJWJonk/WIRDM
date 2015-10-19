@@ -56,7 +56,7 @@ public class Cluster {
     public void plotCluster() {
         System.out.println("[Cluster: " + id + "]");
         System.out.println("[Centroid: " + centroid.getName() + "]");
-        System.out.println("[Points: \n");
+        System.out.print("[Points: ");
         double sumDim;
         for (UserData.User p : users) {
 
@@ -66,7 +66,7 @@ public class Cluster {
             }*/
             System.out.print(p.getName()+", ");
         }
-        System.out.println("]");
+        System.out.println("]\n"); 
     }
 
 }

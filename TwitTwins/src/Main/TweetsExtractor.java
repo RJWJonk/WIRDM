@@ -383,19 +383,19 @@ public class TweetsExtractor {
     private static Twitter authenticate() {
 
         Random r = new Random();
-        int choice = r.nextInt(2);
+        int choice = r.nextInt(3);
 
         ConfigurationBuilder cb = new ConfigurationBuilder();
         TwitterFactory tf;
 
         switch (choice) {
-
+ 
             case 2:
                 cb.setDebugEnabled(true)
-                        .setOAuthConsumerKey("b0DV73vfaiAinFwkc0BsaGWRi")
-                        .setOAuthConsumerSecret("lM35xfcnaJQDaUuoZsB749bNv1GbA8dbItDH9VlglmbAefUZn5")
-                        .setOAuthAccessToken("2387531042-QRMVloVxBoNYntQMvKs7dZHN8ybe3ciwS34JzBz")
-                        .setOAuthAccessTokenSecret("t3RtJdrcYaf9EfDRxVgD9vO4FXYh8vIv0XVfC1D4ojkF8");
+                        .setOAuthConsumerKey("w1T44RXxbwX2lTnd9E8p5Lvcj")
+                        .setOAuthConsumerSecret("SMUclndm8hXAmGgGc6L3zZALOr2G9hzf9oVZ4wspAolMvjsOVd")
+                        .setOAuthAccessToken("1186203860-VgllGCnzwmZw6RxvY3dq6Mr9Aofc4gKuUmetHbQ")
+                        .setOAuthAccessTokenSecret("w1SssJ4lWFtrUy3qsnZcmzYwew5JONN7Y1kuPzBQPiiZo");
                 tf = new TwitterFactory(cb.build());
                 return tf.getInstance();
             case 1:
