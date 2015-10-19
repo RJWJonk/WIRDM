@@ -120,7 +120,7 @@ public class TwitMain {
         /*Clustering*/
        // KMeans kClustering = new KMeans(3, udata);
         
-        /* Do not delte
+        // Do not delte
         ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
         
@@ -130,7 +130,7 @@ public class TwitMain {
         query.addAll( Arrays.asList(q) );
         Ranking(udata, query);
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);    
-        */
+   
     }
     
     public static void Ranking(UserData udata, ArrayList<String> query ) {
