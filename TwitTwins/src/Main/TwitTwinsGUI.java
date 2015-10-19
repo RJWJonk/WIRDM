@@ -302,7 +302,12 @@ public class TwitTwinsGUI extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     System.out.println("Returning a list of " + relevant.size() + " items for RFB");
-                    //todo add relevance feedback
+                    //todo: Rocchio Relevance Feedback Algorithm
+                    
+                    RocchioRFB rfb = new RocchioRFB(keys, ranking, relevant, 1.0, 0.5, 0.1  ); // With values alpha, beta and gamma respectively
+                    System.out.println("Old query: " + keys);
+                    System.out.println("Rocchio Relevance Feedback, new search query: " + rfb.getUpdatedQuery() );
+ 
                 }
 
             });
@@ -441,7 +446,7 @@ public class TwitTwinsGUI extends JFrame {
         }
     }
 
-    private class RankingEntry {
+    public class RankingEntry {
 
         private String username;
         private String gender;
@@ -455,6 +460,10 @@ public class TwitTwinsGUI extends JFrame {
             this.keywords = keywords;
         }
 
+        public List<String> getKeywords() {
+            return keywords;
+        }
+        
         public String getUserName() {
             return username;
         }
