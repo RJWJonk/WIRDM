@@ -25,19 +25,20 @@ public class KMeans {
     private static final int MAX_COORDINATE = 10;
 
     private UserData udata;
-    private static int modelPosition;
+    private static int modelIndex = 0;
     private static ArrayList<Cluster> clustersByK;
 
     public KMeans(int max_clusters, UserData _udata) {
         //udata=_udata;UserData _udata
         udata = _udata;
         MAX_NUM_CLUSTERS = max_clusters; // max nubmer of clusters
-       // for (int i = 0; i < MAX_NUM_CLUSTERS - 1; i++) {
-        clustersByK = new ArrayList<Cluster>(K_START_AT + modelPosition);
-        init();
-        calculate();
-        computeBIC();
-        modelPosition++;
+        modelIndex = 5;
+        //for (int i = 0; i < MAX_NUM_CLUSTERS - 1; i++) {
+            clustersByK = new ArrayList<Cluster>(K_START_AT + modelIndex);
+            init();
+            calculate();
+            computeBIC();
+            modelIndex++;
         //}
 
     }
@@ -51,7 +52,7 @@ public class KMeans {
         int R = udata.getUserCount(), Rn;
         int dimensionCount = 2;
         double clusterVariance, sumCentroidCoord, modelVarinace, D, pj;
-        k = modelPosition + K_START_AT;
+        k = modelIndex + K_START_AT;
         D = 0;
         sumCentroidCoord = 0;
         modelVarinace = 0;
@@ -86,7 +87,7 @@ public class KMeans {
          return Math.sqrt(distance);*/
         double distance = 0;
         for (int j = 0; j < NUMBER_KEYWORDS; j++) {
-            distance += Math.sqrt(Math.pow((a.getKeyWord(j).getCount() - b.getKeyWord(j).getCount()), 2) + Math.pow((a.getKeyWord(j).getCount() - b.getKeyWord(j).getCount()), 2)); /*distance function from Phillip*/
+            distance += Math.pow((a.getKeyWord(j).getCount() - b.getKeyWord(j).getCount()), 2); /*distance function from Phillip*/
 
         }
            // System.out.println(u.getName());
@@ -94,7 +95,7 @@ public class KMeans {
 
         //double distance= Math.sqrt(Math.pow((a.getKeyWord(0).getVSRscore()- b.getKeyWord(0).getVSRscore()), 2) + Math.pow((a.getKeyWord(0).getVSRscore() - b.getKeyWord(0).getVSRscore()), 2)); /*distance function from Phillip*/
         //System.out.println("Dist:" + distance);
-        return distance;
+        return Math.sqrt(distance);
 
     }
 
@@ -110,25 +111,27 @@ public class KMeans {
         double Dn = -Rn / 2 * Math.log(2 * Math.PI) - (Rn * dimensionCount) / 2 * Math.log(clusterVariance) - ((Rn - 1) * dimensionCount) / 2 + (Rn * Math.log(Rn)) - Rn * Math.log(R);
         return Dn;
     }
-    
-    private UserData.User cloneUser(UserData.User user, String newName){
+
+    private UserData.User cloneUser(UserData.User user, String newName) {
         List<UserData.KeyWord> keywordList = new ArrayList<>(TwitMain.NUMBER_KEYWORDS);
-            for(int j=0; j<TwitMain.NUMBER_KEYWORDS; j++){
-                UserData.KeyWord keyword = new UserData(null).new KeyWord(user.getKeyWord(j).getKeyWord());
-                keyword.setCount(user.getKeyWord(j).getCount());
-                keywordList.add(keyword);//
-            }
-          return new UserData(null).new User(newName, keywordList);
+        for (int j = 0; j < TwitMain.NUMBER_KEYWORDS; j++) {
+            UserData.KeyWord keyword = new UserData(null).new KeyWord(user.getKeyWord(j).getKeyWord());
+            keyword.setCount(user.getKeyWord(j).getCount());
+            keywordList.add(keyword);//
+        }
+        return new UserData(null).new User(newName, keywordList);
     }
+
     //Initializes the process
+
     public void init() {
         //Create Points
         //Create Clusters
         //Set Random Centroids
-        for (int i = 0; i < (MAX_NUM_CLUSTERS - 1 + modelPosition); i++) {
+        for (int i = 0; i < (K_START_AT + modelIndex); i++) {
             Cluster cluster = new Cluster(i);
-           UserData.User centroid = cloneUser(udata.getUser(i), "centroid"+i);
-                    //udata.getUser(i); // there must be at n users to be able to do n-clustering
+            UserData.User centroid = cloneUser(udata.getUser(i), "centroid" + i);
+            //udata.getUser(i); // there must be at n users to be able to do n-clustering
             cluster.setCentroid(centroid);
             clustersByK.add(cluster);
             /*Maybe this point is there twice???????????*/
@@ -137,7 +140,7 @@ public class KMeans {
     }
 
     private void plotClusters() {
-        for (int i = 0; i < (MAX_NUM_CLUSTERS - 1 + modelPosition); i++) {
+        for (int i = 0; i < (K_START_AT + modelIndex); i++) {
             Cluster c = clustersByK.get(i);
             c.plotCluster();
         }
@@ -190,10 +193,10 @@ public class KMeans {
     }
 
     private ArrayList getCentroids() {
-        ArrayList centroids = new ArrayList((MAX_NUM_CLUSTERS - 1 + modelPosition));
+        ArrayList centroids = new ArrayList((K_START_AT + modelIndex));
         for (Cluster cluster : clustersByK) {
             UserData.User auxCentroid = cluster.getCentroid();
-            UserData.User centroid = cloneUser(auxCentroid,auxCentroid.getName());
+            UserData.User centroid = cloneUser(auxCentroid, auxCentroid.getName());
             //(aux.getX(), aux.getY());
             centroids.add(centroid); /*PROBLEM: references*/
 
@@ -210,7 +213,7 @@ public class KMeans {
         for (Object o : udata) {
             UserData.User user = (UserData.User) o;
             min = max;
-            for (int i = 0; i < (MAX_NUM_CLUSTERS - 1 + modelPosition); i++) {
+            for (int i = 0; i < (K_START_AT + modelIndex); i++) {
                 Cluster c = clustersByK.get(i);
                 distance = userDistance(user, c.getCentroid());
                 if (distance < min) {
@@ -226,11 +229,14 @@ public class KMeans {
     private void calculateCentroids() {
         double[] sumDim = new double[TwitMain.NUMBER_KEYWORDS];
         for (Cluster cluster : clustersByK) {
-            
+
             List<UserData.User> list = cluster.getUsers();/*PROBLEM: referencing*/
+
             int numberUserInCluster = list.size();
-            
-            for(int i=0;i<sumDim.length;i++) sumDim[i]=0;
+
+            for (int i = 0; i < sumDim.length; i++) {
+                sumDim[i] = 0;
+            }
             for (UserData.User user : list) {
                 for (int i = 0; i < sumDim.length; i++) {
                     sumDim[i] += user.getKeyWord(i).getCount();
@@ -241,10 +247,10 @@ public class KMeans {
             System.out.println(centroid.getName());
             for (int i = 0; i < TwitMain.NUMBER_KEYWORDS; i++) {
                 centroid.getKeyWord(i).setCount(sumDim[i] / numberUserInCluster);
-                System.out.print(centroid.getKeyWord(i).getCount()+" ");
+                System.out.print(centroid.getKeyWord(i).getCount() + " ");
             }
             System.out.println("");
-            
+
         }
     }
 }

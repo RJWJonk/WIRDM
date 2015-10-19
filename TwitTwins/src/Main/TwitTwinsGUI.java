@@ -263,8 +263,12 @@ public class TwitTwinsGUI extends JFrame {
     private class ResultsPanel extends JPanel implements MouseListener {
 
         List<RankingEntry> ranking = new ArrayList<>();
+        List<RankingEntry> relevant = new ArrayList<>();
         List<Rectangle> rankingBoxes = new ArrayList<>();
+        List<Rectangle> rfbBoxes = new ArrayList<>();
         Dimension preferred = new Dimension(350, 440);
+
+        JButton rfbButton;
 
         //basic margins
         int x_start = 50;
@@ -280,7 +284,21 @@ public class TwitTwinsGUI extends JFrame {
 
             this.setPreferredSize(preferred);
             this.addMouseListener(this);
-            
+
+            this.setLayout(null);
+            rfbButton = new JButton("RFB");
+            rfbButton.setBounds(x_start+150, 0, 60, 30);
+            rfbButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.out.println("Returning a list of " + relevant.size() + " items for RFB");
+                    //todo add relevance feedback
+                }
+
+            });
+            this.add(rfbButton);
+
             keys.add("Formula1");
             keys.add("Ponies");
             keys.add("Facebook");
@@ -300,7 +318,9 @@ public class TwitTwinsGUI extends JFrame {
 
         @Override
         public void paint(Graphics gr) {
+            super.paint(gr);
             rankingBoxes.clear();
+            rfbBoxes.clear();
             Graphics2D g = (Graphics2D) gr;
             Font tfont = new Font("Times New Roman", Font.BOLD, 18);
             Font rfont = new Font("Times New Roman", Font.BOLD, 16);
@@ -321,10 +341,21 @@ public class TwitTwinsGUI extends JFrame {
             for (RankingEntry re : ranking) {
 
                 g.setColor(Color.BLACK);
-                Rectangle r = new Rectangle(x_start, y_start + row * hmargin, width, height);
+                Rectangle r = new Rectangle(x_start + ranknum, y_start + row * hmargin, width - ranknum, height);
                 g.draw(r);
                 rankingBoxes.add(r);
-                g.drawRect(x_start, y_start + row * hmargin, ranknum, height);
+                Rectangle rlfb = new Rectangle(x_start, y_start + row * hmargin, ranknum, height);
+                g.draw(rlfb);
+                if (relevant.contains(re)) {
+                    g.setColor(Color.GREEN);
+                    g.fill(rlfb);
+                    g.setColor(Color.BLACK);
+                } else {
+                    g.setColor(Color.RED);
+                    g.fill(rlfb);
+                    g.setColor(Color.BLACK);
+                }
+                rfbBoxes.add(rlfb);
                 g.setFont(rfont);
                 g.drawString(row + 1 + ".", x_start + ranknum / 3 - ((row == 9) ? 4 : 0), y_start + 2 * height / 3 + row * hmargin);
 
@@ -354,12 +385,28 @@ public class TwitTwinsGUI extends JFrame {
         public void mousePressed(MouseEvent e) {
             Point p = e.getPoint();
             for (Rectangle r : rankingBoxes) {
+
                 if (r.contains(p)) {
                     RankingEntry re = ranking.get(rankingBoxes.indexOf(r));
                     System.out.println("Performing QBE on " + re.username + "\nWell, once it works..");
                     //todo: QBE
+
+                }
+
+            }
+
+            for (Rectangle r : rfbBoxes) {
+                if (r.contains(p)) {
+                    RankingEntry re = ranking.get(rfbBoxes.indexOf(r));
+
+                    if (relevant.contains(re)) {
+                        relevant.remove(re);
+                    } else {
+                        relevant.add(re);
+                    }
                 }
             }
+
         }
 
         @Override

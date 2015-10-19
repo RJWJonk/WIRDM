@@ -144,6 +144,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         private User next;
         private double score;
         private int cluster_number;
+            private double VSRscore;
 
         public User(String name, int age, String gender) {
             this.name = name;
@@ -151,6 +152,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             this.gender = gender;
             tweetCount = 0;
             tweetWordCount = 0;
+            VSRscore= 0;
             firstKW = null;
         }
 
@@ -158,6 +160,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             this.name = name;
             firstKW = null;
             age = 0;
+            VSRscore= 0;
             tweetCount = 0;
             gender = null;
             tweetWordCount = 0;
@@ -172,6 +175,15 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
 
         public int getCluster() {
             return this.cluster_number;
+        }
+      
+
+        public void setVSRscore(double score) {
+            VSRscore = score;
+        }
+
+        public double getVSRscore() {
+            return VSRscore;
         }
 
         public void setScore(double sc) {

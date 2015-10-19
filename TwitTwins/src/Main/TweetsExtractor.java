@@ -9,12 +9,17 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import Model.Word;
+import edu.smu.tspell.wordnet.NounSynset;
+import edu.smu.tspell.wordnet.Synset;
+import edu.smu.tspell.wordnet.SynsetType;
+import edu.smu.tspell.wordnet.WordNetDatabase;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import twitter4j.Paging;
@@ -27,7 +32,6 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TweetsExtractor {
-
 
     //Authorization
     private final static Twitter twitter = authenticate();
@@ -43,9 +47,9 @@ public class TweetsExtractor {
     }
 
     public TweetsExtractor() {
-        
+
     }
-    
+
     public TreeMap<String, Word> extractUser(String u) {
         //init values
         wordMap = new HashMap<>();
@@ -68,6 +72,8 @@ public class TweetsExtractor {
         removeStopWords();
         //apply stemming by provided API
         applyStemming();
+        //check for synonyms and use the most common keyword
+        checkForSynonyms();
         //Test- printing results
         //PrintTestResult();
 
@@ -127,7 +133,6 @@ public class TweetsExtractor {
 //            e.printStackTrace();
 //        }
 //    }
-
     /**
      * Tokenizing from text
      *
@@ -139,55 +144,47 @@ public class TweetsExtractor {
         String concatWord = "";
         while (st.hasMoreTokens()) {
             String nextWord = st.nextToken(); //convert everything to lower case
-            if(Character.isUpperCase(nextWord.charAt(0)))
-            {
+            if (Character.isUpperCase(nextWord.charAt(0))) {
                 concatWord = concatWord + nextWord + " ";
-            }
-            else
-            {
-                if(concatWord.isEmpty())
-                {
-                    putWordInWordMap(nextWord.trim());
-                }
-                else
-                {
-                    putWordInWordMap(nextWord.trim());
-                    putWordInWordMap(concatWord.trim());
+            } else {
+                if (concatWord.isEmpty()) {
+                    putWordInWordMap(nextWord.trim().toLowerCase());
+                } else {
+                    putWordInWordMap(nextWord.trim().toLowerCase());
+                    putWordInWordMap(concatWord.trim().toLowerCase());
                     concatWord = "";
                 }
 
             }
-           // putWordInWordMap(nextWord);
+            // putWordInWordMap(nextWord);
         }
-        if(!concatWord.isEmpty())
-            putWordInWordMap(concatWord.trim());
+        if (!concatWord.isEmpty()) {
+            putWordInWordMap(concatWord.trim().toLowerCase());
+        }
 //        sorted_map.putAll(wordMap);
 //        return sorted_map;
         return wordMap;
     }
 
-    
-    public void putWordInWordMap(String word)
-    {
+    public void putWordInWordMap(String word) {
         collectionFrequncy++;
         if (wordMap.get(word) == null) {
-                identifyTypeOfWord(word);
-            } else {
-                //update the word
-                Word tempWord = wordMap.get(word);
-                tempWord.incrementFreq();
-                wordMap.put(word, tempWord);
-            }    
+            identifyTypeOfWord(word);
+        } else {
+            //update the word
+            Word tempWord = wordMap.get(word);
+            tempWord.incrementFreq();
+            wordMap.put(word, tempWord);
+        }
     }
-    
+
     public Map<String, Word> tokenizing(Queue<Tweet> input) {
         String concat = "";
         for (Tweet t : input) {
-            tokenizing(t.getTweet()); 
+            tokenizing(t.getTweet());
         }
         return wordMap;
     }
-
 
 //    /**
 //     * Using real tweets data to test what kind of results it gives Will be
@@ -249,7 +246,6 @@ public class TweetsExtractor {
 //        }
 //        return tweetsTxt;
 //    }
-
     /**
      * Using the stemming library (source file) provided by Porter. Stemming
      * will be used after tokenizing process and removal of stopwords 1. stemmed
@@ -257,7 +253,7 @@ public class TweetsExtractor {
      * word already exist
      */
     public void applyStemming() {
-        Map<String, Word> tempMap = new HashMap<String,Word>(wordMap);
+        Map<String, Word> tempMap = new HashMap<String, Word>(wordMap);
         for (Object value : tempMap.values()) {
             Word word = (Word) value;
             Stemmer s = new Stemmer();
@@ -294,16 +290,17 @@ public class TweetsExtractor {
      * The Algorithm below will just remove all stopwords.
      */
     public void removeStopWords() {
-        Map<String, Word> tempMap = new HashMap<String,Word>(wordMap);
+        Map<String, Word> tempMap = new HashMap<String, Word>(wordMap);
         for (Object value : tempMap.values()) {
             Word word = (Word) value;
-            if (stopWords.get(word.getWord()) != null)
+            if (stopWords.get(word.getWord()) != null) {
                 wordMap.remove(word.getWord());
-            else if (!word.getWord().matches("[a-zA-Z0-9#-]+"))
+            } else if (!word.getWord().matches("[a-zA-Z0-9 #-]+")) {
                 wordMap.remove(word.getWord());
-            else if(word.getWord().matches("\\d+"))
+            } else if (word.getWord().matches("\\d+")) {
                 wordMap.remove(word.getWord());
-            
+            }
+
         }
 //        sorted_map.clear(); // must clear it first in order to sort it again
 //        sorted_map.putAll(wordMap);
@@ -390,22 +387,49 @@ public class TweetsExtractor {
     }
 
     private static Twitter authenticate() {
+
+        Random r = new Random();
+        int choice = r.nextInt(3);
+
         ConfigurationBuilder cb = new ConfigurationBuilder();
-        cb.setDebugEnabled(true)
-                .setOAuthConsumerKey("b0DV73vfaiAinFwkc0BsaGWRi")
-                .setOAuthConsumerSecret("lM35xfcnaJQDaUuoZsB749bNv1GbA8dbItDH9VlglmbAefUZn5")
-                .setOAuthAccessToken("2387531042-QRMVloVxBoNYntQMvKs7dZHN8ybe3ciwS34JzBz")
-                .setOAuthAccessTokenSecret("t3RtJdrcYaf9EfDRxVgD9vO4FXYh8vIv0XVfC1D4ojkF8");
-        TwitterFactory tf = new TwitterFactory(cb.build());
-        return tf.getInstance();
+        TwitterFactory tf;
+
+        switch (choice) {
+ 
+            case 2:
+                cb.setDebugEnabled(true)
+                        .setOAuthConsumerKey("w1T44RXxbwX2lTnd9E8p5Lvcj")
+                        .setOAuthConsumerSecret("SMUclndm8hXAmGgGc6L3zZALOr2G9hzf9oVZ4wspAolMvjsOVd")
+                        .setOAuthAccessToken("1186203860-VgllGCnzwmZw6RxvY3dq6Mr9Aofc4gKuUmetHbQ")
+                        .setOAuthAccessTokenSecret("w1SssJ4lWFtrUy3qsnZcmzYwew5JONN7Y1kuPzBQPiiZo");
+                tf = new TwitterFactory(cb.build());
+                return tf.getInstance();
+            case 1:
+                cb.setDebugEnabled(true)
+                        .setOAuthConsumerKey("b0DV73vfaiAinFwkc0BsaGWRi")
+                        .setOAuthConsumerSecret("lM35xfcnaJQDaUuoZsB749bNv1GbA8dbItDH9VlglmbAefUZn5")
+                        .setOAuthAccessToken("2387531042-QRMVloVxBoNYntQMvKs7dZHN8ybe3ciwS34JzBz")
+                        .setOAuthAccessTokenSecret("t3RtJdrcYaf9EfDRxVgD9vO4FXYh8vIv0XVfC1D4ojkF8");
+                tf = new TwitterFactory(cb.build());
+                return tf.getInstance();
+            case 0:
+            default:
+                cb.setDebugEnabled(true)
+                        .setOAuthConsumerKey("kw5huUc5CmdzkhXUjC229GPqa")
+                        .setOAuthConsumerSecret("ZjwZhzLJQzPXPCtUKZPJu703SgTvBhFKM3t3Zw30lZ7ceYK4e9")
+                        .setOAuthAccessToken("3781208477-LrQhxUXOn5Uq2xI24OYZhv6Mv8bq5meP0nIamcJ")
+                        .setOAuthAccessTokenSecret("O29jnk6k2DGHwPlZten6C4T67OTN6V3ybsQnOUlZAjKVN");
+                tf = new TwitterFactory(cb.build());
+                return tf.getInstance();
+
+        }
     }
 
     public Queue<Tweet> query(List<String> terms) {
         Queue<Tweet> tweetQueue = new LinkedList<>();
         Map<String, String> diffUsers = new HashMap<String, String>();
         tweetQueue.clear();
-        for (String term : terms)
-        {
+        for (String term : terms) {
             query(tweetQueue, diffUsers, term);
         }
         //String query = "";
@@ -413,7 +437,7 @@ public class TweetsExtractor {
         //    query += "(" + term + ")" + " OR ";
         //}
         //return query(query.substring(0, query.length() - 4));
-        return tweetQueue; 
+        return tweetQueue;
     }
 
     public Queue<Tweet> query(Queue<Tweet> tweetQueue, Map<String, String> diffUsers, String term) {
@@ -426,18 +450,16 @@ public class TweetsExtractor {
             System.out.println(query.toString());
             QueryResult result;
             //    do {
-            
+
             result = twitter.search(query);
             //tweetQueue.clear();
             List<Status> tweets = result.getTweets();
             for (Status tweet : tweets) {
-                if(diffUsers.get(tweet.getUser().getName()) == null)
-                {
+                if (diffUsers.get(tweet.getUser().getName()) == null) {
                     Tweet t = new Tweet(tweet.getUser(), tweet.getText(), tweet.getLang());
                     tweetQueue.add(t);
                     diffUsers.put(tweet.getUser().getName(), tweet.getUser().getName());
                 }
-
 
                 //tweetQueue.add(t);
                 //System.out.println(tweet.getUser().getName());
@@ -474,4 +496,36 @@ public class TweetsExtractor {
         return tweetQueue;
     }
 
+        /**
+     * Check for synonyms, and use the most common words. e.g. ny --> New York
+     * Notice, it will only perform for the 50 most occured words, otherwise it will takes to much time.
+     * 
+     */
+    public void checkForSynonyms() {
+        sorted_map.putAll(wordMap);
+        System.setProperty("wordnet.database.dir", "WordNet-3.0//dict//");
+        NounSynset nounSynset; 
+        int i =50;
+        for (Object value : sorted_map.values()) {
+            if (i == 0) break; else i--;
+            Word word = (Word) value;
+            WordNetDatabase database = WordNetDatabase.getFileInstance(); 
+            Synset[] synsets = database.getSynsets(word.getWord(), SynsetType.NOUN, true); 
+            if(synsets.length > 0)
+            {
+                nounSynset = (NounSynset)(synsets[0]);    
+                int freq = 0;
+                //if synonym already exist, sum the current frequency.
+                if (wordMap.get(nounSynset.getWordForms()[0].toLowerCase()) != null) {
+                    //update frequency
+                    freq = ((Word) wordMap.get(nounSynset.getWordForms()[0].toLowerCase())).getFrequency();
+                }
+                Word newWord = new Word(nounSynset.getWordForms()[0].toLowerCase(), word.getRealType());
+                newWord.setFrequency(freq + word.getFrequency());
+                wordMap.put(nounSynset.getWordForms()[0].toLowerCase(), newWord);
+                wordMap.remove(word.getWord());
+            }
+        }
+        sorted_map.clear();
+    }
 }
