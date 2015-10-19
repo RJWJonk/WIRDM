@@ -154,6 +154,18 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             firstKW = null;
         }
 
+        public User(String name, List<KeyWord> keywordList) {
+            this.name = name;
+            firstKW = null;
+            age = 0;
+            tweetCount = 0;
+            gender = null;
+            tweetWordCount = 0;
+            for (int i = 0; i < keywordList.size(); i++) {
+                setKeyWordAtEnd(keywordList.get(i));
+            }
+        }
+
         public void setCluster(int n) {
             this.cluster_number = n;
         }
@@ -193,7 +205,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         public int getAge() {
             return age;
         }
-        
+
         public String getGender() {
             return gender;
         }
@@ -231,6 +243,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         public Iterator iterator() {
             return new KWIterator(firstKW);
         }
+        
 
     }
 
@@ -259,7 +272,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
     public class KeyWord {
 
         private final String word;
-        private int wordCount;
+        private double wordCount;
         private KeyWord next;
         private double VSRscore;
 
@@ -277,7 +290,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             return VSRscore;
         }
 
-        public void setCount(int c) {
+        public void setCount(double c) {
             wordCount = c;
         }
 
@@ -289,7 +302,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             return word;
         }
 
-        public int getCount() {
+        public double getCount() {
             return wordCount;
         }
 
