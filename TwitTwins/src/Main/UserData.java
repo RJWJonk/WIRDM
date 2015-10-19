@@ -62,6 +62,19 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         return returnU;
     }
 
+    public User getUser(String name) {
+        User returnU = firstU;
+        do {
+            //System.out.println("Comparing -" + returnU.getName() + "- and =" + name + "=!");
+            if (returnU.getName().equals(name)) {
+                return returnU;
+            } else {
+                returnU = returnU.next;
+            }
+        } while (returnU != null);
+        return null;
+    }
+
     public void addUser(String user, int age, String gender, int tweetCount, Map<String, Word> data) {
         User u = new User(user, age, gender);
         if (firstU == null) {
@@ -243,7 +256,6 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         public Iterator iterator() {
             return new KWIterator(firstKW);
         }
-        
 
     }
 

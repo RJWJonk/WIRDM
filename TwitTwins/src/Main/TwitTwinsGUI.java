@@ -24,6 +24,9 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -41,6 +44,11 @@ public class TwitTwinsGUI extends JFrame {
     private KeyWordPanel kpanel;
     private ResultsPanel rpanel;
     private TweetsExtractor te;
+    private UserData ud;
+    
+    private final int METHOD_VSR = 0;
+    private final int METHOD_PRB = 1;
+    private final int method = 0;
 
     public static void main(String[] args) {
         new TwitTwinsGUI();
@@ -91,7 +99,7 @@ public class TwitTwinsGUI extends JFrame {
             this.setPreferredSize(preferred);
             //this.setBackground(Color.red); //color background to see boundaries between panels
             field = new JTextField();
-            field.setText("Username");
+            field.setText("adamzikacz");
             field.setPreferredSize(new Dimension(200, 30));
             this.add(field);
             submit = new JButton();
@@ -100,10 +108,10 @@ public class TwitTwinsGUI extends JFrame {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    System.out.println("Starting now for " + field.getText() + "!\nNo functionality though..");
+                    System.out.println("Starting now for " + field.getText() + "!");
                     List<String> keywords = queryUser(field.getText());
                     kpanel.setKeyWords(keywords);
-                    queryRelatedUsers(keywords);
+                    performQuery(keywords);
                 }
             });
             this.add(submit);
@@ -168,8 +176,8 @@ public class TwitTwinsGUI extends JFrame {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    System.out.println("Run query with new keywords\nNot actually working..");
-                    //add functionality
+                    System.out.println("Run query with new keywords");
+                    performQuery(keywords);
                 }
 
             });
@@ -299,22 +307,29 @@ public class TwitTwinsGUI extends JFrame {
 
             });
             this.add(rfbButton);
-
-            keys.add("Formula1");
-            keys.add("Ponies");
-            keys.add("Facebook");
-            keys.add("Cats");
-            ranking.add(new RankingEntry("Adam", "male", "", keys));
-            ranking.add(new RankingEntry("Ben", "male", "", keys));
-            ranking.add(new RankingEntry("Ruben", "male", "", new ArrayList<>()));
-            ranking.add(new RankingEntry("Chunkie", "male", "", new ArrayList<>()));
-            ranking.add(new RankingEntry("Philip", "male", "", keys));
-            ranking.add(new RankingEntry("Mykola", "male", "", new ArrayList<>()));
-            ranking.add(new RankingEntry("Bob", "male", "", new ArrayList<>()));
-            ranking.add(new RankingEntry("Simon", "male", "", new ArrayList<>()));
-            ranking.add(new RankingEntry("Rei", "female", "", keys));
-            ranking.add(new RankingEntry("Obama", "male", "", new ArrayList<>()));
-
+            
+        }
+        
+        private void createRanking(List<Score> scores){
+            ranking.clear();
+            for (Object o: ud){
+                UserData.User u = (UserData.User) o;
+                System.out.println(u.getName());
+            }
+            for (Score s:scores){
+                System.out.println(s.getName());
+                UserData.User user = ud.getUser(s.getName());
+                ArrayList<String> userKeywords = new ArrayList();
+                for(Object o: user){
+                    UserData.KeyWord kw = (UserData.KeyWord) o;
+                    if(kw.getCount()!=0) {
+                        userKeywords.add(kw.getKeyWord());
+                    }
+                }
+                RankingEntry re = new RankingEntry(s.getName(), user.getGender(), null, userKeywords);
+                ranking.add(re);
+                if (ranking.size() == 10) return;
+            }
         }
 
         @Override
@@ -462,14 +477,75 @@ public class TwitTwinsGUI extends JFrame {
         return keywords;
     }
 
-    private void queryRelatedUsers(List<String> keywords){
+    private void performQuery(List<String> keywords){
+        List<Score> scores;
+        ud = queryRelatedUsers(keywords);
+        
+        switch(method){
+            case METHOD_VSR:
+            default:
+                scores = performVSR(ud, keywords);
+        }
+        rpanel.createRanking(scores);
+    }
+    
+    private List<Score> performVSR(UserData ud, List<String> keywords){
+        String word;
+        Double tf;
+        Map KwTfdata = new HashMap(); //KeyWord + TermFrequency data of single user
+        Map QueryData = new HashMap(); // Store the keywords in a Map (for processing in VectorIR class)
+        ArrayList<Map> KwTfdataList = new ArrayList<>(); //KeyWord + TermFrequency data of all users
+        List<Score> scores = new ArrayList<Score>(); // Stores the cosine similarity score between keywords and all users
+        
+        for (int i = 0; i < keywords.size(); i++) {
+            QueryData.put(keywords.get(i), 1.0);
+        }    
+        // Retrieve all keywords (including their term frequency) from every user and put it in a map
+        for (Object o : ud) {
+            UserData.User u = (UserData.User) o;
+            KwTfdata.clear(); 
+            Iterator iter = u.iterator();
+            while( iter.hasNext() ) {
+                UserData.KeyWord keyW = (UserData.KeyWord)iter.next(); // Get next keyword of user
+                word = keyW.getKeyWord();
+                tf = (double) keyW.getCount();
+                KwTfdata.put(word, tf);
+                //System.out.println(word +"\t" + tf); //For testing
+            }
+            KwTfdataList.add(KwTfdata);
+        // Calculate cosine similarity of every user with the keywords and add to scores list.
+        scores.add(new Score( VectorIR.cosine_similarity(QueryData,KwTfdata ), u.getName() )); // Generate a new Score class containing (Score,Username)
+        
+        }
+        
+        // Sort the scores list in ascending order of scores (and their corresponding users)
+        System.out.println("-------- VSR Ranking results --------");
+        Collections.sort(scores);
+        Collections.reverse(scores); // Changes the list to an ascending order.
+        int rank = 0;
+        for (Object o : scores) {
+           Score s = (Score) o;
+           rank++;
+           //System.out.println("Ranked: " + s.getName()+ "with score: " +"\t"+ s.getScore()  ); 
+           System.out.format("#%d: \t %-20s \t (CosineScore: %f)%n", rank, s.getName(), s.getScore());
+        }
+        for (Iterator<Score> iter = scores.iterator(); iter.hasNext();) {
+            Score s = iter.next();
+            if (Double.isNaN(s.getScore())) {
+                iter.remove();
+            }
+        }
+        return scores;
+    }
+    
+    private UserData queryRelatedUsers(List<String> keywords){
         UserData udata = new UserData(keywords);
         
         Queue<Tweet> names = te.query(keywords);
         
         int collectionWordLenght = 0;
         int userWordLenght;
-        int n = 10;
+        int n = 20;
         while (n > 0 && !names.isEmpty()) {
             n--;
             
@@ -493,6 +569,7 @@ public class TwitTwinsGUI extends JFrame {
 //            collectionLenght+=TweetCount;
             
         }
+        return udata;
     }
 
 }
