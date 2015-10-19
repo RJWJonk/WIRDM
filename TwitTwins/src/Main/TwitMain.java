@@ -84,6 +84,7 @@ public class TwitMain {
             System.out.println(u.getGender());
         }
         
+        printScores(udata);
         //Clustering
         KMeans kClustering = new KMeans(7, udata);
         
@@ -103,10 +104,10 @@ public class TwitMain {
         Ranking(udata, query);
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);    */
         //testing and print some scores
-        printScores(udata);
+        
     }
-  /*  private UserData createTestingData(List<String> kws){
-        String firstKW = "1.ICT";
+    /*private UserData createTestingData(List<String> kws){
+        String[] keywords = {"ICT", "girls", "technology", "testing", "school"};
         UserData newUdata = new UserData(kws);
         TreeMap<String, Word> user = new TreeMap();
         Word w = new Word(firstKW, 1);

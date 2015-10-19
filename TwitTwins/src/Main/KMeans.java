@@ -35,10 +35,14 @@ public class KMeans {
         modelIndex = 5;
         //for (int i = 0; i < MAX_NUM_CLUSTERS - 1; i++) {
         clustersByK = new ArrayList<Cluster>(K_START_AT + modelIndex);
-        init();
-        calculate();
-        computeBIC();
-        modelIndex++;
+        if (init()) {
+            calculate();
+            computeBIC();
+            modelIndex++;
+        } else{
+            System.out.println("THere is less users having score 0 than clusters. Clusters is stopped.");
+        }
+        
         //}
 
     }
@@ -123,15 +127,19 @@ public class KMeans {
     }
 
     //Initializes the process
-    public void init() {
+    public boolean init() {
         //Create Points
         //Create Clusters
         //Set Random Centroids
+        int centroidsAssigned = 0;
+        int userIndex = 0;
         double sumKeywords;
-        for (int i = 0; i < (K_START_AT + modelIndex); i++) {
+        int i;
+        for (i = 0; i < (K_START_AT + modelIndex); i++) {
 
             Cluster cluster = new Cluster(i);
-            for (int l = i; l < udata.getUserCount(); l++) {
+            for (int l = userIndex; l < udata.getUserCount(); l++) {
+                userIndex++;
                 sumKeywords = 0;
                 for (int j = 0; j < TwitMain.NUMBER_KEYWORDS; j++) {
                     sumKeywords += udata.getUser(l).getKeyWord(j).getCount();
@@ -140,11 +148,17 @@ public class KMeans {
                     UserData.User centroid = cloneUser(udata.getUser(l), "centroid" + l);
                     cluster.setCentroid(centroid);
                     clustersByK.add(cluster);
+                    centroidsAssigned++;
                     break;
                 }
+               
             }
             /*Maybe this point is there twice???????????*/
         }
+        if (centroidsAssigned != i) {
+            return false;
+        }
+        return true;
 //        plotClusters();
     }
 
