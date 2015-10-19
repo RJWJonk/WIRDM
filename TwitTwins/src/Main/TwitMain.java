@@ -87,10 +87,40 @@ public class TwitMain {
             System.out.println(u.getGender());
         }
         
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         //Clustering
        // KMeans kClustering = new KMeans(3, udata);
         
         // Do not delte
+
+        /*Clustering*/
+       // KMeans kClustering = new KMeans(3, udata);
+        
+        /* Do not delte
         ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
         
@@ -99,6 +129,8 @@ public class TwitMain {
         ArrayList<String> query = new ArrayList<>();
         query.addAll( Arrays.asList(q) );
         Ranking(udata, query);
+        udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);    
+        */
     }
     
     public static void Ranking(UserData udata, ArrayList<String> query ) {
