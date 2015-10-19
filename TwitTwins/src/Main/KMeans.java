@@ -34,11 +34,11 @@ public class KMeans {
         MAX_NUM_CLUSTERS = max_clusters; // max nubmer of clusters
         modelIndex = 5;
         //for (int i = 0; i < MAX_NUM_CLUSTERS - 1; i++) {
-            clustersByK = new ArrayList<Cluster>(K_START_AT + modelIndex);
-            init();
-            calculate();
-            computeBIC();
-            modelIndex++;
+        clustersByK = new ArrayList<Cluster>(K_START_AT + modelIndex);
+        init();
+        calculate();
+        computeBIC();
+        modelIndex++;
         //}
 
     }
@@ -123,17 +123,26 @@ public class KMeans {
     }
 
     //Initializes the process
-
     public void init() {
         //Create Points
         //Create Clusters
         //Set Random Centroids
+        double sumKeywords;
         for (int i = 0; i < (K_START_AT + modelIndex); i++) {
+
             Cluster cluster = new Cluster(i);
-            UserData.User centroid = cloneUser(udata.getUser(i), "centroid" + i);
-            //udata.getUser(i); // there must be at n users to be able to do n-clustering
-            cluster.setCentroid(centroid);
-            clustersByK.add(cluster);
+            for (int l = i; l < udata.getUserCount(); l++) {
+                sumKeywords = 0;
+                for (int j = 0; j < TwitMain.NUMBER_KEYWORDS; j++) {
+                    sumKeywords += udata.getUser(l).getKeyWord(j).getCount();
+                }
+                if (sumKeywords > 0) {
+                    UserData.User centroid = cloneUser(udata.getUser(l), "centroid" + l);
+                    cluster.setCentroid(centroid);
+                    clustersByK.add(cluster);
+                    break;
+                }
+            }
             /*Maybe this point is there twice???????????*/
         }
 //        plotClusters();
