@@ -34,11 +34,15 @@ public class KMeans {
         MAX_NUM_CLUSTERS = max_clusters; // max nubmer of clusters
         modelIndex = 5;
         //for (int i = 0; i < MAX_NUM_CLUSTERS - 1; i++) {
-            clustersByK = new ArrayList<Cluster>(K_START_AT + modelIndex);
-            init();
+        clustersByK = new ArrayList<Cluster>(K_START_AT + modelIndex);
+        if (init()) {
             calculate();
             computeBIC();
             modelIndex++;
+        } else{
+            System.out.println("THere is less users having score 0 than clusters. Clusters is stopped.");
+        }
+        
         //}
 
     }
@@ -123,19 +127,38 @@ public class KMeans {
     }
 
     //Initializes the process
-
-    public void init() {
+    public boolean init() {
         //Create Points
         //Create Clusters
         //Set Random Centroids
-        for (int i = 0; i < (K_START_AT + modelIndex); i++) {
+        int centroidsAssigned = 0;
+        int userIndex = 0;
+        double sumKeywords;
+        int i;
+        for (i = 0; i < (K_START_AT + modelIndex); i++) {
+
             Cluster cluster = new Cluster(i);
-            UserData.User centroid = cloneUser(udata.getUser(i), "centroid" + i);
-            //udata.getUser(i); // there must be at n users to be able to do n-clustering
-            cluster.setCentroid(centroid);
-            clustersByK.add(cluster);
+            for (int l = userIndex; l < udata.getUserCount(); l++) {
+                userIndex++;
+                sumKeywords = 0;
+                for (int j = 0; j < TwitMain.NUMBER_KEYWORDS; j++) {
+                    sumKeywords += udata.getUser(l).getKeyWord(j).getCount();
+                }
+                if (sumKeywords > 0) {
+                    UserData.User centroid = cloneUser(udata.getUser(l), "centroid" + l);
+                    cluster.setCentroid(centroid);
+                    clustersByK.add(cluster);
+                    centroidsAssigned++;
+                    break;
+                }
+               
+            }
             /*Maybe this point is there twice???????????*/
         }
+        if (centroidsAssigned != i) {
+            return false;
+        }
+        return true;
 //        plotClusters();
     }
 

@@ -81,14 +81,11 @@ public class TwitMain {
         int co = 0;
         for (Object o : udata) {
             UserData.User u = (UserData.User) o;
-            for(int j = 0; j<NUMBER_KEYWORDS; j++){
-                u.getKeyWord(j).setVSRscore(co);
-                co++;
-            }
             System.out.println(u.getName());
             System.out.println(u.getGender());
         }
         
+        printScores(udata);
         //Clustering
         KMeans kClustering = new KMeans(7, udata);
         
@@ -108,9 +105,19 @@ public class TwitMain {
         Ranking(udata, keywords);
 
         //testing and print some scores
-        printScores(udata);
+        
     }
-    
+    /*private UserData createTestingData(List<String> kws){
+        String[] keywords = {"ICT", "girls", "technology", "testing", "school"};
+        UserData newUdata = new UserData(kws);
+        TreeMap<String, Word> user = new TreeMap();
+        Word w = new Word(firstKW, 1);
+        w.setFrequency(15);
+        user.put(firstKW,w);
+        newUdata.addUser(firstKW, NUMBER_KEYWORDS, firstKW, NUMBER_KEYWORDS, user);
+        
+        
+    }*/
     public static void Ranking(UserData udata, ArrayList<String> query ) {
         String word;
         Double tf;
