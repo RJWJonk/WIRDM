@@ -34,7 +34,7 @@ public class TwitMain {
     static int NUMBER_KEYWORDS = 5;
     public static void main(String[] args) throws FaceppParseException {
         TweetsExtractor te = new TweetsExtractor();
-        TreeMap<String, Word> data = te.extractUser("tferriss");
+        TreeMap<String, Word> data = te.extractUser("Ben_Rutten"); //tferris
         int i = NUMBER_KEYWORDS;
         int keywordSearchedUserCount = 0;
         
@@ -53,15 +53,16 @@ public class TwitMain {
         
         int collectionWordLenght = 0;
         int userWordLenght;
-        int n = 12;
+        int n = 10;
         while (n > 0 && !names.isEmpty()) {
             n--;
             
             Tweet t = names.poll();
             String name = t.getUser().getScreenName();
-            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
+           /* String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
             ProfilePredict pp = new ProfilePredict();
-            String gender = pp.getGender(ProfilePicURL);
+            String gender = pp.getGender(ProfilePicURL);*/
+            String gender = "male";
             TreeMap<String, Word> user = te.extractUser(name);
             
             
@@ -75,13 +76,21 @@ public class TwitMain {
 //            collectionLenght+=TweetCount;
             
         }
-        
+        int co = 0;
         for (Object o : udata) {
             UserData.User u = (UserData.User) o;
+            for(int j = 0; j<NUMBER_KEYWORDS; j++){
+                u.getKeyWord(j).setVSRscore(co);
+                co++;
+            }
             System.out.println(u.getName());
             System.out.println(u.getGender());
         }
         
+        //Clustering
+       // KMeans kClustering = new KMeans(3, udata);
+        
+        // Do not delte
         ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
         
