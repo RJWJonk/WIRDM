@@ -99,13 +99,13 @@ public class TwitMain {
         // Do not delte
         ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
-        
+
         // Rank users to query using VSR method
-       /* String[] q = { "co","to","and","http","t" }; // Enter query keywords here
+        String[] q = { "co","to","and","http","t" }; // Enter query keywords here
         ArrayList<String> query = new ArrayList<>();
         query.addAll( Arrays.asList(q) );
         Ranking(udata, query);
-        udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);    */
+
         //testing and print some scores
         printScores(udata);
     }
