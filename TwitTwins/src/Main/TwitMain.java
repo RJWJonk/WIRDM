@@ -61,7 +61,8 @@ public class TwitMain {
             String name = t.getUser().getScreenName();
            /* String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
             ProfilePredict pp = new ProfilePredict();
-            String gender = pp.getGender(ProfilePicURL);*/
+            String gender = pp.getGender(ProfilePicURL);
+            int age = pp.getAge(ProfilePicURL);*/
             String gender = "male";
             TreeMap<String, Word> user = te.extractUser(name);
             

@@ -5,6 +5,8 @@
  */
 package Main;
 
+import static Main.TwitMain.NUMBER_KEYWORDS;
+import Model.Word;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -23,6 +25,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.TreeMap;
 import javax.swing.*;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
@@ -74,32 +79,6 @@ public class TwitTwinsGUI extends JFrame {
         repaint();
     }
 
-    private JPanel createUserNamePanel() {
-        JPanel panel = new JPanel();
-        panel.setSize(200, 200);
-        panel.setBackground(Color.red);
-        //panel.setLayout(new BorderLayout());
-        JTextField field = new JTextField("hello");
-        field.setSize(100, 100);
-        panel.add(field);
-        return panel;
-    }
-
-    private JPanel ceateKeywordPanel() {
-        JPanel panel = new JPanel();
-        panel.setSize(200, 300);
-        panel.setBackground(Color.blue);
-        //panel.setLayout(new BorderLayout());
-        return panel;
-    }
-
-    private JPanel createRankingPanel() {
-        JPanel panel = new JPanel();
-        panel.setSize(200, 500);
-        panel.setBackground(Color.green);
-        return panel;
-    }
-
     private class UsernamePanel extends JPanel {
 
         Dimension preferred = new Dimension(600, 60);
@@ -121,9 +100,10 @@ public class TwitTwinsGUI extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     System.out.println("Starting now for " + field.getText() + "!\nNo functionality though..");
-                    //todo: link to pipeline stuff
+                    List<String> keywords = queryUser(field.getText());
+                    kpanel.setKeyWords(keywords);
+                    queryRelatedUsers(keywords);
                 }
-
             });
             this.add(submit);
         }
@@ -196,11 +176,6 @@ public class TwitTwinsGUI extends JFrame {
             this.add(addButton);
             this.add(updateButton);
             this.addMouseListener(this);
-            keywords.add("Hello");
-            keywords.add("World");
-            keywords.add("Konnichiwa");
-            keywords.add("abcdefghijklmnopq");
-            keywords.add("fun!");
         }
 
         @Override
@@ -419,6 +394,56 @@ public class TwitTwinsGUI extends JFrame {
 
         public String getUserName() {
             return username;
+        }
+    }
+
+    private List<String> queryUser(String username){
+        TweetsExtractor te = new TweetsExtractor();
+        TreeMap<String, Word> data = te.extractUser(username);
+        int i = NUMBER_KEYWORDS;
+        int keywordSearchedUserCount = 0;
+        
+        ArrayList<Integer> searchedUserKeywordFrequency = new ArrayList();
+        ArrayList<String> keywords = new ArrayList();
+        for (Word w : data.values()) {
+            if (i == 0) break; else i--;
+            keywords.add(w.getWord());
+            searchedUserKeywordFrequency.add(w.getFrequency());
+            keywordSearchedUserCount+=w.getFrequency();
+        }
+        return keywords;
+    }
+
+    private void queryRelatedUsers(List<String> keywords){
+        UserData udata = new UserData(keywords);
+        
+        Queue<Tweet> names = te.query(keywords);
+        
+        int collectionWordLenght = 0;
+        int userWordLenght;
+        int n = 10;
+        while (n > 0 && !names.isEmpty()) {
+            n--;
+            
+            Tweet t = names.poll();
+            String name = t.getUser().getScreenName();
+           /* String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
+            ProfilePredict pp = new ProfilePredict();
+            String gender = pp.getGender(ProfilePicURL);
+            int age = pp.getAge(ProfilePicURL);*/
+            String gender = "male";
+            TreeMap<String, Word> user = te.extractUser(name);
+            
+            
+            userWordLenght = 0;
+            for(Map.Entry<String,Word> entry : user.entrySet()) {
+                Word value = entry.getValue();
+                userWordLenght+= value.getFrequency();
+              }
+            udata.addUser(name, 0, gender, userWordLenght, user);
+            collectionWordLenght+=userWordLenght;
+//            collectionLenght+=TweetCount;
+            
         }
     }
 

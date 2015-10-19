@@ -72,9 +72,9 @@ public class ProfilePredict {
         frame.add(panel);//Add it to your frame
         frame.setVisible(true);
     }
-        
+    
 
-    public static String queryUserIMG(String user) {
+        public static String queryUserIMG(String user) {
         try {
             return twitter.showUser(user).getOriginalProfileImageURL();
         } catch (TwitterException te) {
@@ -109,4 +109,19 @@ public class ProfilePredict {
         return s;
     }
     
+    public int getAge(String URL) throws FaceppParseException {
+        HttpRequests httpRequests = new HttpRequests("25ad86cdad3ea4ac04204464a210058d", "phbtAB6cTT4LcArmskLCin2O5v6hDZfa");
+        PostParameters postParameters;
+        postParameters = new PostParameters().setUrl(URL).setAttribute("all");
+        httpRequests.detectionDetect(postParameters);
+        FaceppResult result = httpRequests.detectionDetect(postParameters);
+        int a=-1;
+        String r=""+result.get("face");
+        if (!r.contains("[]")){
+            String s;
+            s = ""+result.get("face").get(0).get("attribute").get("age").get("value", FaceppResult.JsonType.INT);
+            a = Integer.parseInt(s);
+        }
+        return a;
+    }
 }
