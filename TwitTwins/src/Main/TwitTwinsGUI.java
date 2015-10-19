@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import javax.swing.*;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
+
 /**
  *
  * @author s080440
@@ -331,6 +332,10 @@ public class TwitTwinsGUI extends JFrame {
                         userKeywords.add(kw.getKeyWord());
                     }
                 }
+//                String ProfilePicURL = user. .getOriginalProfileImageURL();
+//                ProfilePredict pp = new ProfilePredict();
+//                String gender = pp.getGender(ProfilePicURL);
+//                int age = pp.getAge(ProfilePicURL);
                 RankingEntry re = new RankingEntry(s.getName(), user.getGender(), null, userKeywords);
                 ranking.add(re);
                 if (ranking.size() == 10) return;
@@ -538,12 +543,12 @@ public class TwitTwinsGUI extends JFrame {
            //System.out.println("Ranked: " + s.getName()+ "with score: " +"\t"+ s.getScore()  ); 
            System.out.format("#%d: \t %-20s \t (CosineScore: %f)%n", rank, s.getName(), s.getScore());
         }
-        for (Iterator<Score> iter = scores.iterator(); iter.hasNext();) {
-            Score s = iter.next();
-            if (Double.isNaN(s.getScore())) {
-                iter.remove();
-            }
-        }
+//        for (Iterator<Score> iter = scores.iterator(); iter.hasNext();) {
+//            Score s = iter.next();
+//            if (Double.isNaN(s.getScore())) {
+//                iter.remove();
+//            }
+//        }
         return scores;
     }
     
@@ -560,10 +565,10 @@ public class TwitTwinsGUI extends JFrame {
             
             Tweet t = names.poll();
             String name = t.getUser().getScreenName();
-           /* String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
-            ProfilePredict pp = new ProfilePredict();
-            String gender = pp.getGender(ProfilePicURL);
-            int age = pp.getAge(ProfilePicURL);*/
+//            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
+//            ProfilePredict pp = new ProfilePredict();
+//            String gender = pp.getGender(ProfilePicURL);
+//            int age = pp.getAge(ProfilePicURL);
             String gender = "male";
             TreeMap<String, Word> user = te.extractUser(name);
             
