@@ -516,13 +516,13 @@ public class TweetsExtractor {
                 nounSynset = (NounSynset)(synsets[0]);    
                 int freq = 0;
                 //if synonym already exist, sum the current frequency.
-                if (wordMap.get(nounSynset.getWordForms()[0]) != null) {
+                if (wordMap.get(nounSynset.getWordForms()[0].toLowerCase()) != null) {
                     //update frequency
-                    freq = ((Word) wordMap.get(nounSynset.getWordForms()[0])).getFrequency();
+                    freq = ((Word) wordMap.get(nounSynset.getWordForms()[0].toLowerCase())).getFrequency();
                 }
-                Word newWord = new Word(nounSynset.getWordForms()[0], word.getRealType());
+                Word newWord = new Word(nounSynset.getWordForms()[0].toLowerCase(), word.getRealType());
                 newWord.setFrequency(freq + word.getFrequency());
-                wordMap.put(nounSynset.getWordForms()[0], newWord);
+                wordMap.put(nounSynset.getWordForms()[0].toLowerCase(), newWord);
                 wordMap.remove(word.getWord());
             }
         }

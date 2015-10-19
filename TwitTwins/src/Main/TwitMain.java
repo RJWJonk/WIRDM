@@ -106,7 +106,8 @@ public class TwitMain {
         query.addAll( Arrays.asList(q) );
         Ranking(udata, query);
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);    */
-   
+        //testing and print some scores
+        printScores(udata);
     }
     
     public static void Ranking(UserData udata, ArrayList<String> query ) {
@@ -165,6 +166,22 @@ public class TwitMain {
 //        System.out.println("Cosine similarity: " + VectorIR.cosine_similarity(QueryData,KwTfdata) );
         
     }       
+
+    private static void printScores(UserData udata) {
+       
+         for (Object o : udata) {
+            UserData.User u = (UserData.User) o;
+            String userInfo = u.getName() + " - Keywords:";
+            UserData.KeyWord keyword = u.getFirstKeyWord();
+            Iterator iter = u.iterator();
+            while(iter.hasNext()) {
+                UserData.KeyWord keyW = (UserData.KeyWord)iter.next();
+                userInfo = userInfo + "|"+keyW.getKeyWord()+ ":"+keyW.getCount()+"|";
+            }
+
+            System.out.println(userInfo);
+        }
+    }
     
     
 }
