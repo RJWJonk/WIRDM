@@ -62,7 +62,8 @@ public class TwitMain {
             String name = t.getUser().getScreenName();
            /* String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
             ProfilePredict pp = new ProfilePredict();
-            String gender = pp.getGender(ProfilePicURL);*/
+            String gender = pp.getGender(ProfilePicURL);
+            int age = pp.getAge(ProfilePicURL);*/
             String gender = "male";
             TreeMap<String, Word> user = te.extractUser(name);
             
@@ -96,13 +97,13 @@ public class TwitMain {
         // Do not delte
         ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
-        
+
         // Rank users to query using VSR method
-       /* String[] q = { "co","to","and","http","t" }; // Enter query keywords here
-        ArrayList<String> query = new ArrayList<>();
-        query.addAll( Arrays.asList(q) );
-        Ranking(udata, query);
-        udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);    */
+            //String[] q = { "co","to","and","http","t" }; // Enter query keywords here
+            //ArrayList<String> query = new ArrayList<>();
+            //query.addAll( Arrays.asList(q) );
+        Ranking(udata, keywords);
+
         //testing and print some scores
         
     }
