@@ -40,6 +40,7 @@ public class TwitTwinsGUI extends JFrame {
     private UsernamePanel upanel;
     private KeyWordPanel kpanel;
     private ResultsPanel rpanel;
+    private TweetsExtractor te;
 
     public static void main(String[] args) {
         new TwitTwinsGUI();
@@ -445,7 +446,7 @@ public class TwitTwinsGUI extends JFrame {
     }
 
     private List<String> queryUser(String username){
-        TweetsExtractor te = new TweetsExtractor();
+        te = new TweetsExtractor();
         TreeMap<String, Word> data = te.extractUser(username);
         int i = NUMBER_KEYWORDS;
         int keywordSearchedUserCount = 0;
