@@ -415,10 +415,10 @@ public class TweetsExtractor {
             case 0:
             default:
                 cb.setDebugEnabled(true)
-                        .setOAuthConsumerKey("b0DV73vfaiAinFwkc0BsaGWRi")
-                        .setOAuthConsumerSecret("lM35xfcnaJQDaUuoZsB749bNv1GbA8dbItDH9VlglmbAefUZn5")
-                        .setOAuthAccessToken("2387531042-QRMVloVxBoNYntQMvKs7dZHN8ybe3ciwS34JzBz")
-                        .setOAuthAccessTokenSecret("t3RtJdrcYaf9EfDRxVgD9vO4FXYh8vIv0XVfC1D4ojkF8");
+                        .setOAuthConsumerKey("kw5huUc5CmdzkhXUjC229GPqa")
+                        .setOAuthConsumerSecret("ZjwZhzLJQzPXPCtUKZPJu703SgTvBhFKM3t3Zw30lZ7ceYK4e9")
+                        .setOAuthAccessToken("3781208477-LrQhxUXOn5Uq2xI24OYZhv6Mv8bq5meP0nIamcJ")
+                        .setOAuthAccessTokenSecret("O29jnk6k2DGHwPlZten6C4T67OTN6V3ybsQnOUlZAjKVN");
                 tf = new TwitterFactory(cb.build());
                 return tf.getInstance();
 
@@ -516,13 +516,13 @@ public class TweetsExtractor {
                 nounSynset = (NounSynset)(synsets[0]);    
                 int freq = 0;
                 //if synonym already exist, sum the current frequency.
-                if (wordMap.get(nounSynset.getWordForms()[0]) != null) {
+                if (wordMap.get(nounSynset.getWordForms()[0].toLowerCase()) != null) {
                     //update frequency
-                    freq = ((Word) wordMap.get(nounSynset.getWordForms()[0])).getFrequency();
+                    freq = ((Word) wordMap.get(nounSynset.getWordForms()[0].toLowerCase())).getFrequency();
                 }
-                Word newWord = new Word(nounSynset.getWordForms()[0], word.getRealType());
+                Word newWord = new Word(nounSynset.getWordForms()[0].toLowerCase(), word.getRealType());
                 newWord.setFrequency(freq + word.getFrequency());
-                wordMap.put(nounSynset.getWordForms()[0], newWord);
+                wordMap.put(nounSynset.getWordForms()[0].toLowerCase(), newWord);
                 wordMap.remove(word.getWord());
             }
         }
