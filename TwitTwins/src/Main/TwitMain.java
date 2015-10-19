@@ -101,10 +101,10 @@ public class TwitMain {
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
 
         // Rank users to query using VSR method
-        String[] q = { "co","to","and","http","t" }; // Enter query keywords here
-        ArrayList<String> query = new ArrayList<>();
-        query.addAll( Arrays.asList(q) );
-        Ranking(udata, query);
+            //String[] q = { "co","to","and","http","t" }; // Enter query keywords here
+            //ArrayList<String> query = new ArrayList<>();
+            //query.addAll( Arrays.asList(q) );
+        Ranking(udata, keywords);
 
         //testing and print some scores
         printScores(udata);
