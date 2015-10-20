@@ -589,18 +589,7 @@ public class TwitTwinsGUI extends JFrame {
 //            String gender = "male";
 //            int age = 21;
             TreeMap<String, Word> user = te.extractUser(name);
-            udata.addUser(name, 0, gender, -1, user);
-            
-            
-            userWordLenght = 0;
-            for(Map.Entry<String,Word> entry : user.entrySet()) {
-                Word value = entry.getValue();
-                userWordLenght+= value.getFrequency();
-              }
-            udata.addUser(name, age, gender, userWordLenght, user);
-            collectionWordLenght+=userWordLenght;
-//            collectionLenght+=TweetCount;
-            
+            udata.addUser(name, age, gender, -1, user);
         }
         return udata;
     }
