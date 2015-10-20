@@ -42,7 +42,7 @@ public class TwitMain {
         
         
        UserData testingUdata = ProbabRetrieval.createTestingData(kwss);
-        KMeans km = new KMeans(5, testingUdata);
+        //KMeans km = new KMeans(5, testingUdata);
         
         TweetsExtractor te = new TweetsExtractor();
         TreeMap<String, Word> data = te.extractUser("tferriss"); //tferris

@@ -30,8 +30,7 @@ public class KMeans {
     private static ArrayList<Cluster> clustersByK;
     private static int NUMBER_KEYWORDS;
 
-    public KMeans(int keywordCount, UserData _udata) {
-        //udata=_udata;UserData _udata
+    public Boolean calculateClustering(int keywordCount, UserData _udata) {
         NUMBER_KEYWORDS = keywordCount;
         udata = _udata;
         modelIndex = 0;
@@ -56,7 +55,11 @@ public class KMeans {
             init();
             calculate();
         }
+        return kmeansOK;
+    }
 
+    public ArrayList<Cluster> getClusterByK() {
+        return clustersByK;
     }
 
     private int findMaxIndex(double[] BIC) {
@@ -95,7 +98,7 @@ public class KMeans {
             for (int l = 0; l < Rn; l++) { /*Itarate over points*/
 
                 UserData.User pointFromCluster = clustersByK.get(j).users.get(l);
-                clusterVariance += 1 - userDistance(centroid, pointFromCluster); //CHECK THE cluster variance
+                clusterVariance += userDistanceByEuclide(centroid, pointFromCluster); //CHECK THE cluster variance
             }
             clusterVariance = clusterVariance / (R - k);
             D += computeBICofCluster(Rn, dimensionCount, clusterVariance, R);
@@ -107,7 +110,15 @@ public class KMeans {
         return BIC;
     }
 
-    private double userDistance(UserData.User a, UserData.User b) {
+    private double userDistanceByEuclide(UserData.User a, UserData.User b) {
+        double distance = 0;
+        for (int i = 0; i < NUMBER_KEYWORDS; i++) {
+            distance += Math.pow(a.getKeyWord(i).getCount() - b.getKeyWord(i).getCount(), 2);
+        }
+        return distance;
+    }
+
+    private double userDistanceByCosine(UserData.User a, UserData.User b) {
         /*double distance = 0;
          for (int i=0;i<NUMBER_KEYWORDS;i++){
          distance+=Math.pow(a.getKeyWord(i).getCount() - b.getKeyWord(i).getCount(),2);
@@ -198,7 +209,7 @@ public class KMeans {
 
     private Boolean isUserLikeCentroid(UserData.User u, ArrayList<Cluster> clusters) {
         for (int i = 0; i < clusters.size(); i++) {
-            if (userDistance(u, clusters.get(i).getCentroid()) == 1) {
+            if (userDistanceByCosine(u, clusters.get(i).getCentroid()) == 1) {
                 return true;
             }
         }
@@ -238,7 +249,7 @@ public class KMeans {
             //Calculates total distance between new and old Centroids
             double distance = 0;
             for (int i = 0; i < lastCentroids.size(); i++) {
-                distance += userDistance(lastCentroids.get(i), currentCentroids.get(i));
+                distance += userDistanceByCosine(lastCentroids.get(i), currentCentroids.get(i));
             }
             System.out.println("#################");
             System.out.println("Iteration: " + iteration);
@@ -284,7 +295,7 @@ public class KMeans {
             min = 0;
             for (int i = 0; i < (K_START_AT + modelIndex); i++) {
                 Cluster c = clustersByK.get(i);
-                cosineSimilarity = userDistance(user, c.getCentroid());
+                cosineSimilarity = userDistanceByCosine(user, c.getCentroid());
                 if (cosineSimilarity > min) {
                     min = cosineSimilarity;
                     clusterNumber = i;

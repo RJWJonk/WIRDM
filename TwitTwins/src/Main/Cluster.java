@@ -16,6 +16,7 @@ public class Cluster {
 
     public List<UserData.User> users;
     public UserData.User centroid;
+    private int clusterTotalLenght;
     public int id;
 
     //Creates a new Cluster
@@ -23,18 +24,18 @@ public class Cluster {
         this.id = id;
         this.users = new ArrayList();
         this.centroid = null;
+        clusterTotalLenght=0;
     }
 
     public List getUsers() {
         return users;
     }
-
+    public int getTotalLenght(){
+        return clusterTotalLenght;
+    }
     public void addPoint(UserData.User u) {
         users.add(u);
-    }
-
-    public void setPoints(List users) {
-        this.users = users;
+        clusterTotalLenght+=u.getWordTweetCount();
     }
 
     public UserData.User getCentroid() {

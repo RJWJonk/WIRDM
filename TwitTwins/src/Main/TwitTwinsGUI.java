@@ -507,11 +507,13 @@ public class TwitTwinsGUI extends JFrame {
         List<Score> scores;
         ud = queryRelatedUsers(stringKeywords);
         TwitMain.printScores(ud);
-        KMeans km = new KMeans(keywords.size(), ud);
+        
         
         switch(method){
             case METHOD_PRB:
-                 scores = ProbabRetrieval.rank(ud, keywords,0.8);
+                KMeans km = new KMeans();
+                boolean clusteringOK = km.calculateClustering(keywords.size(), ud);
+                 scores = ProbabRetrieval.rank(ud, keywords,0.8, km.getClusterByK(), clusteringOK);
                  break;
             case METHOD_VSR:
             default:

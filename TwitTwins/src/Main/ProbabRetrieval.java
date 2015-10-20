@@ -20,38 +20,33 @@ import java.util.TreeMap;
  *
  * @author s146728
  */
-
- 
-        
 public class ProbabRetrieval {
 
-    
-    
     public static void main(String[] args) {
-        
-        List<String> keywords = new ArrayList<String>();       
+
+        List<String> keywords = new ArrayList<String>();
         keywords.add("ICT");
         keywords.add("school");
         keywords.add("girls");
         keywords.add("technology");
         keywords.add("testing");
-        
+
         List<Score> searchedUser = createSearchUserScore(keywords);
-        
+
         UserData testingUdata = createTestingData(keywords);
         printScores(testingUdata);
-        rank(testingUdata, searchedUser, 1.0);
+        //rank(testingUdata, searchedUser, 1.0);
     }
 
-    public static List<Score> rank(UserData udata, List<Score> searchedUserKeywordFrequency, Double alpha) {
+    public static List<Score> rank(UserData udata, List<Score> searchedUserKeywordFrequency, Double alpha, ArrayList<Cluster> clustersByK, Boolean includeCLustering) {
         double userScore;
         double keywordWeight;
         List<Score> scores = new ArrayList<Score>();
+        //ArrayList<Cluster> clustersByK = new ArrayList();
         //SortedList
         int clusterID;
-        
-        
-        
+        double aalpha = 0.7, beta = 0.2, gama = 0.1;
+
         int collectionWordLenght = 0;
         for (Object o : udata) {
             UserData.User u = (UserData.User) o;
@@ -63,19 +58,30 @@ public class ProbabRetrieval {
             totalSearchUserLenght += s.getScore();
         }
 
+        int keywordCount = searchedUserKeywordFrequency.size();
+        int clusterKeywordLenght = 0;
+        double documentWeight, clusterWeight = 0, collectionWeight;
         for (Object o : udata) {
             UserData.User u = (UserData.User) o;
             userScore = 0;
+
             //clusterID = u.getCluster();
-            for (int i = 0; i < NUMBER_KEYWORDS; i++) {
-                
+            for (int i = 0; i < keywordCount; i++) {
+
                 UserData.KeyWord k = u.getKeyWord(i);
-                
-               /* for(int j=0;j<clusterCount;j++){
-            
-                }*/
+                if (includeCLustering) {
+                    clusterKeywordLenght = 0;
+                    for (UserData.User userFromCluster : clustersByK.get(u.getCluster()).users) {
+                        clusterKeywordLenght += userFromCluster.getKeyWord(i).getCount();
+                    }
+                }
                 keywordWeight = (double) searchedUserKeywordFrequency.get(i).getScore() / totalSearchUserLenght;
-                userScore += keywordWeight * ((alpha * k.getCount() / u.getWordTweetCount()) + ((1 - alpha) * k.getCount() / collectionWordLenght));
+                documentWeight = (aalpha * k.getCount() / u.getWordTweetCount());
+                if (includeCLustering) {
+                    clusterWeight = (beta * clusterKeywordLenght / clustersByK.get(u.getCluster()).getTotalLenght());
+                }
+                collectionWeight = (gama * k.getCount() / collectionWordLenght);
+                userScore += keywordWeight * (documentWeight + clusterWeight + collectionWeight);
             }
             if (Double.isNaN(userScore)) {
                 userScore = 0;
@@ -98,18 +104,19 @@ public class ProbabRetrieval {
         return scores;
     }
 
-    public static List<Score> createSearchUserScore(List<String> keywords){
+    public static List<Score> createSearchUserScore(List<String> keywords) {
         List<Score> searchUserScores = new ArrayList();
         int[] searchUserKeywordFrequncy = {15, 10, 6, 0, 8};
         System.out.print("SU:\t");
         for (int i = 0; i < keywords.size(); i++) {
-            
+
             searchUserScores.add(new Score(searchUserKeywordFrequncy[i], keywords.get(i)));
-             System.out.format("%s: %2.0f \t", keywords.get(i), (double)searchUserKeywordFrequncy[i]);
+            System.out.format("%s: %2.0f \t", keywords.get(i), (double) searchUserKeywordFrequncy[i]);
         }
         System.out.println("----------------------------\n");
         return searchUserScores;
     }
+
     public static UserData createTestingData(List<String> keywords) {
         UserData newUdata = new UserData(keywords);
         String[] names = {"John", "Adam", "Ben", "Luke", "Phillip", "Ruben", "Chung"};
