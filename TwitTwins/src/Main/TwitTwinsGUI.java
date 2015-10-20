@@ -499,7 +499,7 @@ public class TwitTwinsGUI extends JFrame {
         return searchedUserKeywordFrequency;
     }
 
-    private void performQuery(List<Score> keywords){
+    private void performQuery(List<Score> keywords) throws FaceppParseException{
         List<String> stringKeywords = new ArrayList();
         for(int i=0;i<keywords.size();i++)
             stringKeywords.add(keywords.get(i).getName());
@@ -520,7 +520,7 @@ public class TwitTwinsGUI extends JFrame {
                 scores = performVSR(ud, stringKeywords); // 
                 break;
         }
-        performVSR(ud, stringKeywords); 
+//        performVSR(ud, stringKeywords); 
         rpanel.createRanking(scores);
     }
     
@@ -590,6 +590,17 @@ public class TwitTwinsGUI extends JFrame {
 //            int age = 21;
             TreeMap<String, Word> user = te.extractUser(name);
             udata.addUser(name, age, gender, -1, user);
+            
+            int collectionWordLenght = 0;
+            int userWordLenght = 0;
+            for(Map.Entry<String,Word> entry : user.entrySet()) {
+                Word value = entry.getValue();
+                userWordLenght+= value.getFrequency();
+              }
+            udata.addUser(name, age, gender, userWordLenght, user);
+            collectionWordLenght+=userWordLenght;
+//            collectionLenght+=TweetCount;
+            
         }
         return udata;
     }
