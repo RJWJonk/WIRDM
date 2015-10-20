@@ -33,8 +33,16 @@ public class TwitMain {
 
     public static void main(String[] args) throws FaceppParseException {
         
-       
+        List<String> kwss = new ArrayList<String>();       
+        kwss.add("ICT");
+        kwss.add("school");
+        kwss.add("girls");
+        kwss.add("technology");
+        kwss.add("testing");
         
+        
+       UserData testingUdata = ProbabRetrieval.createTestingData(kwss);
+        KMeans km = new KMeans(5, testingUdata);
         
         TweetsExtractor te = new TweetsExtractor();
         TreeMap<String, Word> data = te.extractUser("tferriss"); //tferris

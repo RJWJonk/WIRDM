@@ -507,8 +507,7 @@ public class TwitTwinsGUI extends JFrame {
         List<Score> scores;
         ud = queryRelatedUsers(stringKeywords);
         TwitMain.printScores(ud);
-        KMeans km = new KMeans(7, ud);
-        
+        KMeans km = new KMeans(keywords.size(), ud);
         
         switch(method){
             case METHOD_PRB:

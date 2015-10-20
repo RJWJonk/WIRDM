@@ -47,9 +47,11 @@ public class ProbabRetrieval {
         double userScore;
         double keywordWeight;
         List<Score> scores = new ArrayList<Score>();
-        int i;
         //SortedList
-
+        int clusterID;
+        
+        
+        
         int collectionWordLenght = 0;
         for (Object o : udata) {
             UserData.User u = (UserData.User) o;
@@ -64,8 +66,14 @@ public class ProbabRetrieval {
         for (Object o : udata) {
             UserData.User u = (UserData.User) o;
             userScore = 0;
-            for (i = 0; i < NUMBER_KEYWORDS; i++) {
+            //clusterID = u.getCluster();
+            for (int i = 0; i < NUMBER_KEYWORDS; i++) {
+                
                 UserData.KeyWord k = u.getKeyWord(i);
+                
+               /* for(int j=0;j<clusterCount;j++){
+            
+                }*/
                 keywordWeight = (double) searchedUserKeywordFrequency.get(i).getScore() / totalSearchUserLenght;
                 userScore += keywordWeight * ((alpha * k.getCount() / u.getWordTweetCount()) + ((1 - alpha) * k.getCount() / collectionWordLenght));
             }
@@ -90,7 +98,7 @@ public class ProbabRetrieval {
         return scores;
     }
 
-    private static List<Score> createSearchUserScore(List<String> keywords){
+    public static List<Score> createSearchUserScore(List<String> keywords){
         List<Score> searchUserScores = new ArrayList();
         int[] searchUserKeywordFrequncy = {15, 10, 6, 0, 8};
         System.out.print("SU:\t");
@@ -102,7 +110,7 @@ public class ProbabRetrieval {
         System.out.println("----------------------------\n");
         return searchUserScores;
     }
-    private static UserData createTestingData(List<String> keywords) {
+    public static UserData createTestingData(List<String> keywords) {
         UserData newUdata = new UserData(keywords);
         String[] names = {"John", "Adam", "Ben", "Luke", "Phillip", "Ruben", "Chung"};
         int[][] keywordFreqency = new int[][]{
