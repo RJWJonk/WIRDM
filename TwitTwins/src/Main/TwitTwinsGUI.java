@@ -52,7 +52,7 @@ public class TwitTwinsGUI extends JFrame {
     
     private final int METHOD_VSR = 0;
     private final int METHOD_PRB = 1;
-    private final int method = 0;
+    private final int method = 1;
 
     public static void main(String[] args) {
         new TwitTwinsGUI();
@@ -103,7 +103,7 @@ public class TwitTwinsGUI extends JFrame {
             this.setPreferredSize(preferred);
             //this.setBackground(Color.red); //color background to see boundaries between panels
             field = new JTextField();
-            field.setText("adamzikacz");
+            field.setText("tferriss");
             field.setPreferredSize(new Dimension(200, 30));
             this.add(field);
             submit = new JButton();
@@ -113,7 +113,7 @@ public class TwitTwinsGUI extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     System.out.println("Starting now for " + field.getText() + "!");
-                    List<String> keywords = queryUser(field.getText());
+                    List<Score> keywords = queryUser(field.getText());
                     kpanel.setKeyWords(keywords);
                     try {
                         performQuery(keywords);
@@ -128,7 +128,7 @@ public class TwitTwinsGUI extends JFrame {
 
     private class KeyWordPanel extends JPanel implements MouseListener {
 
-        List<String> keywords = new ArrayList();
+        List<Score> keywords = new ArrayList();
         List<Rectangle> closeRectangles = new ArrayList();
 
         JTextField addField;
@@ -172,7 +172,7 @@ public class TwitTwinsGUI extends JFrame {
                         return;
                     } else {
                         addField.setText("");
-                        keywords.add(s);
+                        keywords.add(new Score(1, s)); /*What is the score?????*/
                         return;
                     }
                 }
@@ -220,8 +220,8 @@ public class TwitTwinsGUI extends JFrame {
             int hmargin = 28;
             int y_adjust = 30;
 
-            for (String kw : keywords) {
-                Rectangle2D rect = kfont.getStringBounds(kw, g.getFontRenderContext());
+            for (Score kw : keywords) {
+                Rectangle2D rect = kfont.getStringBounds(kw.getName(), g.getFontRenderContext());
                 int size = lmargin + (int) rect.getWidth() + rmargin;
 
                 if (totalWidth < progress + size) {
@@ -232,7 +232,7 @@ public class TwitTwinsGUI extends JFrame {
                 g.setColor(Color.YELLOW);
                 g.fill(new Rectangle(x_start + progress, y_start + y_adjust + hmargin * row, size, 19));
                 g.setColor(Color.BLACK);
-                g.drawString(kw, x_start + progress + lmargin, y_start + y_adjust + hmargin * row + 14);
+                g.drawString(kw.getName(), x_start + progress + lmargin, y_start + y_adjust + hmargin * row + 14);
                 g.setColor(Color.RED);
                 Rectangle r = new Rectangle(x_start + progress + size - xsize, y_start + y_adjust + hmargin * row, xsize, xsize);
                 g.fill(r);
@@ -242,11 +242,11 @@ public class TwitTwinsGUI extends JFrame {
             }
         }
 
-        private void addKeyWord(String s) {
+        private void addKeyWord(Score s) {
             keywords.add(s);
         }
 
-        private void setKeyWords(List<String> ls) {
+        private void setKeyWords(List<Score> ls) {
             keywords = ls;
         }
 
@@ -314,7 +314,12 @@ public class TwitTwinsGUI extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     System.out.println("Returning a list of " + relevant.size() + " items for RFB");
-                    //todo add relevance feedback
+                    //todo: Rocchio Relevance Feedback Algorithm
+                    
+                    RocchioRFB rfb = new RocchioRFB(keys, ranking, relevant, 1.0, 0.5, 0.1  ); // With values alpha, beta and gamma respectively
+                    System.out.println("Old query: " + keys);
+                    System.out.println("Rocchio Relevance Feedback, new search query: " + rfb.getUpdatedQuery() );
+ 
                 }
 
             });
@@ -457,7 +462,7 @@ public class TwitTwinsGUI extends JFrame {
         }
     }
 
-    private class RankingEntry {
+    public class RankingEntry {
 
         private String username;
         private String gender;
@@ -473,37 +478,49 @@ public class TwitTwinsGUI extends JFrame {
             this.keywords = keywords;
         }
 
+        public List<String> getKeywords() {
+            return keywords;
+        }
+        
         public String getUserName() {
             return username;
         }
     }
 
-    private List<String> queryUser(String username){
+    private List<Score> queryUser(String username){
         te = new TweetsExtractor();
         TreeMap<String, Word> data = te.extractUser(username);
         int i = NUMBER_KEYWORDS;
-        int keywordSearchedUserCount = 0;
-        
-        ArrayList<Integer> searchedUserKeywordFrequency = new ArrayList();
-        ArrayList<String> keywords = new ArrayList();
+        ArrayList<Score> searchedUserKeywordFrequency = new ArrayList();
         for (Word w : data.values()) {
             if (i == 0) break; else i--;
-            keywords.add(w.getWord());
-            searchedUserKeywordFrequency.add(w.getFrequency());
-            keywordSearchedUserCount+=w.getFrequency();
+            searchedUserKeywordFrequency.add(new Score(w.getFrequency(), w.getWord()));
         }
-        return keywords;
+        return searchedUserKeywordFrequency;
     }
 
-    private void performQuery(List<String> keywords) throws FaceppParseException{
+    private void performQuery(List<Score> keywords){
+        List<String> stringKeywords = new ArrayList();
+        for(int i=0;i<keywords.size();i++)
+            stringKeywords.add(keywords.get(i).getName());
+        
         List<Score> scores;
-        ud = queryRelatedUsers(keywords);
+        ud = queryRelatedUsers(stringKeywords);
+        TwitMain.printScores(ud);
+        KMeans km = new KMeans(7, ud);
+        
         
         switch(method){
+            case METHOD_PRB:
+                 ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
+                 scores = pr.rank(ud, keywords,0.8);
+                 break;
             case METHOD_VSR:
             default:
-                scores = performVSR(ud, keywords);
+                scores = performVSR(ud, stringKeywords); // 
+                break;
         }
+        performVSR(ud, stringKeywords); 
         rpanel.createRanking(scores);
     }
     
@@ -558,11 +575,7 @@ public class TwitTwinsGUI extends JFrame {
     
     private UserData queryRelatedUsers(List<String> keywords) throws FaceppParseException{
         UserData udata = new UserData(keywords);
-        
         Queue<Tweet> names = te.query(keywords);
-        
-        int collectionWordLenght = 0;
-        int userWordLenght;
         int n = 20;
         while (n > 0 && !names.isEmpty()) {
             n--;
@@ -576,6 +589,7 @@ public class TwitTwinsGUI extends JFrame {
 //            String gender = "male";
 //            int age = 21;
             TreeMap<String, Word> user = te.extractUser(name);
+            udata.addUser(name, 0, gender, -1, user);
             
             
             userWordLenght = 0;
