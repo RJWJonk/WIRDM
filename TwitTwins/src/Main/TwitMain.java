@@ -34,7 +34,7 @@ public class TwitMain {
     static int NUMBER_KEYWORDS = 5;
     public static void main(String[] args) throws FaceppParseException {
         TweetsExtractor te = new TweetsExtractor();
-        TreeMap<String, Word> data = te.extractUser("Ben_Rutten"); //tferris
+        TreeMap<String, Word> data = te.extractUser("tferriss"); //tferris
         int i = NUMBER_KEYWORDS;
         int keywordSearchedUserCount = 0;
         
@@ -87,11 +87,11 @@ public class TwitMain {
         
         printScores(udata);
         //Clustering
-        KMeans kClustering = new KMeans(7, udata);
+        //KMeans kClustering = new KMeans(7, udata);
         
         // Do not delte
-        ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
-        udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
+        //ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
+        //pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
 
         // Rank users to query using VSR method
         Ranking(udata, keywords);

@@ -117,6 +117,8 @@ public class KMeans {
     }
 
     private double computeBICofCluster(int Rn, int dimensionCount, double clusterVariance, int R) {
+        if(clusterVariance==0)
+            clusterVariance=0.0000001;
         double Dn = -Rn / 2 * Math.log(2 * Math.PI) - (Rn * dimensionCount) / 2 * Math.log(clusterVariance) - ((Rn - 1) * dimensionCount) / 2 + (Rn * Math.log(Rn)) - Rn * Math.log(R);
         return Dn;
     }

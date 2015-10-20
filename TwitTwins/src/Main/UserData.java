@@ -86,6 +86,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         last = u;
         Map<String, Word> userKeywords = new HashMap<String, Word>(data);
         Word w = null;
+        double totalWordCount = 0;
         for (String s : keywords) {
             KeyWord k = new KeyWord(s);
             if (userKeywords == null) {
@@ -94,12 +95,13 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             w = userKeywords.get(s);
             if (w != null) {
                 k.setCount(userKeywords.get(s).getFrequency());
+                totalWordCount+= userKeywords.get(s).getFrequency();
             } else {
                 k.setCount(0);
             }
             u.setKeyWordAtEnd(k);
         }
-
+        u.setTotalWordCount(totalWordCount);
         u.setTweetWordCount(calcWordTweetCount(data));
         u.setCount(tweetCount);
         userCount++;
@@ -153,10 +155,12 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
         private final String gender;
         private int tweetCount;
         private int tweetWordCount;
+        private double totalWordCount;
         private KeyWord firstKW;
         private User next;
         private double score;
         private int cluster_number;
+        
 
         public User(String name, int age, String gender) {
             this.name = name;
@@ -164,6 +168,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             this.gender = gender;
             tweetCount = 0;
             tweetWordCount = 0;
+            totalWordCount=0;
             firstKW = null;
         }
 
@@ -174,11 +179,17 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
             tweetCount = 0;
             gender = null;
             tweetWordCount = 0;
+            totalWordCount = 0;
             for (int i = 0; i < keywordList.size(); i++) {
                 setKeyWordAtEnd(keywordList.get(i));
             }
         }
-
+        public void setTotalWordCount(double count){
+            totalWordCount = count;
+        }
+        public double getTotalWordCount(){
+            return totalWordCount;
+        }
         public void setCluster(int n) {
             this.cluster_number = n;
         }
