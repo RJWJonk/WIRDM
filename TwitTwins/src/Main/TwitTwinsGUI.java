@@ -7,6 +7,7 @@ package Main;
 
 import static Main.TwitMain.NUMBER_KEYWORDS;
 import Model.Word;
+import com.facepp.error.FaceppParseException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -31,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
@@ -112,7 +115,11 @@ public class TwitTwinsGUI extends JFrame {
                     System.out.println("Starting now for " + field.getText() + "!");
                     List<String> keywords = queryUser(field.getText());
                     kpanel.setKeyWords(keywords);
-                    performQuery(keywords);
+                    try {
+                        performQuery(keywords);
+                    } catch (FaceppParseException ex) {
+                        Logger.getLogger(TwitTwinsGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             });
             this.add(submit);
@@ -178,7 +185,11 @@ public class TwitTwinsGUI extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     System.out.println("Run query with new keywords");
-                    performQuery(keywords);
+                    try {
+                        performQuery(keywords);
+                    } catch (FaceppParseException ex) {
+                        Logger.getLogger(TwitTwinsGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
 
             });
@@ -331,7 +342,7 @@ public class TwitTwinsGUI extends JFrame {
 //                ProfilePredict pp = new ProfilePredict();
 //                String gender = pp.getGender(ProfilePicURL);
 //                int age = pp.getAge(ProfilePicURL);
-                RankingEntry re = new RankingEntry(s.getName(), user.getGender(), null, userKeywords);
+                RankingEntry re = new RankingEntry(s.getName(), user.getGender(), user.getAge(), null, userKeywords);
                 ranking.add(re);
                 if (ranking.size() == 10) return;
             }
@@ -380,7 +391,7 @@ public class TwitTwinsGUI extends JFrame {
                 g.setFont(rfont);
                 g.drawString(row + 1 + ".", x_start + ranknum / 3 - ((row == 9) ? 4 : 0), y_start + 2 * height / 3 + row * hmargin);
 
-                String result1 = re.username + ", " + re.gender;
+                String result1 = re.username + ", " + re.gender + ", " + re.age;
                 String result2 = "";
 
                 for (String s : re.keywords) {
@@ -450,12 +461,14 @@ public class TwitTwinsGUI extends JFrame {
 
         private String username;
         private String gender;
+        private int age;
         private BufferedImage picture;
         private List<String> keywords;
 
-        private RankingEntry(String name, String gender, String picture, List<String> keywords) {
+        private RankingEntry(String name, String gender, int age, String picture, List<String> keywords) {
             this.username = name;
             this.gender = gender;
+            this.age = age;
             this.picture = null; //todo: retrieve picture!
             this.keywords = keywords;
         }
@@ -482,7 +495,7 @@ public class TwitTwinsGUI extends JFrame {
         return keywords;
     }
 
-    private void performQuery(List<String> keywords){
+    private void performQuery(List<String> keywords) throws FaceppParseException{
         List<Score> scores;
         ud = queryRelatedUsers(keywords);
         
@@ -543,7 +556,7 @@ public class TwitTwinsGUI extends JFrame {
         return scores;
     }
     
-    private UserData queryRelatedUsers(List<String> keywords){
+    private UserData queryRelatedUsers(List<String> keywords) throws FaceppParseException{
         UserData udata = new UserData(keywords);
         
         Queue<Tweet> names = te.query(keywords);
@@ -556,11 +569,12 @@ public class TwitTwinsGUI extends JFrame {
             
             Tweet t = names.poll();
             String name = t.getUser().getScreenName();
-//            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
-//            ProfilePredict pp = new ProfilePredict();
-//            String gender = pp.getGender(ProfilePicURL);
-//            int age = pp.getAge(ProfilePicURL);
-            String gender = "male";
+            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
+            ProfilePredict pp = new ProfilePredict();
+            String gender = pp.getGender(ProfilePicURL);
+            int age = pp.getAge(ProfilePicURL);
+//            String gender = "male";
+//            int age = 21;
             TreeMap<String, Word> user = te.extractUser(name);
             
             
@@ -569,7 +583,7 @@ public class TwitTwinsGUI extends JFrame {
                 Word value = entry.getValue();
                 userWordLenght+= value.getFrequency();
               }
-            udata.addUser(name, 0, gender, userWordLenght, user);
+            udata.addUser(name, age, gender, userWordLenght, user);
             collectionWordLenght+=userWordLenght;
 //            collectionLenght+=TweetCount;
             
