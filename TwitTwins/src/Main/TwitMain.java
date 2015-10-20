@@ -90,11 +90,6 @@ public class TwitMain {
         KMeans kClustering = new KMeans(7, udata);
         
         // Do not delte
-
-        /*Clustering*/
-       // KMeans kClustering = new KMeans(3, udata);
-        
-        // Do not delte
         ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
 
@@ -175,7 +170,7 @@ public class TwitMain {
         
     }       
 
-    private static void printScores(UserData udata) {
+    public static void printScores(UserData udata) {
        
          for (Object o : udata) {
             UserData.User u = (UserData.User) o;

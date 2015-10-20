@@ -99,7 +99,7 @@ public class TwitTwinsGUI extends JFrame {
             this.setPreferredSize(preferred);
             //this.setBackground(Color.red); //color background to see boundaries between panels
             field = new JTextField();
-            field.setText("adamzikacz");
+            field.setText("tferriss");
             field.setPreferredSize(new Dimension(200, 30));
             this.add(field);
             submit = new JButton();
@@ -480,6 +480,9 @@ public class TwitTwinsGUI extends JFrame {
     private void performQuery(List<String> keywords){
         List<Score> scores;
         ud = queryRelatedUsers(keywords);
+        TwitMain.printScores(ud);
+        KMeans km = new KMeans(7, ud);
+        
         
         switch(method){
             case METHOD_VSR:

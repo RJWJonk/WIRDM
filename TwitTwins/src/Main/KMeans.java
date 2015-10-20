@@ -9,6 +9,8 @@ import static Main.TwitMain.NUMBER_KEYWORDS;
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.Math;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -17,13 +19,12 @@ import java.lang.Math;
 public class KMeans {
 
     //Number of Clusters. This metric should be related to the number of points
-    private static int MAX_NUM_CLUSTERS;
     //Number of Points
     private static int K_START_AT = 2;
     //Min and Max X and Y
     private static final int MIN_COORDINATE = 0;
     private static final int MAX_COORDINATE = 10;
-
+ 
     private UserData udata;
     private static int modelIndex = 0;
     private static ArrayList<Cluster> clustersByK;
@@ -31,19 +32,18 @@ public class KMeans {
     public KMeans(int max_clusters, UserData _udata) {
         //udata=_udata;UserData _udata
         udata = _udata;
-        MAX_NUM_CLUSTERS = max_clusters; // max nubmer of clusters
-        modelIndex = 5;
-        //for (int i = 0; i < MAX_NUM_CLUSTERS - 1; i++) {
-        clustersByK = new ArrayList<Cluster>(K_START_AT + modelIndex);
-        if (init()) {
-            calculate();
-            computeBIC();
+        modelIndex = 0;
+        for (int i = 0; i < max_clusters - 1; i++) {
+            clustersByK = new ArrayList<Cluster>(K_START_AT + modelIndex);
+            if (init()) {
+                calculate();
+                computeBIC();
+            } else {
+                System.out.println("There is not sufficient amount of users with useful information for the clustering. Clusters is stopped.");
+                break;
+            }
             modelIndex++;
-        } else{
-            System.out.println("THere is less users having score 0 than clusters. Clusters is stopped.");
         }
-        
-        //}
 
     }
 
@@ -54,7 +54,7 @@ public class KMeans {
     private void computeBIC() {
         int k; // number of clusters
         int R = udata.getUserCount(), Rn;
-        int dimensionCount = 2;
+        int dimensionCount = TwitMain.NUMBER_KEYWORDS;
         double clusterVariance, sumCentroidCoord, modelVarinace, D, pj;
         k = modelIndex + K_START_AT;
         D = 0;
@@ -69,9 +69,8 @@ public class KMeans {
             sumCentroidCoord += getSumOfUserCoords(centroid);
             Rn = clustersByK.get(j).getUsers().size(); // number of points
             for (int l = 0; l < Rn; l++) { /*Itarate over points*/
-
                 UserData.User pointFromCluster = clustersByK.get(j).users.get(l);
-                clusterVariance += userDistance(centroid, pointFromCluster);
+                clusterVariance += 1-userDistance(centroid, pointFromCluster); //CHECK THE cluster variance
             }
             clusterVariance = clusterVariance / (R - k);
             D += computeBICofCluster(Rn, dimensionCount, clusterVariance, R);
@@ -90,16 +89,22 @@ public class KMeans {
          }
          return Math.sqrt(distance);*/
         double distance = 0;
+        Map keyWordsA = new HashMap();
+        Map keyWordsB = new HashMap();
         for (int j = 0; j < NUMBER_KEYWORDS; j++) {
-            distance += Math.pow((a.getKeyWord(j).getCount() - b.getKeyWord(j).getCount()), 2); /*distance function from Phillip*/
-
+            keyWordsA.put(a.getKeyWord(j).getKeyWord(), a.getKeyWord(j).getCount());
+            keyWordsB.put(b.getKeyWord(j).getKeyWord(), b.getKeyWord(j).getCount());
+            //distance += Math.pow((a.getKeyWord(j).getCount() - b.getKeyWord(j).getCount()), 2); /*distance function from Phillip*/
         }
+        
+        VectorIR.cosine_similarity(keyWordsA, keyWordsB);
            // System.out.println(u.getName());
         //System.out.println(u.getGender());
 
         //double distance= Math.sqrt(Math.pow((a.getKeyWord(0).getVSRscore()- b.getKeyWord(0).getVSRscore()), 2) + Math.pow((a.getKeyWord(0).getVSRscore() - b.getKeyWord(0).getVSRscore()), 2)); /*distance function from Phillip*/
         //System.out.println("Dist:" + distance);
-        return Math.sqrt(distance);
+        return VectorIR.cosine_similarity(keyWordsA, keyWordsB);
+        //return Math.sqrt(distance);
 
     }
 
@@ -144,14 +149,14 @@ public class KMeans {
                 for (int j = 0; j < TwitMain.NUMBER_KEYWORDS; j++) {
                     sumKeywords += udata.getUser(l).getKeyWord(j).getCount();
                 }
-                if (sumKeywords > 0) {
+                if (sumKeywords > 0 && !isUserLikeCentroid(udata.getUser(l), clustersByK)) {
                     UserData.User centroid = cloneUser(udata.getUser(l), "centroid" + l);
                     cluster.setCentroid(centroid);
                     clustersByK.add(cluster);
                     centroidsAssigned++;
                     break;
                 }
-               
+
             }
             /*Maybe this point is there twice???????????*/
         }
@@ -161,7 +166,14 @@ public class KMeans {
         return true;
 //        plotClusters();
     }
-
+    private Boolean isUserLikeCentroid(UserData.User u, ArrayList<Cluster> clusters){
+        for(int i=0;i<clusters.size();i++){
+            if(userDistance(u, clusters.get(i).getCentroid())==1){
+                return true;
+            }
+        }
+        return false;
+    } 
     private void plotClusters() {
         for (int i = 0; i < (K_START_AT + modelIndex); i++) {
             Cluster c = clustersByK.get(i);
@@ -202,8 +214,12 @@ public class KMeans {
             System.out.println("Centroid distances: " + distance);
             plotClusters();
 
-            if (distance == 0) {
+            if (distance == lastCentroids.size()) { // that means that every dimension is the same
                 finish = true;
+            }
+            if(distance == Double.NaN){
+                System.out.println("<<<<<<<<<<<<<<<Clustering-distance is non a number, sth is wrong.>>>>>>>>>>>>>");
+                break;
             }
         }
         return currentCentroids;
@@ -228,19 +244,18 @@ public class KMeans {
     }
 
     private void assignCluster() {
-        double max = Double.MAX_VALUE;
-        double min = max;
+        double min;
         int clusterNumber = 0;
-        double distance = 0.0;
+        double cosineSimilarity = 0.0;
 
         for (Object o : udata) {
             UserData.User user = (UserData.User) o;
-            min = max;
+            min = 0;
             for (int i = 0; i < (K_START_AT + modelIndex); i++) {
                 Cluster c = clustersByK.get(i);
-                distance = userDistance(user, c.getCentroid());
-                if (distance < min) {
-                    min = distance;
+                cosineSimilarity = userDistance(user, c.getCentroid());
+                if (cosineSimilarity > min) {
+                    min = cosineSimilarity;
                     clusterNumber = i;
                 }
             }
