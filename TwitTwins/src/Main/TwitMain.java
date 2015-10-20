@@ -94,11 +94,8 @@ public class TwitMain {
         udata = pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
 
         // Rank users to query using VSR method
-            //String[] q = { "co","to","and","http","t" }; // Enter query keywords here
-            //ArrayList<String> query = new ArrayList<>();
-            //query.addAll( Arrays.asList(q) );
         Ranking(udata, keywords);
-
+  
         //testing and print some scores
         
     }
@@ -144,30 +141,17 @@ public class TwitMain {
         
         // Sort the scores list in ascending order of scores (and their corresponding users)
         System.out.println("-------- VSR Ranking results --------");
+        System.out.println("Query: " + query);
         Collections.sort(scores);
         Collections.reverse(scores); // Changes the list to an ascending order.
         int rank = 0;
         for (Object o : scores) {
            Score s = (Score) o;
            rank++;
-           //System.out.println("Ranked: " + s.getName()+ "with score: " +"\t"+ s.getScore()  ); 
+           //System.out.println("Ranked: " + s.getName()+ "with score: " +"\t"+ s.getScore()  );
            System.out.format("#%d: \t %-20s \t (CosineScore: %f)%n", rank, s.getName(), s.getScore());
         }
-        
-//        // Test users for testing cosine similarity scoring
-//        Map d1 = new HashMap();
-//        Map d2 = new HashMap();
-//        d1.put("Fred", 0.0);
-//        d1.put("Poep", 0.0);
-//        d1.put("CD",0.0);
-//        d1.put("Draak", 0.0);
-//        
-//        d2.put("Girls", 52.0);
-//        d2.put("Pink", 52.0);
-//        d2.put("Barbie",52.0);
-//        d2.put("hoi",52.0);       
-//        System.out.println("Cosine similarity: " + VectorIR.cosine_similarity(QueryData,KwTfdata) );
-        
+               
     }       
 
     public static void printScores(UserData udata) {
@@ -189,27 +173,3 @@ public class TwitMain {
     
 }
 
-
-    // Used for sorting on cosine scores of users
-//    class Score implements Comparable<Score> {
-//        double score;
-//        String name;
-//
-//        public Score(double score, String name) {
-//        this.score = score;
-//        this.name = name;
-//        }
-//
-//        @Override
-//        public int compareTo(Score o) {
-//            return score < o.score ? -1 : score > o.score ? 1 : 0;
-//        }
-//            
-//        public double getScore() {
-//            return score;
-//        }
-//            
-//        public String getName() {
-//            return name;
-//        }
-//    }
