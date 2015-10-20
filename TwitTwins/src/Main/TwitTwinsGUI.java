@@ -49,6 +49,7 @@ public class TwitTwinsGUI extends JFrame {
     private ResultsPanel rpanel;
     private TweetsExtractor te;
     private UserData ud;
+    private NameLookup nl = new NameLookup();
     
     private final int METHOD_VSR = 0;
     private final int METHOD_PRB = 1;
@@ -509,7 +510,6 @@ public class TwitTwinsGUI extends JFrame {
         TwitMain.printScores(ud);
         KMeans km = new KMeans(7, ud);
         
-        
         switch(method){
             case METHOD_PRB:
                  ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
@@ -582,9 +582,26 @@ public class TwitTwinsGUI extends JFrame {
             
             Tweet t = names.poll();
             String name = t.getUser().getScreenName();
+            String genderFromList = nl.getGender(name);
             String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
             ProfilePredict pp = new ProfilePredict();
-            String gender = pp.getGender(ProfilePicURL);
+            String genderFromPic = pp.getGender(ProfilePicURL);
+            String gender;
+            if(genderFromList==genderFromPic){
+                gender=genderFromList;
+            }
+            else if(genderFromList!="n.a."&&genderFromPic=="n.a."){
+                gender=genderFromList;
+            }
+            else if(genderFromList=="n.a."&&genderFromPic!="n.a."){
+                gender=genderFromPic;
+            } 
+            else if(genderFromList=="male"&&genderFromPic=="female"||genderFromList=="female"&&genderFromPic=="male"){
+                gender=genderFromPic;
+            }
+            else{
+                gender="n.a.";
+            }
             int age = pp.getAge(ProfilePicURL);
 //            String gender = "male";
 //            int age = 21;

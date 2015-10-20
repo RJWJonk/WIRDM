@@ -20,18 +20,26 @@ import java.util.Scanner;
  */
 public class NameLookup {
     
+    private static final Map<String, Double> nameMapFemale = new HashMap<>();
+    private static final Map<String, Double> nameMapMale = new HashMap<>();
+    
     public static void main(String[] args){
-//        NameLookup nl = new NameLookup();
-        readStoreNames();
+        readStoreNames(nameMapFemale, "src/Datafiles/dist.female.first.txt");
+        readStoreNames(nameMapMale, "src/Datafiles/dist.male.first.txt");
+        System.out.println(nameMapFemale.get("PATRICIA"));
     }
     
-    public static void readStoreNames() {
+    public void NameLookup(){
+        readStoreNames(nameMapFemale, "src/Datafiles/dist.female.first.txt");
+        readStoreNames(nameMapMale, "src/Datafiles/dist.male.first.txt");
+    }
+    
+    public static void readStoreNames(Map<String, Double> nameMap, String file) {
         BufferedReader br = null;
-        Map<String, Double> nameMap = new HashMap<>();
 
         try {
             String sCurrentLine;
-            br = new BufferedReader(new FileReader("src/Datafiles/dist.female.first.txt"));
+            br = new BufferedReader(new FileReader(file));
 
             int i=0;
             while ((sCurrentLine = br.readLine()) != null) {
@@ -39,9 +47,10 @@ public class NameLookup {
                 String name = s.next();
                 String percentageString = s.next();
                 double percentage = Double.parseDouble(percentageString);
-                System.out.println("arr[0] = " + name);
+                String nameLowerCase = name.toLowerCase();
+                System.out.println("arr[0] = " + nameLowerCase);
                 System.out.println("arr[1] = " + percentageString);
-                nameMap.put(name, percentage);
+                nameMap.put(nameLowerCase, percentage);
                 i++;
             }   
 
@@ -56,11 +65,33 @@ public class NameLookup {
         }
     }
     
-    
-    
-    
     public String getGender(String name){
-        String a = "male";
+        String a;
+        double b;
+        
+        if(nameMapFemale.containsKey(name)&&nameMapMale.containsKey(name)){
+            if(nameMapFemale.get(name)>=nameMapMale.get(name)){
+                a="female";
+//                b=nameMapFemale.get(name);
+            }
+            else{
+                a="male";
+//                b=nameMapMale.get(name);
+            }
+        }
+        else if(nameMapFemale.containsKey(name)){
+            a="female";
+//            b=nameMapFemale.get(name);
+        }
+        else if (nameMapMale.containsKey(name)){
+            a="male";
+//            b=nameMapMale.get(name);
+        }
+        else {
+            a="n.a.";
+//            b=0;
+        }
+        
         return a;
     }
 }
