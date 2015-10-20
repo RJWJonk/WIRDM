@@ -32,6 +32,11 @@ public class TwitMain {
     static int NUMBER_KEYWORDS = 5;
 
     public static void main(String[] args) throws FaceppParseException {
+        
+        UserData testingUdata = createTestingData();
+        printScores(testingUdata);
+        
+        
         TweetsExtractor te = new TweetsExtractor();
         TreeMap<String, Word> data = te.extractUser("tferriss"); //tferris
         int i = NUMBER_KEYWORDS;
@@ -86,8 +91,7 @@ public class TwitMain {
             System.out.println(u.getName());
             System.out.println(u.getGender());
         }
-
-        printScores(udata);
+         printScores(udata);
         //Clustering
         //KMeans kClustering = new KMeans(7, udata);
 
@@ -100,7 +104,7 @@ public class TwitMain {
         //testing and print some scores
     }
 
-    private UserData createTestingData(List<String> kws) {
+    private static UserData createTestingData() {
         ArrayList<String> keywords = new ArrayList<String>();
         keywords.add("ICT");
         keywords.add("school");
@@ -115,7 +119,8 @@ public class TwitMain {
 
         UserData newUdata = new UserData(keywords);
         String[] names = {"John", "Adam", "Ben", "Luke", "Phillip", "Ruben", "Chung-Kit"};
-        int[][] keywordFreqency = new int[][]{{5, 4, 0, 1, 2},
+        int[][] keywordFreqency = new int[][]{
+        {5, 4, 0, 1, 2},
         {0, 18, 0, 4, 5},
         {10, 0, 10, 0, 0},
         {0, 3, 0, 4, 0},
@@ -129,9 +134,9 @@ public class TwitMain {
             Map<String, Word> userKeywords = new HashMap<String, Word>();
             for (int j = 0; j < keywordFreqency[i].length; j++) {
 
-                Word w = new Word(keywords.get(i), 1);
+                Word w = new Word(keywords.get(j), 1);
                 w.setFrequency(keywordFreqency[i][j]);
-                userKeywords.put(keywords.get(i), w);
+                userKeywords.put(keywords.get(j), w);
             }
             newUdata.addUser(names[i], -1, "Male", NUMBER_KEYWORDS, userKeywords);
         }
