@@ -33,8 +33,7 @@ public class TwitMain {
 
     public static void main(String[] args) throws FaceppParseException {
         
-        UserData testingUdata = createTestingData();
-        printScores(testingUdata);
+       
         
         
         TweetsExtractor te = new TweetsExtractor();
@@ -104,44 +103,7 @@ public class TwitMain {
         //testing and print some scores
     }
 
-    private static UserData createTestingData() {
-        ArrayList<String> keywords = new ArrayList<String>();
-        keywords.add("ICT");
-        keywords.add("school");
-        keywords.add("girls");
-        keywords.add("technology");
-        keywords.add("testing");
-        List<Score> searchUserScores = new ArrayList();
-        int[] searchUserKeywordFrequncy = {15, 10, 6, 0, 8};
-        for (int i = 0; i < keywords.size(); i++) {
-            searchUserScores.add(new Score(searchUserKeywordFrequncy[i], keywords.get(i)));
-        }
-
-        UserData newUdata = new UserData(keywords);
-        String[] names = {"John", "Adam", "Ben", "Luke", "Phillip", "Ruben", "Chung-Kit"};
-        int[][] keywordFreqency = new int[][]{
-        {5, 4, 0, 1, 2},
-        {0, 18, 0, 4, 5},
-        {10, 0, 10, 0, 0},
-        {0, 3, 0, 4, 0},
-        {6, 0, 7, 0, 1},
-        {0, 4, 12, 4, 1},
-        {2, 8, 1, 1, 4}};
-        //int[] ages = {}
-        //String [] genders = {}
-        for (int i = 0; i < keywordFreqency.length; i++) {
-            TreeMap<String, Word> user = new TreeMap();
-            Map<String, Word> userKeywords = new HashMap<String, Word>();
-            for (int j = 0; j < keywordFreqency[i].length; j++) {
-
-                Word w = new Word(keywords.get(j), 1);
-                w.setFrequency(keywordFreqency[i][j]);
-                userKeywords.put(keywords.get(j), w);
-            }
-            newUdata.addUser(names[i], -1, "Male", NUMBER_KEYWORDS, userKeywords);
-        }
-        return newUdata;
-    }
+    
 
     public static void Ranking(UserData udata, ArrayList<String> query) {
         String word;
@@ -191,15 +153,17 @@ public class TwitMain {
 
         for (Object o : udata) {
             UserData.User u = (UserData.User) o;
-            String userInfo = u.getName() + " - Keywords:";
+            System.out.print( u.getName()+"\t");
             UserData.KeyWord keyword = u.getFirstKeyWord();
             Iterator iter = u.iterator();
             while (iter.hasNext()) {
                 UserData.KeyWord keyW = (UserData.KeyWord) iter.next();
-                userInfo = userInfo + "|" + keyW.getKeyWord() + ":" + keyW.getCount() + "|";
+                //userInfo = keyW.getKeyWord() + ": " + keyW.getCount() + "\t";
+                System.out.format("%s: %2.0f \t", keyW.getKeyWord(), keyW.getCount());
             }
 
-            System.out.println(userInfo);
+            System.out.println("");
+            //System.out.format("%10.3f%n", keyW.getCount());
         }
     }
 

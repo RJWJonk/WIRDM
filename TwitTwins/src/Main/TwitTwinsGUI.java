@@ -512,8 +512,7 @@ public class TwitTwinsGUI extends JFrame {
         
         switch(method){
             case METHOD_PRB:
-                 ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
-                 scores = pr.rank(ud, keywords,0.8);
+                 scores = ProbabRetrieval.rank(ud, keywords,0.8);
                  break;
             case METHOD_VSR:
             default:
@@ -591,14 +590,6 @@ public class TwitTwinsGUI extends JFrame {
             TreeMap<String, Word> user = te.extractUser(name);
             udata.addUser(name, age, gender, -1, user);
             
-            int collectionWordLenght = 0;
-            int userWordLenght = 0;
-            for(Map.Entry<String,Word> entry : user.entrySet()) {
-                Word value = entry.getValue();
-                userWordLenght+= value.getFrequency();
-              }
-            udata.addUser(name, age, gender, userWordLenght, user);
-            collectionWordLenght+=userWordLenght;
 //            collectionLenght+=TweetCount;
             
         }
