@@ -318,7 +318,7 @@ public class TwitTwinsGUI extends JFrame {
                     System.out.println("Returning a list of " + relevant.size() + " items for RFB");
                     //todo: Rocchio Relevance Feedback Algorithm
                     
-                    RocchioRFB rfb = new RocchioRFB(keys, ranking, relevant, 1.0, 0.5, 0.1  ); // With values alpha, beta and gamma respectively
+                    RocchioRFB rfb = new RocchioRFB(ud.getKeyWords(), ranking, relevant, 1.0, 0.5, 0.1  ); // With values alpha, beta and gamma respectively
                     System.out.println("Old query: " + keys);
                     System.out.println("Rocchio Relevance Feedback, new search query: " + rfb.getUpdatedQuery() );
  
@@ -537,14 +537,14 @@ public class TwitTwinsGUI extends JFrame {
                  break;
             case METHOD_VSR:
             default:
-                scores = performVSR(ud, stringKeywords); // 
+                scores = performVSR(ud, keywords); // 
                 break;
         }
 //        performVSR(ud, stringKeywords); 
         rpanel.createRanking(scores);
     }
     
-    private List<Score> performVSR(UserData ud, List<String> keywords){
+    private List<Score> performVSR(UserData ud, List<Score> keywords){
         String word;
         Double tf;
         Map KwTfdata = new HashMap(); //KeyWord + TermFrequency data of single user
@@ -553,7 +553,7 @@ public class TwitTwinsGUI extends JFrame {
         List<Score> scores = new ArrayList<Score>(); // Stores the cosine similarity score between keywords and all users
         
         for (int i = 0; i < keywords.size(); i++) {
-            QueryData.put(keywords.get(i), 1.0);
+            QueryData.put(keywords.get(i).getName(), keywords.get(i).getScore());
         }    
         // Retrieve all keywords (including their term frequency) from every user and put it in a map
         for (Object o : ud) {
@@ -607,29 +607,29 @@ public class TwitTwinsGUI extends JFrame {
             String actualFirstName = s.next().toLowerCase();
             String genderFromList = nl.getGender(actualFirstName);
             System.out.println(actualFirstName);
-            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
-            ProfilePredict pp = new ProfilePredict();
-            String genderFromPic = pp.getGender(ProfilePicURL).toLowerCase();
-            String gender;
-            if(genderFromList==genderFromPic){
-                gender=genderFromList;
-            }
-            else if(genderFromList!="n.a."&&genderFromPic=="n.a."){
-                gender=genderFromList;
-            }
-            else if(genderFromList=="n.a."&&genderFromPic!="n.a."){
-                gender=genderFromPic;
-            } 
-            else if(genderFromList=="male"&&genderFromPic=="female"||genderFromList=="female"&&genderFromPic=="male"){
-                gender=genderFromPic;
-            }
-            else{
-                gender="n.a.";
-            }
-            
-            int age = pp.getAge(ProfilePicURL);
-//            String gender = "male";
-//            int age = 21;
+//            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
+//            ProfilePredict pp = new ProfilePredict();
+//            String genderFromPic = pp.getGender(ProfilePicURL).toLowerCase();
+//            String gender;
+//            if(genderFromList==genderFromPic){
+//                gender=genderFromList;
+//            }
+//            else if(genderFromList!="n.a."&&genderFromPic=="n.a."){
+//                gender=genderFromList;
+//            }
+//            else if(genderFromList=="n.a."&&genderFromPic!="n.a."){
+//                gender=genderFromPic;
+//            } 
+//            else if(genderFromList=="male"&&genderFromPic=="female"||genderFromList=="female"&&genderFromPic=="male"){
+//                gender=genderFromPic;
+//            }
+//            else{
+//                gender="n.a.";
+//            }
+//            
+//            int age = pp.getAge(ProfilePicURL);
+            String gender = "male";
+            int age = 21;
             TreeMap<String, Word> user = te.extractUser(name);
             udata.addUser(name, age, gender, -1, user);
             

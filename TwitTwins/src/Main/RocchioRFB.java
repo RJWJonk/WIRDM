@@ -14,8 +14,8 @@ import java.util.List;
  * @author Philip
  */
 public class RocchioRFB {
-    ArrayList<String> OldQuery = new ArrayList();
-    ArrayList<String> NewQuery = new ArrayList();
+    List<String> OldQuery = new ArrayList();
+    List<String> NewQuery = new ArrayList();
     List<TwitTwinsGUI.RankingEntry> ranking = new ArrayList<>();
     List<TwitTwinsGUI.RankingEntry> relevant = new ArrayList<>();
     List<String> UserKeywords;
@@ -23,14 +23,14 @@ public class RocchioRFB {
     List<Score> GammaScores = new ArrayList<Score>();
     double alpha, beta, gamma;
     
-    public RocchioRFB(ArrayList<String> OldQuery, List<TwitTwinsGUI.RankingEntry> ranking, List<TwitTwinsGUI.RankingEntry> relevant, double alpha, double beta, double gamma) {
+    public RocchioRFB(List<String> OldQuery, List<TwitTwinsGUI.RankingEntry> ranking, List<TwitTwinsGUI.RankingEntry> relevant, double alpha, double beta, double gamma) {
         this.OldQuery = OldQuery;
         this.alpha = alpha;
         this.beta = beta;
         this.gamma = gamma;   
     }
     
-    public ArrayList<String> getUpdatedQuery() {
+    public List<String> getUpdatedQuery() {
         NewQuery = OldQuery;
         NewQuery.add("Test1");
         NewQuery.add("Test2");
