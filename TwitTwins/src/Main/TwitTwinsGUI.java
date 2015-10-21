@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -396,8 +397,27 @@ public class TwitTwinsGUI extends JFrame {
                 rfbBoxes.add(rlfb);
                 g.setFont(rfont);
                 g.drawString(row + 1 + ".", x_start + ranknum / 3 - ((row == 9) ? 4 : 0), y_start + 2 * height / 3 + row * hmargin);
-
-                String result1 = re.username + ", " + re.gender + ", " + re.age;
+                
+                String age;
+                if(re.age==-1){
+                    age="n.a.";
+                }
+                else{
+                    age=Integer.toString(re.age);
+                }
+                String result1;
+                if(re.gender=="n.a."&&age=="n.a."){
+                    result1=re.username;
+                }
+                else if(re.gender=="n.a."){
+                    result1=re.username+", "+age;
+                }
+                else if(age=="n.a."){
+                    result1=re.username+", "+re.gender;
+                }
+                else{
+                    result1=re.username + ", " + re.gender + ", " + age;
+                }
                 String result2 = "";
 
                 for (String s : re.keywords) {
@@ -582,10 +602,14 @@ public class TwitTwinsGUI extends JFrame {
             
             Tweet t = names.poll();
             String name = t.getUser().getScreenName();
-            String genderFromList = nl.getGender(name);
+            String actualName = t.getUser().getName();
+            Scanner s = new Scanner(actualName);
+            String actualFirstName = s.next().toLowerCase();
+            String genderFromList = nl.getGender(actualFirstName);
+            System.out.println(actualFirstName);
             String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
             ProfilePredict pp = new ProfilePredict();
-            String genderFromPic = pp.getGender(ProfilePicURL);
+            String genderFromPic = pp.getGender(ProfilePicURL).toLowerCase();
             String gender;
             if(genderFromList==genderFromPic){
                 gender=genderFromList;
@@ -602,6 +626,7 @@ public class TwitTwinsGUI extends JFrame {
             else{
                 gender="n.a.";
             }
+            
             int age = pp.getAge(ProfilePicURL);
 //            String gender = "male";
 //            int age = 21;

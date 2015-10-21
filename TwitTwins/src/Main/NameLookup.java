@@ -29,7 +29,7 @@ public class NameLookup {
         System.out.println(nameMapFemale.get("PATRICIA"));
     }
     
-    public void NameLookup(){
+    public NameLookup(){
         readStoreNames(nameMapFemale, "src/Datafiles/dist.female.first.txt");
         readStoreNames(nameMapMale, "src/Datafiles/dist.male.first.txt");
     }
@@ -48,8 +48,6 @@ public class NameLookup {
                 String percentageString = s.next();
                 double percentage = Double.parseDouble(percentageString);
                 String nameLowerCase = name.toLowerCase();
-                System.out.println("arr[0] = " + nameLowerCase);
-                System.out.println("arr[1] = " + percentageString);
                 nameMap.put(nameLowerCase, percentage);
                 i++;
             }   
