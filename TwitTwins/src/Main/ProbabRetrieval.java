@@ -22,29 +22,21 @@ import java.util.TreeMap;
  */
 public class ProbabRetrieval {
 
-    public static void main(String[] args) {
-
-        List<String> keywords = new ArrayList<String>();
-        keywords.add("ICT");
-        keywords.add("school");
-        keywords.add("girls");
-        keywords.add("technology");
-        keywords.add("testing");
-
-        List<Score> searchedUser = createSearchUserScore(keywords);
-
-        UserData testingUdata = createTestingData(keywords);
-        printScores(testingUdata);
-        //rank(testingUdata, searchedUser, 1.0);
-    }
-    private void test()
-    {
-        List<String> keywords = new ArrayList<String>();
-        keywords.add("ICT");
-        keywords.add("school");
-        keywords.add("girls");
-        keywords.add("technology");
-        keywords.add("testing");
+//    public static void main(String[] args) {
+//
+//        List<String> keywords = new ArrayList<String>();
+//        keywords.add("ICT");
+//        keywords.add("school");
+//        keywords.add("girls");
+//        keywords.add("technology");
+//        keywords.add("testing");
+//
+//        List<Score> searchedUser = createSearchUserScore(keywords);
+//
+//        UserData testingUdata = createTestingData(keywords);
+//        printScores(testingUdata);
+//        //rank(testingUdata, searchedUser, 1.0);
+//    }
 
         List<Score> searchedUser = createSearchUserScore(keywords);
 

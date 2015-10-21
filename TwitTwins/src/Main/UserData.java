@@ -52,6 +52,10 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
     public int getUserCount() {
         return userCount;
     }
+    
+    public List<String> getKeyWords() {
+        return keywords;
+    }
 
     public User getUser(int index) {
         User returnU = firstU;

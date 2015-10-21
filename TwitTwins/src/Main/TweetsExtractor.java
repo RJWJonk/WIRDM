@@ -41,10 +41,10 @@ public class TweetsExtractor {
     public static Map<String, String> stopWords;
     public static String delims = ", !.)(\"?\'�_<>|;:/";
 
-    public static void main(String[] args) throws IOException {
-        TweetsExtractor te = new TweetsExtractor();
-        System.out.println(te.toString());
-    }
+//    public static void main(String[] args) throws IOException {
+//        TweetsExtractor te = new TweetsExtractor();
+//        System.out.println(te.toString());
+//    }
 
     public TweetsExtractor() {
 
@@ -114,6 +114,25 @@ public class TweetsExtractor {
 //        
         sorted_map.putAll(wordMap);
         return sorted_map;
+    }
+    
+    public Map<String, Word> extractUserM(String u) {
+        //init values
+        wordMap = new HashMap<>();
+        stopWords = new HashMap<>();
+        ValueComparator wvc = new ValueComparator(wordMap);
+
+        Queue<Tweet> tweets = queryUser(u);
+        tokenizing(tweets);
+        //read stopwords from file and store it in hashmap
+        readStoreStopWords();
+        //remove stopWords
+        removeStopWords();
+        //apply stemming by provided API
+        applyStemming();
+        //check for synonyms and use the most common keyword
+        checkForSynonyms();
+        return wordMap;
     }
 
     /**

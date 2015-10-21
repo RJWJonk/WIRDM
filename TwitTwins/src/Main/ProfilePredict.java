@@ -34,44 +34,44 @@ public class ProfilePredict {
         private final static Twitter twitter = authenticate();
 	public static String twitterUser = "SCGOP"; //some given (real) twitter user
         
-        public static void main(String[] args) throws FaceppParseException, MalformedURLException, IOException {
-            
-        HttpRequests httpRequests = new HttpRequests("25ad86cdad3ea4ac04204464a210058d", "phbtAB6cTT4LcArmskLCin2O5v6hDZfa");
-        PostParameters postParameters;
-        String imageURL = queryUserIMG(twitterUser);
-        postParameters = new PostParameters().setUrl(imageURL).setAttribute("all");
-        httpRequests.detectionDetect(postParameters);
-        FaceppResult result = httpRequests.detectionDetect(postParameters);
-//        System.out.println("Twitter user:"+twitterUser+ " is "+
-//                             result.get("face").get(0).get("attribute").get("age").get("value", FaceppResult.JsonType.INT)+
-//                           "(+/-"+result.get("face").get(0).get("attribute").get("age").get("range", FaceppResult.JsonType.INT)+") years old.");
-//         System.out.println("Gender of "+twitterUser+ " is a "+result.get("face").get(0).get("attribute").get("gender").get("value", FaceppResult.JsonType.STRING)+", race is "+ result.get("face").get(0).get("attribute").get("race").get("value", FaceppResult.JsonType.STRING)+".");
-    
-        URL url = new URL(imageURL);
-        BufferedImage c = ImageIO.read(url);
-        ImageIcon image = new ImageIcon(c);
-        Image img = image.getImage(); // transform it 
-        Image newimg = img.getScaledInstance(150, 150,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
-        image = new ImageIcon(newimg);  // transform it back
-        JLabel jp = new JLabel(image);
-        JFrame frame = new JFrame("TwitTwins");//Make a frame
-        frame.setSize(500, 500);//Give it a size
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);//Make it go away on close
-        JPanel panel = new JPanel();//Make a panel
-        TextField bio = new TextField("");
-        String a = "" + result.get("face");
-        if (!a.contains("[]")){
-        bio.setText("Twitter user:"+twitterUser+ " is "+
-                            result.get("face").get(0).get("attribute").get("age").get("value", FaceppResult.JsonType.INT)+
-                            "(+/-"+result.get("face").get(0).get("attribute").get("age").get("range", FaceppResult.JsonType.INT)+") years old.");
-        }
-//        TextField bio2 = new TextField("Gender of "+twitterUser+ " is a "+result.get("face").get(0).get("attribute").get("gender").get("value", FaceppResult.JsonType.STRING)+", race is "+ result.get("face").get(0).get("attribute").get("race").get("value", FaceppResult.JsonType.STRING)+".");
-        panel.add(bio);
-//        panel.add(bio2);
-        panel.add(jp);
-        frame.add(panel);//Add it to your frame
-        frame.setVisible(true);
-    }
+//        public static void main(String[] args) throws FaceppParseException, MalformedURLException, IOException {
+//            
+//        HttpRequests httpRequests = new HttpRequests("25ad86cdad3ea4ac04204464a210058d", "phbtAB6cTT4LcArmskLCin2O5v6hDZfa");
+//        PostParameters postParameters;
+//        String imageURL = queryUserIMG(twitterUser);
+//        postParameters = new PostParameters().setUrl(imageURL).setAttribute("all");
+//        httpRequests.detectionDetect(postParameters);
+//        FaceppResult result = httpRequests.detectionDetect(postParameters);
+////        System.out.println("Twitter user:"+twitterUser+ " is "+
+////                             result.get("face").get(0).get("attribute").get("age").get("value", FaceppResult.JsonType.INT)+
+////                           "(+/-"+result.get("face").get(0).get("attribute").get("age").get("range", FaceppResult.JsonType.INT)+") years old.");
+////         System.out.println("Gender of "+twitterUser+ " is a "+result.get("face").get(0).get("attribute").get("gender").get("value", FaceppResult.JsonType.STRING)+", race is "+ result.get("face").get(0).get("attribute").get("race").get("value", FaceppResult.JsonType.STRING)+".");
+//    
+//        URL url = new URL(imageURL);
+//        BufferedImage c = ImageIO.read(url);
+//        ImageIcon image = new ImageIcon(c);
+//        Image img = image.getImage(); // transform it 
+//        Image newimg = img.getScaledInstance(150, 150,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+//        image = new ImageIcon(newimg);  // transform it back
+//        JLabel jp = new JLabel(image);
+//        JFrame frame = new JFrame("TwitTwins");//Make a frame
+//        frame.setSize(500, 500);//Give it a size
+//        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);//Make it go away on close
+//        JPanel panel = new JPanel();//Make a panel
+//        TextField bio = new TextField("");
+//        String a = "" + result.get("face");
+//        if (!a.contains("[]")){
+//        bio.setText("Twitter user:"+twitterUser+ " is "+
+//                            result.get("face").get(0).get("attribute").get("age").get("value", FaceppResult.JsonType.INT)+
+//                            "(+/-"+result.get("face").get(0).get("attribute").get("age").get("range", FaceppResult.JsonType.INT)+") years old.");
+//        }
+////        TextField bio2 = new TextField("Gender of "+twitterUser+ " is a "+result.get("face").get(0).get("attribute").get("gender").get("value", FaceppResult.JsonType.STRING)+", race is "+ result.get("face").get(0).get("attribute").get("race").get("value", FaceppResult.JsonType.STRING)+".");
+//        panel.add(bio);
+////        panel.add(bio2);
+//        panel.add(jp);
+//        frame.add(panel);//Add it to your frame
+//        frame.setVisible(true);
+//    }
     
 
         public static String queryUserIMG(String user) {

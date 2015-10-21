@@ -31,85 +31,85 @@ public class TwitMain {
 
     static int NUMBER_KEYWORDS = 5;
 
-    public static void main(String[] args) throws FaceppParseException {
-        
-        List<String> kwss = new ArrayList<String>();       
-        kwss.add("ICT");
-        kwss.add("school");
-        kwss.add("girls");
-        kwss.add("technology");
-        kwss.add("testing");
-        
-        
-       UserData testingUdata = ProbabRetrieval.createTestingData(kwss);
-        //KMeans km = new KMeans(5, testingUdata);
-        
-        TweetsExtractor te = new TweetsExtractor();
-        TreeMap<String, Word> data = te.extractUser("tferriss"); //tferris
-        int i = NUMBER_KEYWORDS;
-        int keywordSearchedUserCount = 0;
-
-        ArrayList<Integer> searchedUserKeywordFrequency = new ArrayList();
-        ArrayList<String> keywords = new ArrayList();
-        for (Word w : data.values()) {
-            if (i == 0) {
-                break;
-            } else {
-                i--;
-            }
-            keywords.add(w.getWord());
-            searchedUserKeywordFrequency.add(w.getFrequency());
-            keywordSearchedUserCount += w.getFrequency();
-        }
-
-        UserData udata = new UserData(keywords);
-
-        Queue<Tweet> names = te.query(keywords);
-
-        int collectionWordLenght = 0;
-        int userWordLenght;
-        int n = 20;
-        while (n > 0 && !names.isEmpty()) {
-            n--;
-
-            Tweet t = names.poll();
-            //t.g
-            String name = t.getUser().getScreenName();
-            /* String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
-             ProfilePredict pp = new ProfilePredict();
-             String gender = pp.getGender(ProfilePicURL);
-             int age = pp.getAge(ProfilePicURL);*/
-            String gender = "male";
-            TreeMap<String, Word> user = te.extractUser(name);
-
-            userWordLenght = 0;
-            for (Map.Entry<String, Word> entry : user.entrySet()) {
-                Word value = entry.getValue();
-                userWordLenght += value.getFrequency();
-            }
-            udata.addUser(name, 0, gender, userWordLenght, user);
-            collectionWordLenght += userWordLenght;
-//            collectionLenght+=TweetCount;
-
-        }
-        int co = 0;
-        for (Object o : udata) {
-            UserData.User u = (UserData.User) o;
-            System.out.println(u.getName());
-            System.out.println(u.getGender());
-        }
-         printScores(udata);
-        //Clustering
-        //KMeans kClustering = new KMeans(7, udata);
-
-        // Do not delte
-        //ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
-        //pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
-        // Rank users to query using VSR method
-        Ranking(udata, keywords);
-
-        //testing and print some scores
-    }
+//    public static void main(String[] args) throws FaceppParseException {
+//        
+//        List<String> kwss = new ArrayList<String>();       
+//        kwss.add("ICT");
+//        kwss.add("school");
+//        kwss.add("girls");
+//        kwss.add("technology");
+//        kwss.add("testing");
+//        
+//        
+//       UserData testingUdata = ProbabRetrieval.createTestingData(kwss);
+//        //KMeans km = new KMeans(5, testingUdata);
+//        
+//        TweetsExtractor te = new TweetsExtractor();
+//        TreeMap<String, Word> data = te.extractUser("tferriss"); //tferris
+//        int i = NUMBER_KEYWORDS;
+//        int keywordSearchedUserCount = 0;
+//
+//        ArrayList<Integer> searchedUserKeywordFrequency = new ArrayList();
+//        ArrayList<String> keywords = new ArrayList();
+//        for (Word w : data.values()) {
+//            if (i == 0) {
+//                break;
+//            } else {
+//                i--;
+//            }
+//            keywords.add(w.getWord());
+//            searchedUserKeywordFrequency.add(w.getFrequency());
+//            keywordSearchedUserCount += w.getFrequency();
+//        }
+//
+//        UserData udata = new UserData(keywords);
+//
+//        Queue<Tweet> names = te.query(keywords);
+//
+//        int collectionWordLenght = 0;
+//        int userWordLenght;
+//        int n = 20;
+//        while (n > 0 && !names.isEmpty()) {
+//            n--;
+//
+//            Tweet t = names.poll();
+//            //t.g
+//            String name = t.getUser().getScreenName();
+//            /* String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
+//             ProfilePredict pp = new ProfilePredict();
+//             String gender = pp.getGender(ProfilePicURL);
+//             int age = pp.getAge(ProfilePicURL);*/
+//            String gender = "male";
+//            TreeMap<String, Word> user = te.extractUser(name);
+//
+//            userWordLenght = 0;
+//            for (Map.Entry<String, Word> entry : user.entrySet()) {
+//                Word value = entry.getValue();
+//                userWordLenght += value.getFrequency();
+//            }
+//            udata.addUser(name, 0, gender, userWordLenght, user);
+//            collectionWordLenght += userWordLenght;
+////            collectionLenght+=TweetCount;
+//
+//        }
+//        int co = 0;
+//        for (Object o : udata) {
+//            UserData.User u = (UserData.User) o;
+//            System.out.println(u.getName());
+//            System.out.println(u.getGender());
+//        }
+//         printScores(udata);
+//        //Clustering
+//        //KMeans kClustering = new KMeans(7, udata);
+//
+//        // Do not delte
+//        //ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
+//        //pr.rank(udata, searchedUserKeywordFrequency, keywordSearchedUserCount, collectionWordLenght,0.8);
+//        // Rank users to query using VSR method
+//        Ranking(udata, keywords);
+//
+//        //testing and print some scores
+//    }
 
     
 

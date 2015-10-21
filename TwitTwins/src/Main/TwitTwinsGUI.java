@@ -31,12 +31,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
-
 
 /**
  *
@@ -50,7 +50,7 @@ public class TwitTwinsGUI extends JFrame {
     private TweetsExtractor te;
     private UserData ud;
     private NameLookup nl = new NameLookup();
-    
+
     private final int METHOD_VSR = 0;
     private final int METHOD_PRB = 1;
     private final int method = 1;
@@ -174,6 +174,7 @@ public class TwitTwinsGUI extends JFrame {
                     } else {
                         addField.setText("");
                         keywords.add(new Score(1, s)); /*What is the score?????*/
+
                         return;
                     }
                 }
@@ -309,38 +310,72 @@ public class TwitTwinsGUI extends JFrame {
 
             this.setLayout(null);
             rfbButton = new JButton("RFB");
-            rfbButton.setBounds(x_start+150, 0, 60, 30);
+            rfbButton.setBounds(x_start + 150, 0, 60, 30);
             rfbButton.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     System.out.println("Returning a list of " + relevant.size() + " items for RFB");
-                    //todo: Rocchio Relevance Feedback Algorithm
+                    List<RankingEntry> irrelevant = new ArrayList<>(ranking);
+                    for(RankingEntry re: relevant){
+                        irrelevant.remove(re);
+                    }
                     
-                    RocchioRFB rfb = new RocchioRFB(keys, ranking, relevant, 1.0, 0.5, 0.1  ); // With values alpha, beta and gamma respectively
-                    System.out.println("Old query: " + keys);
+                    Map<String, Word> rfbRMap = new HashMap<>();
+                    Map<String, Word> rfbNMap = new HashMap<>();
+                    
+                    for(RankingEntry re:relevant){
+                        Map<String, Word> tm = new HashMap<>();
+                        tm=te.extractUserM(re.getUserName());
+                        System.out.println("Retrieved tweets from "+re.getUserName());
+                        for(String key:tm.keySet()){
+                            Word w = tm.get(key);
+                            if(rfbRMap.containsKey(w)){
+                                rfbRMap.get(w).setFrequency((rfbRMap.get(w).getFrequency()+w.getFrequency()));
+                            }
+                            else{
+                                rfbRMap.put(w.getWord(), w);
+                            }
+                        }
+                    }
+                    for(RankingEntry re:irrelevant){
+                        Map<String, Word> tm = new HashMap<>();
+                        tm=te.extractUserM(re.getUserName());
+                        System.out.println("Retrieved tweets from "+re.getUserName());
+                        for(String key:tm.keySet()){
+                            Word w = tm.get(key);
+                            if(rfbNMap.containsKey(w)){
+                                rfbNMap.get(w).setFrequency((rfbNMap.get(w).getFrequency()+w.getFrequency()));
+                            }
+                            else{
+                                rfbNMap.put(w.getWord(), w);
+                            }
+                        }
+                    }
+                    RocchioRFB rfb = new RocchioRFB(ud.getKeyWords(), rfbRMap, rfbNMap, ranking, relevant, 1.0, 0.5, 0.1  ); // With values alpha, beta and gamma respectively
+                    System.out.println("Old query: " + ud.getKeyWords());
                     System.out.println("Rocchio Relevance Feedback, new search query: " + rfb.getUpdatedQuery() );
  
                 }
 
             });
             this.add(rfbButton);
-            
+
         }
-        
-        private void createRanking(List<Score> scores){
+
+        private void createRanking(List<Score> scores) {
             ranking.clear();
-            for (Object o: ud){
+            for (Object o : ud) {
                 UserData.User u = (UserData.User) o;
-                System.out.println(u.getName());
+                //System.out.println(u.getName());
             }
-            for (Score s:scores){
-                System.out.println(s.getName());
+            for (Score s : scores) {
+                //System.out.println(s.getName());
                 UserData.User user = ud.getUser(s.getName());
                 ArrayList<String> userKeywords = new ArrayList();
-                for(Object o: user){
+                for (Object o : user) {
                     UserData.KeyWord kw = (UserData.KeyWord) o;
-                    if(kw.getCount()!=0) {
+                    if (kw.getCount() != 0) {
                         userKeywords.add(kw.getKeyWord());
                     }
                 }
@@ -350,7 +385,9 @@ public class TwitTwinsGUI extends JFrame {
 //                int age = pp.getAge(ProfilePicURL);
                 RankingEntry re = new RankingEntry(s.getName(), user.getGender(), user.getAge(), null, userKeywords);
                 ranking.add(re);
-                if (ranking.size() == 10) return;
+                if (ranking.size() == 10) {
+                    return;
+                }
             }
         }
 
@@ -397,7 +434,22 @@ public class TwitTwinsGUI extends JFrame {
                 g.setFont(rfont);
                 g.drawString(row + 1 + ".", x_start + ranknum / 3 - ((row == 9) ? 4 : 0), y_start + 2 * height / 3 + row * hmargin);
 
-                String result1 = re.username + ", " + re.gender + ", " + re.age;
+                String age;
+                if (re.age == -1) {
+                    age = "n.a.";
+                } else {
+                    age = Integer.toString(re.age);
+                }
+                String result1;
+                if (re.gender == "n.a." && age == "n.a.") {
+                    result1 = re.username;
+                } else if (re.gender == "n.a.") {
+                    result1 = re.username + ", " + age;
+                } else if (age == "n.a.") {
+                    result1 = re.username + ", " + re.gender;
+                } else {
+                    result1 = re.username + ", " + re.gender + ", " + age;
+                }
                 String result2 = "";
 
                 for (String s : re.keywords) {
@@ -428,7 +480,18 @@ public class TwitTwinsGUI extends JFrame {
                     RankingEntry re = ranking.get(rankingBoxes.indexOf(r));
                     System.out.println("Performing QBE on " + re.username + "\nWell, once it works..");
                     //todo: QBE
+                    List<Score> scores_temporary = new ArrayList<>();
+                    List<Score> scores_updated = new ArrayList<>();
 
+                    UserData.User user = ud.getUser(re.getUserName());
+                    //double tot = user.getWordTweetCount();
+                    for (Object o : user) {
+                        UserData.KeyWord kw = (UserData.KeyWord) o;
+                        double count = kw.getCount();
+                        scores_temporary.add(new Score(count, kw.getKeyWord() ) );
+                    }
+                    scores_updated = performVSR(ud,scores_temporary );
+                    rpanel.createRanking(scores_updated);
                 }
 
             }
@@ -482,88 +545,92 @@ public class TwitTwinsGUI extends JFrame {
         public List<String> getKeywords() {
             return keywords;
         }
-        
+
         public String getUserName() {
             return username;
         }
     }
 
-    private List<Score> queryUser(String username){
+    private List<Score> queryUser(String username) {
         te = new TweetsExtractor();
         TreeMap<String, Word> data = te.extractUser(username);
         int i = NUMBER_KEYWORDS;
         ArrayList<Score> searchedUserKeywordFrequency = new ArrayList();
         for (Word w : data.values()) {
-            if (i == 0) break; else i--;
+            if (i == 0) {
+                break;
+            } else {
+                i--;
+            }
             searchedUserKeywordFrequency.add(new Score(w.getFrequency(), w.getWord()));
         }
         return searchedUserKeywordFrequency;
     }
 
-    private void performQuery(List<Score> keywords) throws FaceppParseException{
+    private void performQuery(List<Score> keywords) throws FaceppParseException {
         List<String> stringKeywords = new ArrayList();
-        for(int i=0;i<keywords.size();i++)
+        for (int i = 0; i < keywords.size(); i++) {
             stringKeywords.add(keywords.get(i).getName());
-        
+        }
+
         List<Score> scores;
         ud = queryRelatedUsers(stringKeywords);
         TwitMain.printScores(ud);
-        
-        switch(method){
+
+        switch (method) {
             case METHOD_PRB:
-                 KMeans km = new KMeans(keywords.size(), ud);
-                 boolean clusteringOK = km.calculateClusteringSetK();
-                 ProbabRetrieval pr = new ProbabRetrieval();
-                 scores = pr.rank(ud, keywords, km.getClusterByK(), clusteringOK, 0.7, 0.2, 0.1);
-                 break;
+                KMeans km = new KMeans(keywords.size(), ud);
+                boolean clusteringOK = km.calculateClustering();
+                scores = ProbabRetrieval.rank(ud, keywords, 0.8, km.getClusterByK(), clusteringOK);
+                break;
             case METHOD_VSR:
             default:
-                scores = performVSR(ud, stringKeywords); // 
+                scores = performVSR(ud, keywords); // 
                 break;
         }
 //        performVSR(ud, stringKeywords); 
         rpanel.createRanking(scores);
     }
-    
-    private List<Score> performVSR(UserData ud, List<String> keywords){
+
+    private List<Score> performVSR(UserData ud, List<Score> keywords) {
         String word;
         Double tf;
         Map KwTfdata = new HashMap(); //KeyWord + TermFrequency data of single user
         Map QueryData = new HashMap(); // Store the keywords in a Map (for processing in VectorIR class)
         ArrayList<Map> KwTfdataList = new ArrayList<>(); //KeyWord + TermFrequency data of all users
         List<Score> scores = new ArrayList<Score>(); // Stores the cosine similarity score between keywords and all users
-        
+
         for (int i = 0; i < keywords.size(); i++) {
-            QueryData.put(keywords.get(i), 1.0);
-        }    
+            QueryData.put(keywords.get(i).getName(), keywords.get(i).getScore());
+        }
         // Retrieve all keywords (including their term frequency) from every user and put it in a map
         for (Object o : ud) {
             UserData.User u = (UserData.User) o;
-            KwTfdata.clear(); 
+            KwTfdata.clear();
             Iterator iter = u.iterator();
-            while( iter.hasNext() ) {
-                UserData.KeyWord keyW = (UserData.KeyWord)iter.next(); // Get next keyword of user
+            while (iter.hasNext()) {
+                UserData.KeyWord keyW = (UserData.KeyWord) iter.next(); // Get next keyword of user
                 word = keyW.getKeyWord();
                 tf = (double) keyW.getCount();
                 KwTfdata.put(word, tf);
                 //System.out.println(word +"\t" + tf); //For testing
             }
             KwTfdataList.add(KwTfdata);
-        // Calculate cosine similarity of every user with the keywords and add to scores list.
-        scores.add(new Score( VectorIR.cosine_similarity(QueryData,KwTfdata ), u.getName() )); // Generate a new Score class containing (Score,Username)
-        
+            // Calculate cosine similarity of every user with the keywords and add to scores list.
+            scores.add(new Score(VectorIR.cosine_similarity(QueryData, KwTfdata), u.getName())); // Generate a new Score class containing (Score,Username)
+
         }
-        
+
         // Sort the scores list in ascending order of scores (and their corresponding users)
         System.out.println("-------- VSR Ranking results --------");
         Collections.sort(scores);
         Collections.reverse(scores); // Changes the list to an ascending order.
         int rank = 0;
         for (Object o : scores) {
-           Score s = (Score) o;
-           rank++;
-           //System.out.println("Ranked: " + s.getName()+ "with score: " +"\t"+ s.getScore()  ); 
-           System.out.format("#%d: \t %-20s \t (CosineScore: %f)%n", rank, s.getName(), s.getScore());
+            Score s = (Score) o;
+            rank++;
+            //System.out.println("Ranked: " + s.getName()+ "with score: " +"\t"+ s.getScore()  ); 
+            System.out.format("#%d: \t %-20s \t (CosineScore: %f)%n", rank, s.getName(), s.getScore());
         }
 //        for (Iterator<Score> iter = scores.iterator(); iter.hasNext();) {
 //            Score s = iter.next();
@@ -573,20 +640,24 @@ public class TwitTwinsGUI extends JFrame {
 //        }
         return scores;
     }
-    
-    private UserData queryRelatedUsers(List<String> keywords) throws FaceppParseException{
+
+    private UserData queryRelatedUsers(List<String> keywords) throws FaceppParseException {
         UserData udata = new UserData(keywords);
         Queue<Tweet> names = te.query(keywords);
         int n = 20;
         while (n > 0 && !names.isEmpty()) {
             n--;
-            
+
             Tweet t = names.poll();
             String name = t.getUser().getScreenName();
-//            String genderFromList = nl.getGender(name);
+            String actualName = t.getUser().getName();
+            Scanner s = new Scanner(actualName);
+            String actualFirstName = s.next().toLowerCase();
+            String genderFromList = nl.getGender(actualFirstName);
+            System.out.println(actualFirstName);
 //            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
 //            ProfilePredict pp = new ProfilePredict();
-//            String genderFromPic = pp.getGender(ProfilePicURL);
+//            String genderFromPic = pp.getGender(ProfilePicURL).toLowerCase();
 //            String gender;
 //            if(genderFromList==genderFromPic){
 //                gender=genderFromList;
@@ -603,14 +674,14 @@ public class TwitTwinsGUI extends JFrame {
 //            else{
 //                gender="n.a.";
 //            }
+//            
 //            int age = pp.getAge(ProfilePicURL);
             String gender = "male";
             int age = 21;
             TreeMap<String, Word> user = te.extractUser(name);
             udata.addUser(name, age, gender, -1, user);
-            
+
 //            collectionLenght+=TweetCount;
-            
         }
         return udata;
     }
