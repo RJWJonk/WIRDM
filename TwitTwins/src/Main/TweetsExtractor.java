@@ -41,10 +41,10 @@ public class TweetsExtractor {
     public static Map<String, String> stopWords;
     public static String delims = ", !.)(\"?\'�_<>|;:/";
 
-    public static void main(String[] args) throws IOException {
-        TweetsExtractor te = new TweetsExtractor();
-        System.out.println(te.toString());
-    }
+//    public static void main(String[] args) throws IOException {
+//        TweetsExtractor te = new TweetsExtractor();
+//        System.out.println(te.toString());
+//    }
 
     public TweetsExtractor() {
 

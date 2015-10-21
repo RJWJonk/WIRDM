@@ -23,11 +23,11 @@ public class NameLookup {
     private static final Map<String, Double> nameMapFemale = new HashMap<>();
     private static final Map<String, Double> nameMapMale = new HashMap<>();
     
-    public static void main(String[] args){
-        readStoreNames(nameMapFemale, "src/Datafiles/dist.female.first.txt");
-        readStoreNames(nameMapMale, "src/Datafiles/dist.male.first.txt");
-        System.out.println(nameMapFemale.get("PATRICIA"));
-    }
+//    public static void main(String[] args){
+//        readStoreNames(nameMapFemale, "src/Datafiles/dist.female.first.txt");
+//        readStoreNames(nameMapMale, "src/Datafiles/dist.male.first.txt");
+//        System.out.println(nameMapFemale.get("PATRICIA"));
+//    }
     
     public NameLookup(){
         readStoreNames(nameMapFemale, "src/Datafiles/dist.female.first.txt");

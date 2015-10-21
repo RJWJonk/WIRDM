@@ -78,10 +78,6 @@ public class KMeans {
         return index;
     }
 
-    public static void main(String[] args) {
-
-    }
-
     private double computeBIC() {
         int k; // number of clusters
         int R = udata.getUserCount(), Rn;
