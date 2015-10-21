@@ -37,35 +37,50 @@ public class ProbabRetrieval {
         printScores(testingUdata);
         //rank(testingUdata, searchedUser, 1.0);
     }
+    private void test()
+    {
+        List<String> keywords = new ArrayList<String>();
+        keywords.add("ICT");
+        keywords.add("school");
+        keywords.add("girls");
+        keywords.add("technology");
+        keywords.add("testing");
 
-    public static List<Score> rank(UserData udata, List<Score> searchedUserKeywordFrequency, Double alpha, ArrayList<Cluster> clustersByK, Boolean includeCLustering) {
-        double userScore;
-        double keywordWeight;
-        List<Score> scores = new ArrayList<Score>();
-        //ArrayList<Cluster> clustersByK = new ArrayList();
-        //SortedList
-        int clusterID;
-        double aalpha = 0.7, beta = 0.2, gama = 0.1;
+        List<Score> searchedUser = createSearchUserScore(keywords);
 
+        UserData testingUdata = createTestingData(keywords);
+        printScores(testingUdata);
+    }
+    private  int getCollectionLenght(UserData udata){
         int collectionWordLenght = 0;
         for (Object o : udata) {
             UserData.User u = (UserData.User) o;
             collectionWordLenght += u.getWordTweetCount();
         }
+        return collectionWordLenght;
+    }
+    private  double getTotalKeywordCount(List<Score> searchedUserKeywordFrequency){
         double totalSearchUserLenght = 0;
         for (Object o : searchedUserKeywordFrequency) {
             Score s = (Score) o;
             totalSearchUserLenght += s.getScore();
         }
+        return totalSearchUserLenght;
+    }
+    public  List<Score> rank(UserData udata, List<Score> searchedUserKeywordFrequency, ArrayList<Cluster> clustersByK, Boolean includeCLustering, double alpha, double beta, double gama) {
+        double userScore;
+        double keywordWeight;
+        List<Score> resultScores = new ArrayList<Score>();
 
+        int collectionWordLenght = getCollectionLenght(udata);
+        double searchedUserTotalKeywordFreq = getTotalKeywordCount(searchedUserKeywordFrequency);
         int keywordCount = searchedUserKeywordFrequency.size();
+        
         int clusterKeywordLenght = 0;
         double documentWeight, clusterWeight = 0, collectionWeight;
         for (Object o : udata) {
             UserData.User u = (UserData.User) o;
-            userScore = 0;
-
-            //clusterID = u.getCluster();
+            userScore = 1; // 1 because it is a product
             for (int i = 0; i < keywordCount; i++) {
 
                 UserData.KeyWord k = u.getKeyWord(i);
@@ -75,33 +90,34 @@ public class ProbabRetrieval {
                         clusterKeywordLenght += userFromCluster.getKeyWord(i).getCount();
                     }
                 }
-                keywordWeight = (double) searchedUserKeywordFrequency.get(i).getScore() / totalSearchUserLenght;
-                documentWeight = (aalpha * k.getCount() / u.getWordTweetCount());
+                keywordWeight = (double) searchedUserKeywordFrequency.get(i).getScore() / searchedUserTotalKeywordFreq;
+                documentWeight = (alpha * k.getCount() / u.getWordTweetCount());
                 if (includeCLustering) {
                     clusterWeight = (beta * clusterKeywordLenght / clustersByK.get(u.getCluster()).getTotalLenght());
                 }
                 collectionWeight = (gama * k.getCount() / collectionWordLenght);
-                userScore += keywordWeight * (documentWeight + clusterWeight + collectionWeight);
+                double currentUserScore = keywordWeight * (documentWeight + clusterWeight + collectionWeight);
+                if(currentUserScore == 0 || Double.isNaN(currentUserScore)){
+                    currentUserScore = 1f/collectionWordLenght;
+                }
+                userScore *= 1f+currentUserScore;
             }
-            if (Double.isNaN(userScore)) {
-                userScore = 0;
-            }
-            scores.add(new Score(userScore, u.getName()));
+            resultScores.add(new Score(userScore, u.getName()));
 
         }
 
         System.out.println("-------- PRP Ranking results --------");
-        Collections.sort(scores);
-        Collections.reverse(scores); // Changes the list to an ascending order.
+        Collections.sort(resultScores);
+        Collections.reverse(resultScores); // Changes the list to an ascending order.
         int rank = 0;
-        for (Object o : scores) {
+        for (Object o : resultScores) {
             Score s = (Score) o;
             rank++;
             //System.out.println("Ranked: " + s.getName()+ "with score: " +"\t"+ s.getScore()  ); 
             System.out.format("#%d: \t %-20s \t (PRPscore: %f)%n", rank, s.getName(), s.getScore());
         }
 
-        return scores;
+        return resultScores;
     }
 
     public static List<Score> createSearchUserScore(List<String> keywords) {
