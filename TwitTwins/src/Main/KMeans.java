@@ -26,18 +26,22 @@ public class KMeans {
     private static final int MAX_COORDINATE = 10;
 
     private UserData udata;
-    private static int modelIndex = 0;
-    private static ArrayList<Cluster> clustersByK;
-    private static int NUMBER_KEYWORDS;
+    private int modelIndex = 0;
+    private ArrayList<Cluster> clustersByK;
+    private final int NUMBER_KEYWORDS;
 
-    public Boolean calculateClustering(int keywordCount, UserData _udata) {
+    public KMeans(int keywordCount, UserData _udata) {
         NUMBER_KEYWORDS = keywordCount;
         udata = _udata;
+    }
+    public Boolean calculateClustering() {
+        //NUMBER_KEYWORDS = keywordCount;
+        //udata = _udata;
         modelIndex = 0;
         Boolean kmeansOK = true;
-        double[] BIC = new double[keywordCount - 1];
+        double[] BIC = new double[NUMBER_KEYWORDS - 1];
         //double[] BIC = new double[keywordCount - 1];
-        for (int i = 0; i < keywordCount - 1; i++) { // there is n-1(not counting the k=1 number of clusters to be made
+        for (int i = 0; i < NUMBER_KEYWORDS - 1; i++) { // there is n-1(not counting the k=1 number of clusters to be made
             clustersByK = new ArrayList<Cluster>(K_START_AT + modelIndex);
             if (init()) {
                 calculate();
@@ -115,7 +119,7 @@ public class KMeans {
         for (int i = 0; i < NUMBER_KEYWORDS; i++) {
             distance += Math.pow(a.getKeyWord(i).getCount() - b.getKeyWord(i).getCount(), 2);
         }
-        return distance;
+        return Math.sqrt(distance);
     }
 
     private double userDistanceByCosine(UserData.User a, UserData.User b) {
@@ -157,7 +161,7 @@ public class KMeans {
         if (clusterVariance == 0) {
             clusterVariance = 0.0000001;
         }
-        double Dn = -Rn / 2 * Math.log(2 * Math.PI) - (Rn * dimensionCount) / 2 * clusterVariance - ((Rn - 1) * dimensionCount) / 2 + (Rn * Math.log(Rn)) - Rn * Math.log(R); // originilly It was Math.log(clusterVariance), but for n<0,1>, log is negative, giving therefore wrong results
+        double Dn = -Rn / 2 * Math.log(2 * Math.PI) - (Rn * dimensionCount) / 2 * Math.log(clusterVariance) - ((Rn - 1) * dimensionCount) / 2 + (Rn * Math.log(Rn)) - Rn * Math.log(R); // originilly It was Math.log(clusterVariance), but for n<0,1>, log is negative, giving therefore wrong results
         return Dn;
     }
 

@@ -511,8 +511,8 @@ public class TwitTwinsGUI extends JFrame {
         
         switch(method){
             case METHOD_PRB:
-                KMeans km = new KMeans();
-                boolean clusteringOK = km.calculateClustering(keywords.size(), ud);
+                 KMeans km = new KMeans(keywords.size(), ud);
+                 boolean clusteringOK = km.calculateClustering();
                  scores = ProbabRetrieval.rank(ud, keywords,0.8, km.getClusterByK(), clusteringOK);
                  break;
             case METHOD_VSR:
@@ -582,29 +582,29 @@ public class TwitTwinsGUI extends JFrame {
             
             Tweet t = names.poll();
             String name = t.getUser().getScreenName();
-            String genderFromList = nl.getGender(name);
-            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
-            ProfilePredict pp = new ProfilePredict();
-            String genderFromPic = pp.getGender(ProfilePicURL);
-            String gender;
-            if(genderFromList==genderFromPic){
-                gender=genderFromList;
-            }
-            else if(genderFromList!="n.a."&&genderFromPic=="n.a."){
-                gender=genderFromList;
-            }
-            else if(genderFromList=="n.a."&&genderFromPic!="n.a."){
-                gender=genderFromPic;
-            } 
-            else if(genderFromList=="male"&&genderFromPic=="female"||genderFromList=="female"&&genderFromPic=="male"){
-                gender=genderFromPic;
-            }
-            else{
-                gender="n.a.";
-            }
-            int age = pp.getAge(ProfilePicURL);
-//            String gender = "male";
-//            int age = 21;
+//            String genderFromList = nl.getGender(name);
+//            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
+//            ProfilePredict pp = new ProfilePredict();
+//            String genderFromPic = pp.getGender(ProfilePicURL);
+//            String gender;
+//            if(genderFromList==genderFromPic){
+//                gender=genderFromList;
+//            }
+//            else if(genderFromList!="n.a."&&genderFromPic=="n.a."){
+//                gender=genderFromList;
+//            }
+//            else if(genderFromList=="n.a."&&genderFromPic!="n.a."){
+//                gender=genderFromPic;
+//            } 
+//            else if(genderFromList=="male"&&genderFromPic=="female"||genderFromList=="female"&&genderFromPic=="male"){
+//                gender=genderFromPic;
+//            }
+//            else{
+//                gender="n.a.";
+//            }
+//            int age = pp.getAge(ProfilePicURL);
+            String gender = "male";
+            int age = 21;
             TreeMap<String, Word> user = te.extractUser(name);
             udata.addUser(name, age, gender, -1, user);
             
