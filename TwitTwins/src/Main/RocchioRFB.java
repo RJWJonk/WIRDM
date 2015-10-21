@@ -5,9 +5,12 @@
  */
 package Main;
 
+import Model.Word;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -16,15 +19,18 @@ import java.util.List;
 public class RocchioRFB {
     List<String> OldQuery = new ArrayList();
     List<String> NewQuery = new ArrayList();
+    Map<String, Word> rfbRInputMap = new HashMap<>();
+    Map<String, Word> rfbNInputMap = new HashMap<>();
     List<TwitTwinsGUI.RankingEntry> ranking = new ArrayList<>();
     List<TwitTwinsGUI.RankingEntry> relevant = new ArrayList<>();
     List<String> UserKeywords;
-    List<Score> BetaScores = new ArrayList<Score>();
-    List<Score> GammaScores = new ArrayList<Score>();
+    Map<String, Score> betaScores = new HashMap<>();
+    Map<String, Score> gammaScores = new HashMap<>();
     double alpha, beta, gamma;
     
-    public RocchioRFB(List<String> OldQuery, List<TwitTwinsGUI.RankingEntry> ranking, List<TwitTwinsGUI.RankingEntry> relevant, double alpha, double beta, double gamma) {
+    public RocchioRFB(List<String> OldQuery, Map<String, Word> rfbRMap, Map<String, Word> rfbNMap, List<TwitTwinsGUI.RankingEntry> ranking, List<TwitTwinsGUI.RankingEntry> relevant, double alpha, double beta, double gamma) {
         this.OldQuery = OldQuery;
+        this.rfbRInputMap = rfbRMap;
         this.alpha = alpha;
         this.beta = beta;
         this.gamma = gamma;   
@@ -34,6 +40,14 @@ public class RocchioRFB {
         NewQuery = OldQuery;
         NewQuery.add("Test1");
         NewQuery.add("Test2");
+        
+        for(String key:rfbRInputMap.keySet()){
+            Word w = rfbRInputMap.get(key);
+            Score s = new Score(calculateScore(w,beta), w.getWord());
+            betaScores.put(w.getWord(), s);
+        }
+        
+        
         
         
 //        for (int i = 0; i < ranking.size(); i++) {
@@ -65,6 +79,12 @@ public class RocchioRFB {
         
         
         return NewQuery;
+    }
+    
+    private double calculateScore(Word w, double a){
+        double s;
+        s=w.getFrequency()*a;
+        return s;
     }
     
 }

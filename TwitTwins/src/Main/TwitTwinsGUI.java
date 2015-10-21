@@ -316,13 +316,46 @@ public class TwitTwinsGUI extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     System.out.println("Returning a list of " + relevant.size() + " items for RFB");
-                    //todo: Rocchio Relevance Feedback Algorithm
-
-                    //te.extractUser(TOOL_TIP_TEXT_KEY)
-                    RocchioRFB rfb = new RocchioRFB(ud.getKeyWords(), ranking, relevant, 1.0, 0.5, 0.1); // With values alpha, beta and gamma respectively
-                    System.out.println("Old query: " + keys);
-                    System.out.println("Rocchio Relevance Feedback, new search query: " + rfb.getUpdatedQuery());
-
+                    List<RankingEntry> irrelevant = new ArrayList<>(ranking);
+                    for(RankingEntry re: relevant){
+                        irrelevant.remove(re);
+                    }
+                    
+                    Map<String, Word> rfbRMap = new HashMap<>();
+                    Map<String, Word> rfbNMap = new HashMap<>();
+                    
+                    for(RankingEntry re:relevant){
+                        Map<String, Word> tm = new HashMap<>();
+                        tm=te.extractUserM(re.getUserName());
+                        System.out.println("Retrieved tweets from "+re.getUserName());
+                        for(String key:tm.keySet()){
+                            Word w = tm.get(key);
+                            if(rfbRMap.containsKey(w)){
+                                rfbRMap.get(w).setFrequency((rfbRMap.get(w).getFrequency()+w.getFrequency()));
+                            }
+                            else{
+                                rfbRMap.put(w.getWord(), w);
+                            }
+                        }
+                    }
+                    for(RankingEntry re:irrelevant){
+                        Map<String, Word> tm = new HashMap<>();
+                        tm=te.extractUserM(re.getUserName());
+                        System.out.println("Retrieved tweets from "+re.getUserName());
+                        for(String key:tm.keySet()){
+                            Word w = tm.get(key);
+                            if(rfbNMap.containsKey(w)){
+                                rfbNMap.get(w).setFrequency((rfbNMap.get(w).getFrequency()+w.getFrequency()));
+                            }
+                            else{
+                                rfbNMap.put(w.getWord(), w);
+                            }
+                        }
+                    }
+                    RocchioRFB rfb = new RocchioRFB(ud.getKeyWords(), rfbRMap, rfbNMap, ranking, relevant, 1.0, 0.5, 0.1  ); // With values alpha, beta and gamma respectively
+                    System.out.println("Old query: " + ud.getKeyWords());
+                    System.out.println("Rocchio Relevance Feedback, new search query: " + rfb.getUpdatedQuery() );
+ 
                 }
 
             });
