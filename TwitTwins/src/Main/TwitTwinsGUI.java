@@ -508,12 +508,12 @@ public class TwitTwinsGUI extends JFrame {
         List<Score> scores;
         ud = queryRelatedUsers(stringKeywords);
         TwitMain.printScores(ud);
-        KMeans km = new KMeans(7, ud);
         
         switch(method){
             case METHOD_PRB:
-                 ProbabRetrieval pr = new ProbabRetrieval(); //Probabilist Retrieval
-                 scores = pr.rank(ud, keywords,0.8);
+                KMeans km = new KMeans();
+                boolean clusteringOK = km.calculateClustering(keywords.size(), ud);
+                 scores = ProbabRetrieval.rank(ud, keywords,0.8, km.getClusterByK(), clusteringOK);
                  break;
             case METHOD_VSR:
             default:
@@ -608,14 +608,6 @@ public class TwitTwinsGUI extends JFrame {
             TreeMap<String, Word> user = te.extractUser(name);
             udata.addUser(name, age, gender, -1, user);
             
-            int collectionWordLenght = 0;
-            int userWordLenght = 0;
-            for(Map.Entry<String,Word> entry : user.entrySet()) {
-                Word value = entry.getValue();
-                userWordLenght+= value.getFrequency();
-              }
-            udata.addUser(name, age, gender, userWordLenght, user);
-            collectionWordLenght+=userWordLenght;
 //            collectionLenght+=TweetCount;
             
         }
