@@ -20,7 +20,7 @@ public class UserData implements Iterable, BiConsumer<String, Word> {
 
     private User firstU;
     private User last;
-    private static int userCount = 0;
+    private int userCount = 0;
     //list of keywords to be stored in the data
     private List<String> keywords;
 
