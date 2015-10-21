@@ -318,6 +318,7 @@ public class TwitTwinsGUI extends JFrame {
                     System.out.println("Returning a list of " + relevant.size() + " items for RFB");
                     //todo: Rocchio Relevance Feedback Algorithm
                     
+                    //te.extractUser(TOOL_TIP_TEXT_KEY)
                     RocchioRFB rfb = new RocchioRFB(ud.getKeyWords(), ranking, relevant, 1.0, 0.5, 0.1  ); // With values alpha, beta and gamma respectively
                     System.out.println("Old query: " + keys);
                     System.out.println("Rocchio Relevance Feedback, new search query: " + rfb.getUpdatedQuery() );

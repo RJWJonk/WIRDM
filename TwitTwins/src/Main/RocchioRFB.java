@@ -45,8 +45,8 @@ public class RocchioRFB {
 //               BetaScores.add(new Score( 1.0, UserKeywords.get(j) ));
 //           }
 //        }
-        
-        
+//        
+//        
 //        for (Object o : ranking) {
 //            TwitTwinsGUI.RankingEntry u = (TwitTwinsGUI.RankingEntry) o;
 //            Iterator iter = u.iterator();
@@ -57,8 +57,8 @@ public class RocchioRFB {
 //                KwTfdata.put(word, tf);
 //                //System.out.println(word +"\t" + tf); //For testing
 //            }
-        
-        
+//        
+//        
 //        if (relevant.get) {
 //            
 //        }
