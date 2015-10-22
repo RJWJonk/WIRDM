@@ -53,7 +53,7 @@ public class TwitTwinsGUI extends JFrame {
 
     private final int METHOD_VSR = 0;
     private final int METHOD_PRB = 1;
-    private final int method = 1;
+    private final int method = 0;
 
     public static void main(String[] args) {
         new TwitTwinsGUI();
@@ -573,7 +573,7 @@ public class TwitTwinsGUI extends JFrame {
             stringKeywords.add(keywords.get(i).getName());
         }
 
-        List<Score> scores;
+        List<Score> scores = null;
         ud = queryRelatedUsers(stringKeywords);
         TwitMain.printScores(ud);
 
@@ -581,7 +581,7 @@ public class TwitTwinsGUI extends JFrame {
             case METHOD_PRB:
                 KMeans km = new KMeans(keywords.size(), ud);
                 boolean clusteringOK = km.calculateClustering();
-                scores = ProbabRetrieval.rank(ud, keywords, 0.8, km.getClusterByK(), clusteringOK);
+                //scores = ProbabRetrieval.rank(ud, keywords, 0.8, km.getClusterByK(), clusteringOK);
                 break;
             case METHOD_VSR:
             default:
