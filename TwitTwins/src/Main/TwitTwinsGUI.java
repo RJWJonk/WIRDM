@@ -215,7 +215,7 @@ public class TwitTwinsGUI extends JFrame {
             super.paint(gr);
             Graphics2D g = (Graphics2D) gr;
 
-            g.drawImage(banner, null, this);
+            g.drawImage(banner, 150, 0, this);
             Font tfont = new Font("Times New Roman", Font.BOLD, 15);
 
             g.setFont(tfont);
@@ -420,7 +420,7 @@ public class TwitTwinsGUI extends JFrame {
             this.addMouseListener(this);
 
             this.setLayout(null);
-            rfbButton = new JButton("Rochio");
+            rfbButton = new JButton("Rocchio");
             rfbButton.setBounds(x_start + 150, 10, 80, 30);
             rfbButton.addActionListener(new ActionListener() {
 
