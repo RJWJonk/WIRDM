@@ -444,12 +444,12 @@ public class TweetsExtractor {
         }
     }
 
-    public Queue<Tweet> query(List<String> terms) {
+    public Queue<Tweet> query(List<String> terms, int n) {
         Queue<Tweet> tweetQueue = new LinkedList<>();
         Map<String, String> diffUsers = new HashMap<String, String>();
         tweetQueue.clear();
         for (String term : terms) {
-            query(tweetQueue, diffUsers, term);
+            query(tweetQueue, diffUsers, term, n/terms.size());
         }
         //String query = "";
         //for (String term : terms) {
@@ -459,12 +459,12 @@ public class TweetsExtractor {
         return tweetQueue;
     }
 
-    public Queue<Tweet> query(Queue<Tweet> tweetQueue, Map<String, String> diffUsers, String term) {
+    public Queue<Tweet> query(Queue<Tweet> tweetQueue, Map<String, String> diffUsers, String term, int n) {
         //Queue<Tweet> tweetQueue = new LinkedList<>();
         try {
             Query query = new Query(term + "+exclude:retweets ");
             query.setLang("en");
-            query.setCount(100);
+            query.setCount(n);
 
             System.out.println(query.toString());
             QueryResult result;
