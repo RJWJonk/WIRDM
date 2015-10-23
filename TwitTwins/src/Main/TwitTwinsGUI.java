@@ -463,7 +463,23 @@ public class TwitTwinsGUI extends JFrame {
                     }
                     RocchioRFB rfb = new RocchioRFB(ud.getKeyWords(), rfbRMap, rfbNMap, ranking, relevant, 1.0, 0.5, 0.1); // With values alpha, beta and gamma respectively
                     System.out.println("Old query: " + ud.getKeyWords());
-                    System.out.println("Rocchio Relevance Feedback, new search query: " + rfb.getUpdatedQuery());
+                    List<String> newQuery = rfb.getUpdatedQuery();
+                    System.out.println("Rocchio Relevance Feedback, new search query: " + newQuery);
+                    List<Score> newQueryAsScore = new ArrayList<>();
+                    for(String keyword:newQuery){
+                        Score s = new Score(0,keyword);
+                        newQueryAsScore.add(s);
+                    }
+                    try {
+                        performQuery(newQueryAsScore);
+                    } catch (FaceppParseException ex) {
+                        Logger.getLogger(TwitTwinsGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    kpanel.keywords.clear();
+                    for(Score s:newQueryAsScore){
+                        kpanel.keywords.add(s);
+                    }
+
 
                 }
 
