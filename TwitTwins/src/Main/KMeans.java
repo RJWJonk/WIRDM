@@ -5,12 +5,15 @@
  */
 package Main;
 
+import static Main.TwitMain.NUMBER_KEYWORDS;
+import Model.Word;
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.Math;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  *
@@ -27,6 +30,63 @@ public class KMeans {
     public KMeans(int keywordCount, UserData _udata) {
         NUMBER_KEYWORDS = keywordCount;
         udata = _udata;
+
+    }
+
+    public static void main(String[] args) {
+         List<String> keywords = new ArrayList<String>();
+        keywords.add("ICT");
+        keywords.add("school");
+//        keywords.add("girls");
+//        keywords.add("technology");
+//        keywords.add("testing");
+
+        KMeans km = new KMeans(2, KMeans.createTestingData(keywords));
+        boolean clusteringOK = km.calculateClusteringSetK();
+    }
+
+    private static UserData createTestingData(List<String> keywords) {
+        UserData newUdata = new UserData(keywords);
+        String[] names = {"John", "Adam", "Ben", "Luke", "Phillip", "Ruben", "Chung"};
+
+        int[][] keywordFreqency = new int[][]{
+ /*0*/      {7, 2},
+            {8, 3},
+            {10, 2},
+            {15, 3},
+            {20, 4},
+ /*4*/      {5, 1},
+            {11, 3},
+            {2, 7},
+            {3, 8},
+            {2, 10},
+ /*9*/      {3, 15},
+            {4, 20},
+            {1, 5},
+            {3, 11},
+            {7, 6},
+ /*14*/     {10, 8},
+            {7, 13},
+            {3, 5},
+            {4, 6},
+ /*19*/     {17, 15}
+                
+        };
+
+        //int[] ages = {}
+        //String [] genders = {}
+        for (int i = 0; i < keywordFreqency.length; i++) {
+            TreeMap<String, Word> user = new TreeMap();
+            Map<String, Word> userKeywords = new HashMap<String, Word>();
+            for (int j = 0; j < keywordFreqency[i].length; j++) {
+
+                Word w = new Word(keywords.get(j), 1);
+                w.setFrequency(keywordFreqency[i][j]);
+                userKeywords.put(keywords.get(j), w);
+            }
+            newUdata.addUser(Integer.toString(i), -1, "Male", 2, userKeywords);
+        }
+        return newUdata;
     }
 
     public Boolean calculateClusteringByBic() {
@@ -55,7 +115,7 @@ public class KMeans {
     }
 
     public Boolean calculateClusteringSetK() {
-        modelIndex = (int) Math.sqrt(udata.getUserCount() / 2D)-K_START_AT; // substracting K_START_AT is not nice, but this is done to persist the current architecture
+        modelIndex = (int) Math.sqrt(udata.getUserCount() / 2D) - K_START_AT; // substracting K_START_AT is not nice, but this is done to persist the current architecture
         Boolean kmeansOK = true;
         clustersByK = new ArrayList<Cluster>(K_START_AT + modelIndex);
         if (init()) {
@@ -254,7 +314,7 @@ public class KMeans {
         for (Cluster cluster : clustersByK) {
             UserData.User auxCentroid = cluster.getCentroid();
             UserData.User centroid = cloneUser(auxCentroid, auxCentroid.getName());
-            centroids.add(centroid); 
+            centroids.add(centroid);
         }
         return centroids;
     }

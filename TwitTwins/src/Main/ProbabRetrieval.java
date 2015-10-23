@@ -128,6 +128,16 @@ public class ProbabRetrieval {
     public static UserData createTestingData(List<String> keywords) {
         UserData newUdata = new UserData(keywords);
         String[] names = {"John", "Adam", "Ben", "Luke", "Phillip", "Ruben", "Chung"};
+//        int[][] keywordFreqency = new int[][]{
+//            {5, 4, 0, 1, 2},
+//            {0, 18, 0, 4, 5},
+//            {10, 0, 10, 0, 0},
+//            {0, 3, 0, 4, 0},
+//            {6, 0, 7, 0, 1},
+//            {0, 4, 12, 4, 1},
+//            {2, 8, 1, 1, 4}};
+        
+        
         int[][] keywordFreqency = new int[][]{
             {5, 4, 0, 1, 2},
             {0, 18, 0, 4, 5},
@@ -136,6 +146,8 @@ public class ProbabRetrieval {
             {6, 0, 7, 0, 1},
             {0, 4, 12, 4, 1},
             {2, 8, 1, 1, 4}};
+        
+        
         //int[] ages = {}
         //String [] genders = {}
         for (int i = 0; i < keywordFreqency.length; i++) {
