@@ -5,7 +5,6 @@
  */
 package Main;
 
-import static Main.TwitMain.NUMBER_KEYWORDS;
 import Model.Word;
 import java.util.ArrayList;
 import java.util.List;

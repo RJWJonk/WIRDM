@@ -85,6 +85,24 @@ public class TwitTwinsGUI extends JFrame {
         repaint();
     }
 
+    static void printScores(UserData udata) {
+
+        for (Object o : udata) {
+            UserData.User u = (UserData.User) o;
+            System.out.print(u.getName() + "\t");
+            UserData.KeyWord keyword = u.getFirstKeyWord();
+            Iterator iter = u.iterator();
+            while (iter.hasNext()) {
+                UserData.KeyWord keyW = (UserData.KeyWord) iter.next();
+                //userInfo = keyW.getKeyWord() + ": " + keyW.getCount() + "\t";
+                System.out.format("%s: %2.0f \t", keyW.getKeyWord(), keyW.getCount());
+            }
+
+            System.out.println("");
+            //System.out.format("%10.3f%n", keyW.getCount());
+        }
+    }
+
     private void createGUI() {
         setResizable(false);
         setSize(650 + 6, 600 + 28);
@@ -660,7 +678,7 @@ public class TwitTwinsGUI extends JFrame {
 
         List<Score> scores = null;
         ud = queryRelatedUsers(stringKeywords);
-        TwitMain.printScores(ud);
+        printScores(ud);
 
         switch (method) {
             case METHOD_PRB:
@@ -741,7 +759,7 @@ public class TwitTwinsGUI extends JFrame {
             Scanner s = new Scanner(actualName);
             String actualFirstName = s.next().toLowerCase();
             String genderFromList = nl.getGender(actualFirstName);
-            System.out.println(actualFirstName);
+            // System.out.println(actualFirstName);
             String gender = "n.a.";
             String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
             ProfilePredict pp = new ProfilePredict();

@@ -5,8 +5,7 @@
  */
 package Main;
 
-import static Main.TwitMain.NUMBER_KEYWORDS;
-import static Main.TwitMain.printScores;
+import static Main.TwitTwinsGUI.printScores;
 import Model.Word;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -159,7 +158,7 @@ public class ProbabRetrieval {
                 w.setFrequency(keywordFreqency[i][j]);
                 userKeywords.put(keywords.get(j), w);
             }
-            newUdata.addUser(names[i], -1, "Male", NUMBER_KEYWORDS, userKeywords);
+            newUdata.addUser(names[i], -1, "Male", 5, userKeywords);
         }
         return newUdata;
     }
