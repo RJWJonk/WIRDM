@@ -20,6 +20,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
@@ -53,6 +55,8 @@ public class TwitTwinsGUI extends JFrame {
     private TweetsExtractor te;
     private UserData ud;
     private NameLookup nl = new NameLookup();
+    private Boolean searchAge = false;
+    private Boolean searchGender = false;
 
     private final int METHOD_VSR = 0;
     private final int METHOD_PRB = 1;
@@ -155,10 +159,30 @@ public class TwitTwinsGUI extends JFrame {
             genderbox = new JCheckBox();
             genderbox.setText("Gender");
             genderbox.setBounds(xstart + fieldwidth + 2 * margin + buttonwidth, ystart, buttonwidth, height);
+            genderbox.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {//checkbox has been selected
+                        searchGender = true;
+                    } else {//checkbox has been deselected
+                        searchGender = false;
+                    };
+                }
+            });
             this.add(genderbox);
             agebox = new JCheckBox();
             agebox.setText("Age");
             agebox.setBounds(xstart + fieldwidth + 3 * margin + 2 * buttonwidth, ystart, buttonwidth, height);
+            agebox.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {//checkbox has been selected
+                        searchAge = true;
+                    } else {//checkbox has been deselected
+                        searchAge = false;
+                    };
+                }
+            });
             this.add(agebox);
 
         }
@@ -718,29 +742,31 @@ public class TwitTwinsGUI extends JFrame {
             String actualFirstName = s.next().toLowerCase();
             String genderFromList = nl.getGender(actualFirstName);
             System.out.println(actualFirstName);
-//            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
-//            ProfilePredict pp = new ProfilePredict();
-//            String genderFromPic = pp.getGender(ProfilePicURL).toLowerCase();
-//            String gender;
-//            if(genderFromList==genderFromPic){
-//                gender=genderFromList;
-//            }
-//            else if(genderFromList!="n.a."&&genderFromPic=="n.a."){
-//                gender=genderFromList;
-//            }
-//            else if(genderFromList=="n.a."&&genderFromPic!="n.a."){
-//                gender=genderFromPic;
-//            } 
-//            else if(genderFromList=="male"&&genderFromPic=="female"||genderFromList=="female"&&genderFromPic=="male"){
-//                gender=genderFromPic;
-//            }
-//            else{
-//                gender="n.a.";
-//            }
-//            
-//            int age = pp.getAge(ProfilePicURL);
-            String gender = "male";
-            int age = 21;
+            String gender = "n.a.";
+            String ProfilePicURL = t.getUser().getOriginalProfileImageURL();
+            ProfilePredict pp = new ProfilePredict();
+            //////**////
+            if (searchGender) {
+
+                String genderFromPic = pp.getGender(ProfilePicURL).toLowerCase();
+
+                if (genderFromList == genderFromPic) {
+                    gender = genderFromList;
+                } else if (genderFromList != "n.a." && genderFromPic == "n.a.") {
+                    gender = genderFromList;
+                } else if (genderFromList == "n.a." && genderFromPic != "n.a.") {
+                    gender = genderFromPic;
+                } else if (genderFromList == "male" && genderFromPic == "female" || genderFromList == "female" && genderFromPic == "male") {
+                    gender = genderFromPic;
+                } else {
+                    gender = "n.a.";
+                }
+            }
+            int age = 0;
+            if (searchAge) {
+                age = pp.getAge(ProfilePicURL);
+            }
+
             TreeMap<String, Word> user = te.extractUser(name);
             udata.addUser(name, age, gender, -1, user);
 
