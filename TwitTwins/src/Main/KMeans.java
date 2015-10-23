@@ -29,7 +29,7 @@ public class KMeans {
         udata = _udata;
     }
 
-    public Boolean calculateClustering() {
+    public Boolean calculateClusteringByBic() {
         modelIndex = 0;
         Boolean kmeansOK = true;
         double[] BIC = new double[NUMBER_KEYWORDS - 1];

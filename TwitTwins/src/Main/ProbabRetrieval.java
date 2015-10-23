@@ -36,13 +36,13 @@ public class ProbabRetrieval {
 //        UserData testingUdata = createTestingData(keywords);
 //        printScores(testingUdata);
 //        //rank(testingUdata, searchedUser, 1.0);
+////    }
+//
+//        List<Score> searchedUser = createSearchUserScore(keywords);
+//
+//        UserData testingUdata = createTestingData(keywords);
+//        printScores(testingUdata);
 //    }
-
-        List<Score> searchedUser = createSearchUserScore(keywords);
-
-        UserData testingUdata = createTestingData(keywords);
-        printScores(testingUdata);
-    }
     private  int getCollectionLenght(UserData udata){
         int collectionWordLenght = 0;
         for (Object o : udata) {

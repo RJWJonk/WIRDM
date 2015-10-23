@@ -579,10 +579,13 @@ public class TwitTwinsGUI extends JFrame {
 
         switch (method) {
             case METHOD_PRB:
-                KMeans km = new KMeans(keywords.size(), ud);
-                boolean clusteringOK = km.calculateClustering();
-                scores = ProbabRetrieval.rank(ud, keywords, 0.8, km.getClusterByK(), clusteringOK);
-                break;
+                 KMeans km = new KMeans(keywords.size(), ud);
+                 boolean clusteringOK = km.calculateClusteringSetK();
+                 ProbabRetrieval pr = new ProbabRetrieval();
+                 pr.rank(ud, keywords, km.getClusterByK(), false , 0.7, 0.2, 0.1);
+                 scores = pr.rank(ud, keywords, km.getClusterByK(), clusteringOK, 0.7, 0.2, 0.1);
+                 
+                 break;
             case METHOD_VSR:
             default:
                 scores = performVSR(ud, keywords); // 
