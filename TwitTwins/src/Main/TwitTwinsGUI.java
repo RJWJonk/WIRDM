@@ -641,7 +641,7 @@ public class TwitTwinsGUI extends JFrame {
         switch (method) {
             case METHOD_PRB:
                 KMeans km = new KMeans(keywords.size(), ud);
-                boolean clusteringOK = km.calculateClustering();
+//                boolean clusteringOK = km.calculateClustering();
                 //scores = ProbabRetrieval.rank(ud, keywords, 0.8, km.getClusterByK(), clusteringOK);
                 break;
             case METHOD_VSR:
