@@ -24,6 +24,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,6 +37,7 @@ import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
@@ -53,7 +56,7 @@ public class TwitTwinsGUI extends JFrame {
 
     private final int METHOD_VSR = 0;
     private final int METHOD_PRB = 1;
-    private final int method = 1;
+    private final int method = 0;
 
     public static void main(String[] args) {
         new TwitTwinsGUI();
@@ -80,35 +83,60 @@ public class TwitTwinsGUI extends JFrame {
 
     private void createGUI() {
         setResizable(false);
-        setSize(650 + 6, 500 + 28);
+        setSize(650 + 6, 600 + 28);
         setTitle("TwitTwins");
+        BufferedImage icon = null;
+        try {
+            icon = ImageIO.read(new File("src/Datafiles/TwitTwins_icon.png"));
+        } catch (IOException e) {
+        }
+        this.setIconImage(icon);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         //setIgnoreRepaint(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.add(upanel = new UsernamePanel(), BorderLayout.NORTH);
-        contentPane.add(kpanel = new KeyWordPanel(), BorderLayout.WEST);
-        contentPane.add(rpanel = new ResultsPanel(), BorderLayout.EAST);
+        contentPane.add(kpanel = new KeyWordPanel(), BorderLayout.EAST);
+        contentPane.add(rpanel = new ResultsPanel(), BorderLayout.WEST);
         //addKeyListener(this);
         repaint();
     }
 
     private class UsernamePanel extends JPanel {
 
-        Dimension preferred = new Dimension(600, 60);
+        Dimension preferred;
+        BufferedImage banner = null;
 
         JTextField field;
         JButton submit;
+        JCheckBox genderbox;
+        JCheckBox agebox;
+
+        int fieldwidth = 120;
+        int buttonwidth = 80;
+        int margin = 20;
+        int xstart = 140;
+        int stringcorrection = 80;
+        int ystart = 100 + 17;
+        int height = 26;
 
         public UsernamePanel() {
+            preferred = new Dimension(600, 100 + 60);
+            try {
+                banner = ImageIO.read(new File("src/Datafiles/TwitTwins.png"));
+                banner = null;
+            } catch (IOException e) {
+            }
+            this.setLayout(null);
             this.setPreferredSize(preferred);
             //this.setBackground(Color.red); //color background to see boundaries between panels
             field = new JTextField();
-            field.setText("tferriss");
-            field.setPreferredSize(new Dimension(200, 30));
+            field.setText("");
+            field.setBounds(xstart, ystart, fieldwidth, height);
             this.add(field);
             submit = new JButton();
             submit.setText("Start!");
+            submit.setBounds(xstart + margin + fieldwidth, ystart, buttonwidth, height);
             submit.addActionListener(new ActionListener() {
 
                 @Override
@@ -124,7 +152,30 @@ public class TwitTwinsGUI extends JFrame {
                 }
             });
             this.add(submit);
+            genderbox = new JCheckBox();
+            genderbox.setText("Gender");
+            genderbox.setBounds(xstart + fieldwidth + 2 * margin + buttonwidth, ystart, buttonwidth, height);
+            this.add(genderbox);
+            agebox = new JCheckBox();
+            agebox.setText("Age");
+            agebox.setBounds(xstart + fieldwidth + 3 * margin + 2 * buttonwidth, ystart, buttonwidth, height);
+            this.add(agebox);
+
         }
+
+        @Override
+        public void paint(Graphics gr) {
+            super.paint(gr);
+            Graphics2D g = (Graphics2D) gr;
+            
+            g.drawImage(banner, null, this);
+            Font tfont = new Font("Times New Roman", Font.BOLD, 15);
+
+            g.setFont(tfont);
+            g.drawString("Username:", xstart - stringcorrection, ystart + 15);
+
+        }
+
     }
 
     private class KeyWordPanel extends JPanel implements MouseListener {
@@ -138,12 +189,16 @@ public class TwitTwinsGUI extends JFrame {
 
         //basic margins
         int x_start = 50;
-        int y_start = 30;
+        int y_start = 10;
+        int keywordstart = 100;
         int totalWidth = 200;
         int leftMargin = 20;
         int rightMargin = 20;
         int totalHeight = 200;
         int heightMargin = 10;
+
+        int buttonheight = 30;
+        int buttonwidth = 80;
 
         Dimension preferred = new Dimension(300, 440);
 
@@ -151,9 +206,9 @@ public class TwitTwinsGUI extends JFrame {
             this.setLayout(null);
             this.setPreferredSize(preferred);
             addField = new JTextField();
-            addField.setBounds(x_start, y_start + 240, 150, 30);
+            addField.setBounds(x_start, y_start, 150, 30);
             addButton = new JButton("Add");
-            addButton.setBounds(x_start + 150 + 10, y_start + 240, 60, 30);
+            addButton.setBounds(x_start + 160, y_start, buttonwidth, buttonheight);
             addButton.addActionListener(new ActionListener() {
 
                 @Override
@@ -168,7 +223,15 @@ public class TwitTwinsGUI extends JFrame {
                         return;
                     }
 
-                    if (keywords.contains(s)) {
+                    boolean match = false;
+                    for (Score sc : keywords) {
+                        if (sc.name.toLowerCase().equals(s.toLowerCase())) {
+                            match = true;
+                            break;
+                        }
+                    }
+
+                    if (match) {
                         addField.setText("");
                         return;
                     } else {
@@ -181,7 +244,7 @@ public class TwitTwinsGUI extends JFrame {
 
             });
             updateButton = new JButton("Update");
-            updateButton.setBounds(x_start + 50 + 10, y_start + 280, 100, 30);
+            updateButton.setBounds(x_start + 160, y_start + buttonheight + 10, buttonwidth, buttonheight);
             updateButton.addActionListener(new ActionListener() {
 
                 @Override
@@ -210,7 +273,7 @@ public class TwitTwinsGUI extends JFrame {
             Font kfont = new Font("Times New Roman", Font.BOLD, 13);
 
             g.setFont(tfont);
-            g.drawString("Matching Keywords", x_start, y_start);
+            g.drawString("Matching Keywords", x_start, y_start + keywordstart);
             g.setFont(kfont);
 
             int row = 0;
@@ -232,11 +295,11 @@ public class TwitTwinsGUI extends JFrame {
                 }
 
                 g.setColor(Color.YELLOW);
-                g.fill(new Rectangle(x_start + progress, y_start + y_adjust + hmargin * row, size, 19));
+                g.fill(new Rectangle(x_start + progress, y_start + keywordstart + y_adjust + hmargin * row, size, 19));
                 g.setColor(Color.BLACK);
-                g.drawString(kw.getName(), x_start + progress + lmargin, y_start + y_adjust + hmargin * row + 14);
+                g.drawString(kw.getName(), x_start + progress + lmargin, y_start + keywordstart + y_adjust + hmargin * row + 14);
                 g.setColor(Color.RED);
-                Rectangle r = new Rectangle(x_start + progress + size - xsize, y_start + y_adjust + hmargin * row, xsize, xsize);
+                Rectangle r = new Rectangle(x_start + progress + size - xsize, y_start + keywordstart + y_adjust + hmargin * row, xsize, xsize);
                 g.fill(r);
                 closeRectangles.add(r);
 
@@ -309,53 +372,51 @@ public class TwitTwinsGUI extends JFrame {
             this.addMouseListener(this);
 
             this.setLayout(null);
-            rfbButton = new JButton("RFB");
-            rfbButton.setBounds(x_start + 150, 0, 60, 30);
+            rfbButton = new JButton("Rochio");
+            rfbButton.setBounds(x_start + 150, 10, 80, 30);
             rfbButton.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     System.out.println("Returning a list of " + relevant.size() + " items for RFB");
                     List<RankingEntry> irrelevant = new ArrayList<>(ranking);
-                    for(RankingEntry re: relevant){
+                    for (RankingEntry re : relevant) {
                         irrelevant.remove(re);
                     }
-                    
+
                     Map<String, Word> rfbRMap = new HashMap<>();
                     Map<String, Word> rfbNMap = new HashMap<>();
-                    
-                    for(RankingEntry re:relevant){
+
+                    for (RankingEntry re : relevant) {
                         Map<String, Word> tm = new HashMap<>();
-                        tm=te.extractUserM(re.getUserName());
-                        System.out.println("Retrieved tweets from "+re.getUserName());
-                        for(String key:tm.keySet()){
+                        tm = te.extractUserM(re.getUserName());
+                        System.out.println("Retrieved tweets from " + re.getUserName());
+                        for (String key : tm.keySet()) {
                             Word w = tm.get(key);
-                            if(rfbRMap.containsKey(w)){
-                                rfbRMap.get(w).setFrequency((rfbRMap.get(w).getFrequency()+w.getFrequency()));
-                            }
-                            else{
+                            if (rfbRMap.containsKey(w)) {
+                                rfbRMap.get(w).setFrequency((rfbRMap.get(w).getFrequency() + w.getFrequency()));
+                            } else {
                                 rfbRMap.put(w.getWord(), w);
                             }
                         }
                     }
-                    for(RankingEntry re:irrelevant){
+                    for (RankingEntry re : irrelevant) {
                         Map<String, Word> tm = new HashMap<>();
-                        tm=te.extractUserM(re.getUserName());
-                        System.out.println("Retrieved tweets from "+re.getUserName());
-                        for(String key:tm.keySet()){
+                        tm = te.extractUserM(re.getUserName());
+                        System.out.println("Retrieved tweets from " + re.getUserName());
+                        for (String key : tm.keySet()) {
                             Word w = tm.get(key);
-                            if(rfbNMap.containsKey(w)){
-                                rfbNMap.get(w).setFrequency((rfbNMap.get(w).getFrequency()+w.getFrequency()));
-                            }
-                            else{
+                            if (rfbNMap.containsKey(w)) {
+                                rfbNMap.get(w).setFrequency((rfbNMap.get(w).getFrequency() + w.getFrequency()));
+                            } else {
                                 rfbNMap.put(w.getWord(), w);
                             }
                         }
                     }
-                    RocchioRFB rfb = new RocchioRFB(ud.getKeyWords(), rfbRMap, rfbNMap, ranking, relevant, 1.0, 0.5, 0.1  ); // With values alpha, beta and gamma respectively
+                    RocchioRFB rfb = new RocchioRFB(ud.getKeyWords(), rfbRMap, rfbNMap, ranking, relevant, 1.0, 0.5, 0.1); // With values alpha, beta and gamma respectively
                     System.out.println("Old query: " + ud.getKeyWords());
-                    System.out.println("Rocchio Relevance Feedback, new search query: " + rfb.getUpdatedQuery() );
- 
+                    System.out.println("Rocchio Relevance Feedback, new search query: " + rfb.getUpdatedQuery());
+
                 }
 
             });
@@ -488,9 +549,9 @@ public class TwitTwinsGUI extends JFrame {
                     for (Object o : user) {
                         UserData.KeyWord kw = (UserData.KeyWord) o;
                         double count = kw.getCount();
-                        scores_temporary.add(new Score(count, kw.getKeyWord() ) );
+                        scores_temporary.add(new Score(count, kw.getKeyWord()));
                     }
-                    scores_updated = performVSR(ud,scores_temporary );
+                    scores_updated = performVSR(ud, scores_temporary);
                     rpanel.createRanking(scores_updated);
                 }
 
@@ -573,19 +634,16 @@ public class TwitTwinsGUI extends JFrame {
             stringKeywords.add(keywords.get(i).getName());
         }
 
-        List<Score> scores;
+        List<Score> scores = null;
         ud = queryRelatedUsers(stringKeywords);
         TwitMain.printScores(ud);
 
         switch (method) {
             case METHOD_PRB:
-                 KMeans km = new KMeans(keywords.size(), ud);
-                 boolean clusteringOK = km.calculateClusteringSetK();
-                 ProbabRetrieval pr = new ProbabRetrieval();
-                 pr.rank(ud, keywords, km.getClusterByK(), false , 0.7, 0.2, 0.1);
-                 scores = pr.rank(ud, keywords, km.getClusterByK(), clusteringOK, 0.7, 0.2, 0.1);
-                 
-                 break;
+                KMeans km = new KMeans(keywords.size(), ud);
+                boolean clusteringOK = km.calculateClustering();
+                //scores = ProbabRetrieval.rank(ud, keywords, 0.8, km.getClusterByK(), clusteringOK);
+                break;
             case METHOD_VSR:
             default:
                 scores = performVSR(ud, keywords); // 
