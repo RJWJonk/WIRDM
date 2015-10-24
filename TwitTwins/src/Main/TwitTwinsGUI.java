@@ -438,7 +438,6 @@ public class TwitTwinsGUI extends JFrame {
                     for (RankingEntry re : relevant) {
                         Map<String, Word> tm = new HashMap<>();
                         tm = te.extractUserM(re.getUserName());
-                        System.out.println("Retrieved tweets from " + re.getUserName());
                         for (String key : tm.keySet()) {
                             Word w = tm.get(key);
                             if (rfbRMap.containsKey(w)) {
@@ -451,7 +450,6 @@ public class TwitTwinsGUI extends JFrame {
                     for (RankingEntry re : irrelevant) {
                         Map<String, Word> tm = new HashMap<>();
                         tm = te.extractUserM(re.getUserName());
-                        System.out.println("Retrieved tweets from " + re.getUserName());
                         for (String key : tm.keySet()) {
                             Word w = tm.get(key);
                             if (rfbNMap.containsKey(w)) {
@@ -461,8 +459,7 @@ public class TwitTwinsGUI extends JFrame {
                             }
                         }
                     }
-                    RocchioRFB rfb = new RocchioRFB(ud.getKeyWords(), rfbRMap, rfbNMap, ranking, relevant, 1.0, 0.5, 0.1); // With values alpha, beta and gamma respectively
-                    System.out.println("Old query: " + ud.getKeyWords());
+                    RocchioRFB rfb = new RocchioRFB(ud.getKeyWords(), rfbRMap, rfbNMap, ranking, relevant, 1.0, 0.3, 0.4); // With values alpha, beta and gamma respectively
                     List<String> newQuery = rfb.getUpdatedQuery();
                     System.out.println("Rocchio Relevance Feedback, new search query: " + newQuery);
                     List<Score> newQueryAsScore = new ArrayList<>();
