@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class RocchioRFB {
     List<String> OldQuery = new ArrayList();
-    List<String> NewQuery = new ArrayList();
+    List<String> newQuery = new ArrayList();
     Map<String, Word> rfbRInputMap = new HashMap<>();
     Map<String, Word> rfbNInputMap = new HashMap<>();
     List<TwitTwinsGUI.RankingEntry> ranking = new ArrayList<>();
@@ -37,14 +37,12 @@ public class RocchioRFB {
     }
     
     public List<String> getUpdatedQuery() {
-        NewQuery = OldQuery;
         
         for(String s:OldQuery){
             Word w = new Word(s,1);
             Score x = new Score(calculateScore(w,alpha), s);
             alphaScores.put(s, x);
         }
-        
         for(String key:rfbRInputMap.keySet()){
             Word w = rfbRInputMap.get(key);
             Score s = new Score(calculateScore(w,beta), w.getWord());
@@ -60,10 +58,25 @@ public class RocchioRFB {
         int relevantLength = relevant.size();
         int irrelevantLength = ranking.size()-relevantLength;
         
-        for(String key:betaScores.keySet()){
-            double Score = betaScores.get(key).getScore()/relevantLength;
+        for(String key:alphaScores.keySet()){
+            double Score = alphaScores.get(key).getScore();
             Score s = new Score(Score, key);
             totalScores.put(key, s);
+        }
+        for(String key:betaScores.keySet()){
+            double Score;
+            if(totalScores.containsKey(key)){
+               Score a = totalScores.get(key);
+               Score = a.getScore()+betaScores.get(key).getScore()/relevantLength;
+               Score s = new Score(Score, key);
+               totalScores.remove(key);
+               totalScores.put(key, s);
+            }
+            else{
+            Score = betaScores.get(key).getScore()/irrelevantLength;
+            Score s = new Score(Score, key);
+            totalScores.put(key, s);
+            }
         }
         for(String key:gammaScores.keySet()){
             double Score;
@@ -75,7 +88,7 @@ public class RocchioRFB {
                totalScores.put(key, s);
             }
             else{
-            Score = gammaScores.get(key).getScore()/irrelevantLength;
+            Score = -gammaScores.get(key).getScore()/irrelevantLength;
             Score s = new Score(Score, key);
             totalScores.put(key, s);
             }
@@ -85,25 +98,22 @@ public class RocchioRFB {
         for(String key:totalScores.keySet()){
             sortedScores.put(totalScores.get(key).getScore(), key);
         }
-        double rfbTreshold = 0;
+        double rfbTreshold = 0.1;
         int i=0;
         int maxNewTerms = 10;
-        while(sortedScores.lastKey()>rfbTreshold&&i<maxNewTerms){
-            NewQuery.add(sortedScores.pollLastEntry().getValue());
+        int maxTerms = 15;
+        while(sortedScores.lastKey()>rfbTreshold&&i<maxNewTerms&&newQuery.size()<maxTerms){
+            newQuery.add(sortedScores.pollLastEntry().getValue());
             i++;
         }
         
-        return NewQuery;
+        return newQuery;
     }
     
     private double calculateScore(Word w, double d){
         double s;
         s=w.getFrequency()*d;
         return s;
-    }
-    
-    private void addToVocabulary(String s){
-        
     }
     
 }
