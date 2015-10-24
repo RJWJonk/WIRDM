@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.io.*;
 
 /**
  *
@@ -33,57 +34,85 @@ public class KMeans {
     }
 
     public static void main(String[] args) {
-         List<String> keywords = new ArrayList<String>();
+        List<String> keywords = new ArrayList<String>();
         keywords.add("ICT");
         keywords.add("school");
-//        keywords.add("girls");
-//        keywords.add("technology");
-//        keywords.add("testing");
+        keywords.add("girls");
+        keywords.add("technology");
+        keywords.add("testing");
 
-        KMeans km = new KMeans(2, KMeans.createTestingData(keywords));
+        KMeans km = new KMeans(4, KMeans.createTestingData(keywords));
         boolean clusteringOK = km.calculateClusteringSetK();
+
     }
 
     private static UserData createTestingData(List<String> keywords) {
         UserData newUdata = new UserData(keywords);
         String[] names = {"John", "Adam", "Ben", "Luke", "Phillip", "Ruben", "Chung"};
+        List<List<Integer>> keywordFreqency = new ArrayList();
+        List<String> result = new ArrayList();
+        BufferedReader br = null;
+        try {
+            String sCurrentLine;
+            br = new BufferedReader(new FileReader("C:\\Users\\s146728\\Disk Google\\TUe\\3 Semester\\Web Retreivel and Data Mining\\Project\\hayes-roth.dat"));
+            while ((sCurrentLine = br.readLine()) != null) {
+                List<Integer> intList = new ArrayList();
+                String[] splittedLine = sCurrentLine.split(", ");
+                for(int i=0;i<splittedLine.length-1;i++)
+                    intList.add(Integer.parseInt(splittedLine[i]));
+                result.add(splittedLine[splittedLine.length-1]);
+                keywordFreqency.add(intList);
+                System.out.println(sCurrentLine);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                br.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
 
-        int[][] keywordFreqency = new int[][]{
- /*0*/      {7, 2},
-            {8, 3},
-            {10, 2},
-            {15, 3},
-            {20, 4},
- /*4*/      {5, 1},
-            {11, 3},
-            {2, 7},
-            {3, 8},
-            {2, 10},
- /*9*/      {3, 15},
-            {4, 20},
-            {1, 5},
-            {3, 11},
-            {7, 6},
- /*14*/     {10, 8},
-            {7, 13},
-            {3, 5},
-            {4, 6},
- /*19*/     {17, 15}
-                
-        };
+//        int[][] keywordFreqency = new int[][]{
+//            /*0*/{7, 2},
+//            {8, 3},
+//            {10, 2},
+//            {15, 3},
+//            {20, 4},
+//            /*4*/ {5, 1},
+//            {11, 3},
+//            {2, 7},
+//            {3, 8},
+//            {2, 10},
+//            /*9*/ {3, 15},
+//            {4, 20},
+//            {1, 5},
+//            {3, 11},
+//            {7, 6},
+//            /*14*/ {10, 8},
+//            {7, 13},
+//            {3, 5},
+//            {4, 6},
+//            /*19*/ {17, 15}
+//        };
 
         //int[] ages = {}
         //String [] genders = {}
-        for (int i = 0; i < keywordFreqency.length; i++) {
+        int indexResult=0;
+        for (int i = 0; i < keywordFreqency.size(); i++) {
             TreeMap<String, Word> user = new TreeMap();
             Map<String, Word> userKeywords = new HashMap<String, Word>();
-            for (int j = 0; j < keywordFreqency[i].length; j++) {
+            for (int j = 0; j < keywordFreqency.get(i).size(); j++) {
 
                 Word w = new Word(keywords.get(j), 1);
-                w.setFrequency(keywordFreqency[i][j]);
+                w.setFrequency(keywordFreqency.get(i).get(j));
                 userKeywords.put(keywords.get(j), w);
+               
             }
-            newUdata.addUser(Integer.toString(i), -1, "Male", 2, userKeywords);
+             
+            newUdata.addUser(Integer.toString(i) + ":" +result.get(indexResult), -1, "Male", 2, userKeywords);
+            indexResult++;
         }
         return newUdata;
     }
@@ -114,7 +143,8 @@ public class KMeans {
     }
 
     public Boolean calculateClusteringSetK() {
-        modelIndex = (int) Math.sqrt(udata.getUserCount() / 2D) - K_START_AT; // substracting K_START_AT is not nice, but this is done to persist the current architecture
+        //modelIndex = (int) Math.sqrt(udata.getUserCount() / 2D) - K_START_AT; // substracting K_START_AT is not nice, but this is done to persist the current architecture
+        modelIndex = 1;
         Boolean kmeansOK = true;
         clustersByK = new ArrayList<Cluster>(K_START_AT + modelIndex);
         if (init()) {
