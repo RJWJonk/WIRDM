@@ -33,6 +33,7 @@ public class VectorIR {
     static double cosine_similarity(Map<String, Double> v1, Map<String, Double> v2) {
             Set<String> both = Sets.newHashSet(v1.keySet());
             double score;
+            
             both.retainAll(v2.keySet());
             double sclar = 0, norm1 = 0, norm2 = 0;
             for (String k : both) sclar += v1.get(k) * v2.get(k);

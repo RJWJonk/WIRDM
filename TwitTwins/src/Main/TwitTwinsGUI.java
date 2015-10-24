@@ -5,7 +5,6 @@
  */
 package Main;
 
-import static Main.TwitMain.NUMBER_KEYWORDS;
 import Model.Word;
 import com.facepp.error.FaceppParseException;
 import java.awt.BorderLayout;
@@ -54,6 +53,7 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
  */
 public class TwitTwinsGUI extends JFrame {
 
+    static int NUMBER_KEYWORDS = 5;
     private UsernamePanel upanel;
     private KeyWordPanel kpanel;
     private ResultsPanel rpanel;
@@ -740,7 +740,6 @@ public class TwitTwinsGUI extends JFrame {
                 scores = performVSR(ud, keywords); // 
                 break;
         }
-//        performVSR(ud, stringKeywords); 
         rpanel.createRanking(scores);
     }
 
@@ -765,7 +764,6 @@ public class TwitTwinsGUI extends JFrame {
                 word = keyW.getKeyWord();
                 tf = (double) keyW.getCount();
                 KwTfdata.put(word, tf);
-                //System.out.println(word +"\t" + tf); //For testing
             }
             KwTfdataList.add(KwTfdata);
             // Calculate cosine similarity of every user with the keywords and add to scores list.
@@ -781,15 +779,9 @@ public class TwitTwinsGUI extends JFrame {
         for (Object o : scores) {
             Score s = (Score) o;
             rank++;
-            //System.out.println("Ranked: " + s.getName()+ "with score: " +"\t"+ s.getScore()  ); 
             System.out.format("#%d: \t %-20s \t (CosineScore: %f)%n", rank, s.getName(), s.getScore());
         }
-//        for (Iterator<Score> iter = scores.iterator(); iter.hasNext();) {
-//            Score s = iter.next();
-//            if (Double.isNaN(s.getScore())) {
-//                iter.remove();
-//            }
-//        }
+        
         return scores;
     }
 
