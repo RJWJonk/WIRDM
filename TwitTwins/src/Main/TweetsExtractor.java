@@ -13,15 +13,12 @@ import edu.smu.tspell.wordnet.NounSynset;
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.SynsetType;
 import edu.smu.tspell.wordnet.WordNetDatabase;
-import java.io.File;
-import java.io.PrintStream;
-import java.util.ArrayList;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import twitter4j.Paging;
 import twitter4j.Query;
 import twitter4j.QueryResult;
@@ -41,15 +38,15 @@ public class TweetsExtractor {
     public static Map<String, String> stopWords;
     public static String delims = ", !.)(\"?\'�_<>|;:/";
 
-//    public static void main(String[] args) throws IOException {
-//        TweetsExtractor te = new TweetsExtractor();
-//        System.out.println(te.toString());
-//    }
-
     public TweetsExtractor() {
 
     }
 
+    /**
+     * 
+     * @param u - a given twitter user
+     * @return A Map with words sorted by its frequency count
+     */
     public TreeMap<String, Word> extractUser(String u) {
         //init values
         wordMap = new HashMap<>();
@@ -62,60 +59,24 @@ public class TweetsExtractor {
 
         //read stopwords from file and store it in hashmap
         readStoreStopWords();
-
-        //NOTICE only enable either DemoReadFromTxtFile or tokenizing, not both.
-        // Read text from textfile and tokenize each line
-        //DemoReadFromTxtFile();	     	
+	     	
         //tokenizing on real tweets
-        //tokenizing(readTweetsDemo());
         //remove stopWords
         removeStopWords();
-        //apply stemming by provided API
-        applyStemming();
         //check for synonyms and use the most common keyword
         checkForSynonyms();
-        //Test- printing results
-        //PrintTestResult();
+        //apply stemming by provided API
+        applyStemming();
 
-//        int termAmount = 5;
-//        String[] termArray = new String[termAmount];
-//        int i = 0;
-//        for (Object value : sorted_map.values()) {
-//
-//            Word word = (Word) value;
-//            if (!isInteger(word.getWord())) {
-//                termArray[i] = word.getWord();
-//                if (i >= termAmount - 1) {
-//                    break;
-//                }
-//                i++;
-//            }
-//
-//        }
-//                List<String> terms = new ArrayList<>();
-//        for(String term: termArray)
-//        {
-//        	terms.add(term);
-//        }
-//        
-//        tweets = query(terms);
-//        File f = new File("tweets.txt");
-//
-//        try {
-//            PrintStream writer = new PrintStream(f);
-//            for (Tweet t : tweets) {
-//                writer.println(t.toString());
-//                //System.out.println(t.toString());
-//            }
-//            writer.close();
-//        } catch (IOException ex) {
-//
-//        }
-//        
         sorted_map.putAll(wordMap);
         return sorted_map;
     }
     
+    /**
+     * 
+     * @param u - a given twitter user
+     * @return A Map with words sorted by its frequency count, used for Rocchio relevant feedback
+     */
     public Map<String, Word> extractUserM(String u) {
         //init values
         wordMap = new HashMap<>();
@@ -128,34 +89,18 @@ public class TweetsExtractor {
         readStoreStopWords();
         //remove stopWords
         removeStopWords();
-        //apply stemming by provided API
-        applyStemming();
         //check for synonyms and use the most common keyword
         checkForSynonyms();
+        //apply stemming by provided API
+        applyStemming();
         return wordMap;
     }
 
     /**
-     * Read from a txt file to test if tokenizer works
-     *
-     */
-//    public void DemoReadFromTxtFile() {
-//        try (BufferedReader br = new BufferedReader(new FileReader("bigtext.txt"))) {
-//            String sCurrentLine;
-//            //extract text, Just for testing on a large file with text
-//            while ((sCurrentLine = br.readLine()) != null) {
-//                tokenizing(sCurrentLine);
-//            }
-//            sorted_map.putAll(wordMap);
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-    /**
      * Tokenizing from text
+     * Also processing bi-words, will happen at the same time.
      *
-     * @param text
+     * @param text tweet(s) as input
      */
     public Map<String, Word> tokenizing(String text) {
         StringTokenizer st = new StringTokenizer(text, delims);
@@ -175,16 +120,19 @@ public class TweetsExtractor {
                 }
 
             }
-            // putWordInWordMap(nextWord);
         }
         if (!concatWord.isEmpty()) {
             putWordInWordMap(concatWord.trim().toLowerCase());
         }
-//        sorted_map.putAll(wordMap);
-//        return sorted_map;
         return wordMap;
     }
 
+    /**
+     * Check if word already exist and:
+     * 1. if exist, increase frequency count of word
+     * 2. not exist, put word in word map
+     * @param word 
+     */
     public void putWordInWordMap(String word) {
         collectionFrequncy++;
         if (wordMap.get(word) == null) {
@@ -197,6 +145,12 @@ public class TweetsExtractor {
         }
     }
 
+    /**
+     * For every single tweet, use tokenizer to split it in words
+     * 
+     * @param input a collection as tweets, represented as an queue
+     * @return 
+     */
     public Map<String, Word> tokenizing(Queue<Tweet> input) {
         String concat = "";
         for (Tweet t : input) {
@@ -205,71 +159,44 @@ public class TweetsExtractor {
         return wordMap;
     }
 
-//    /**
-//     * Using real tweets data to test what kind of results it gives Will be
-//     * changed later on
-//     *
-//     * @return
-//     */
-//    public String readTweetsDemo() {
-//        OAuthConsumer consumer = new DefaultOAuthConsumer(ConsumerKey, ConsumerSecret);
-//        consumer.setTokenWithSecret(AccessToken, AccessSecret);
-//        tweetsTxt = "";
-//        // Prepare request
-//        URL url;
-//        try {
-//            for (int j = 1; j <= 16; j++) {
-//                System.out.println("Loading tweets: " + (float) j / 16 * 100 + "%.");
-//                //REST API - request to return tweets from users as a JSON string 200 tweets max per page
-//                url = new URL("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=" + twitterUser + "&lang=en&count=200&page=+" + j);
-//                HttpURLConnection request = (HttpURLConnection) url.openConnection();
-//                consumer.sign(request);
-//                request.connect();
-//
-//                BufferedReader in = new BufferedReader(
-//                        new InputStreamReader(request.getInputStream()));
-//                String inputLine;
-//                StringBuffer response = new StringBuffer();
-//
-//                while ((inputLine = in.readLine()) != null) {
-//                    response.append(inputLine);
-//                }
-//                in.close();
-//
-//                //parse json
-//                String jsonString = "{\"tweets\":" + response.toString() + "}";
-//                JSONObject obj = new JSONObject(jsonString);
-//
-//                JSONArray arr = obj.getJSONArray("tweets");
-//                for (int i = 0; i < arr.length(); i++) {
-//                    if (arr.getJSONObject(i).has("text")) {
-//                        tweetsTxt += " " + arr.getJSONObject(i).getString("text");
-//                    }
-//                }
-//            }
-//        } catch (MalformedURLException e1) {
-//            // TODO Auto-generated catch block
-//            e1.printStackTrace();
-//        } catch (OAuthMessageSignerException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        } catch (OAuthExpectationFailedException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        } catch (OAuthCommunicationException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//        return tweetsTxt;
-//    }
+     /**
+     * Check for synonyms, and use the most common words. e.g. ny --> New York
+     * Notice, it will only perform for the 50 most occured words, otherwise it will takes to much time.
+     * 
+     */
+    public void checkForSynonyms() {
+        sorted_map.putAll(wordMap);
+        System.setProperty("wordnet.database.dir", "WordNet-3.0//dict//");
+        NounSynset nounSynset; 
+        int i =50;
+        for (Object value : sorted_map.values()) {
+            if (i == 0) break; else i--;
+            Word word = (Word) value;
+            WordNetDatabase database = WordNetDatabase.getFileInstance(); 
+            Synset[] synsets = database.getSynsets(word.getWord(), SynsetType.NOUN, true); 
+            if(synsets.length > 0)
+            {
+                nounSynset = (NounSynset)(synsets[0]);    
+                int freq = 0;
+                //if synonym already exist, sum the current frequency.
+                if (wordMap.get(nounSynset.getWordForms()[0].toLowerCase()) != null) {
+                    //update frequency
+                    freq = ((Word) wordMap.get(nounSynset.getWordForms()[0].toLowerCase())).getFrequency();
+                }
+                Word newWord = new Word(nounSynset.getWordForms()[0].toLowerCase(), word.getRealType());
+                newWord.setFrequency(freq + word.getFrequency());
+                wordMap.put(nounSynset.getWordForms()[0].toLowerCase(), newWord);
+                wordMap.remove(word.getWord());
+            }
+        }
+        sorted_map.clear();
+    }
     /**
      * Using the stemming library (source file) provided by Porter. Stemming
-     * will be used after tokenizing process and removal of stopwords 1. stemmed
-     * word is already stemmed. 2. Stemmed word does not exist yet 3. Stemmed
-     * word already exist
+     * will be used as the last step of pre-processing. Three options that we are dealing with: 
+     * 1. stemmed word is already stemmed. 
+     * 2. Stemmed word does not exist yet 
+     * 3. Stemmed word already exist
      */
     public void applyStemming() {
         Map<String, Word> tempMap = new HashMap<String, Word>(wordMap);
@@ -294,9 +221,6 @@ public class TweetsExtractor {
                 wordMap.remove(word.getWord());
             }
         }
-//        sorted_map.clear(); // must clear it first in order to sort it again
-//        sorted_map.putAll(wordMap);
-
     }
 
     /**
@@ -321,8 +245,6 @@ public class TweetsExtractor {
             }
 
         }
-//        sorted_map.clear(); // must clear it first in order to sort it again
-//        sorted_map.putAll(wordMap);
     }
 
     /**
@@ -444,27 +366,37 @@ public class TweetsExtractor {
         }
     }
 
-    public Queue<Tweet> query(List<String> terms) {
+    /**
+     * Finding tweets by using the top important keywords and store the users, amount of key
+     * 
+     * @param terms - given terms, which are the top important keywords
+     * @param n - the amount of tweets we want to return
+     * @return 
+     */
+    public Queue<Tweet> query(List<String> terms, int n) {
         Queue<Tweet> tweetQueue = new LinkedList<>();
         Map<String, String> diffUsers = new HashMap<String, String>();
         tweetQueue.clear();
         for (String term : terms) {
-            query(tweetQueue, diffUsers, term);
+            query(tweetQueue, diffUsers, term, n/terms.size());
         }
-        //String query = "";
-        //for (String term : terms) {
-        //    query += "(" + term + ")" + " OR ";
-        //}
-        //return query(query.substring(0, query.length() - 4));
+
         return tweetQueue;
     }
 
-    public Queue<Tweet> query(Queue<Tweet> tweetQueue, Map<String, String> diffUsers, String term) {
-        //Queue<Tweet> tweetQueue = new LinkedList<>();
+    /**
+     * Finding tweets by using a single term, and store the users.
+     * @param tweetQueue
+     * @param diffUsers - We only want to store unique users.
+     * @param term - given keyword
+     * @param n
+     * @return 
+     */
+    public Queue<Tweet> query(Queue<Tweet> tweetQueue, Map<String, String> diffUsers, String term, int n) {
         try {
             Query query = new Query(term + "+exclude:retweets ");
             query.setLang("en");
-            query.setCount(100);
+            query.setCount(n);
 
             System.out.println(query.toString());
             QueryResult result;
@@ -480,10 +412,6 @@ public class TweetsExtractor {
                     diffUsers.put(tweet.getUser().getName(), tweet.getUser().getName());
                 }
 
-                //tweetQueue.add(t);
-                //System.out.println(tweet.getUser().getName());
-                //     }
-                //}
             } //while ((query = result.nextQuery()) != null);
         } catch (TwitterException te) {
             te.printStackTrace();
@@ -492,6 +420,12 @@ public class TweetsExtractor {
         return tweetQueue;
     }
 
+    /**
+     * Finding tweets of a given user, could be initial user or other users.
+     * Just perform a single request and return (at most) 200 tweets.
+     * @param user - given user
+     * @return 
+     */
     public Queue<Tweet> queryUser(String user) {
         Queue<Tweet> tweetQueue = new LinkedList<>();
         try {
@@ -513,38 +447,5 @@ public class TweetsExtractor {
             System.out.println("Failed to search tweets: " + te.getMessage());
         }
         return tweetQueue;
-    }
-
-        /**
-     * Check for synonyms, and use the most common words. e.g. ny --> New York
-     * Notice, it will only perform for the 50 most occured words, otherwise it will takes to much time.
-     * 
-     */
-    public void checkForSynonyms() {
-        sorted_map.putAll(wordMap);
-        System.setProperty("wordnet.database.dir", "WordNet-3.0//dict//");
-        NounSynset nounSynset; 
-        int i =50;
-        for (Object value : sorted_map.values()) {
-            if (i == 0) break; else i--;
-            Word word = (Word) value;
-            WordNetDatabase database = WordNetDatabase.getFileInstance(); 
-            Synset[] synsets = database.getSynsets(word.getWord(), SynsetType.NOUN, true); 
-            if(synsets.length > 0)
-            {
-                nounSynset = (NounSynset)(synsets[0]);    
-                int freq = 0;
-                //if synonym already exist, sum the current frequency.
-                if (wordMap.get(nounSynset.getWordForms()[0].toLowerCase()) != null) {
-                    //update frequency
-                    freq = ((Word) wordMap.get(nounSynset.getWordForms()[0].toLowerCase())).getFrequency();
-                }
-                Word newWord = new Word(nounSynset.getWordForms()[0].toLowerCase(), word.getRealType());
-                newWord.setFrequency(freq + word.getFrequency());
-                wordMap.put(nounSynset.getWordForms()[0].toLowerCase(), newWord);
-                wordMap.remove(word.getWord());
-            }
-        }
-        sorted_map.clear();
     }
 }

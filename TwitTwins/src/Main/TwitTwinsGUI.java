@@ -11,6 +11,7 @@ import com.facepp.error.FaceppParseException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -18,16 +19,20 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import static java.awt.SystemColor.window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -145,8 +150,8 @@ public class TwitTwinsGUI extends JFrame {
         public UsernamePanel() {
             preferred = new Dimension(600, 100 + 60);
             try {
-                banner = ImageIO.read(new File("src/Datafiles/TwitTwins.png"));
-                banner = null;
+                banner = ImageIO.read(new File("src/Datafiles/TwitTwins_banner.png"));
+                //banner = null;
             } catch (IOException e) {
             }
             this.setLayout(null);
@@ -210,7 +215,7 @@ public class TwitTwinsGUI extends JFrame {
             super.paint(gr);
             Graphics2D g = (Graphics2D) gr;
 
-            g.drawImage(banner, null, this);
+            g.drawImage(banner, 150, 0, this);
             Font tfont = new Font("Times New Roman", Font.BOLD, 15);
 
             g.setFont(tfont);
@@ -394,6 +399,7 @@ public class TwitTwinsGUI extends JFrame {
         List<RankingEntry> relevant = new ArrayList<>();
         List<Rectangle> rankingBoxes = new ArrayList<>();
         List<Rectangle> rfbBoxes = new ArrayList<>();
+        List<Rectangle> pcbBoxes = new ArrayList<>();
         Dimension preferred = new Dimension(350, 440);
 
         JButton rfbButton;
@@ -414,7 +420,7 @@ public class TwitTwinsGUI extends JFrame {
             this.addMouseListener(this);
 
             this.setLayout(null);
-            rfbButton = new JButton("Rochio");
+            rfbButton = new JButton("Rocchio");
             rfbButton.setBounds(x_start + 150, 10, 80, 30);
             rfbButton.addActionListener(new ActionListener() {
 
@@ -457,7 +463,23 @@ public class TwitTwinsGUI extends JFrame {
                     }
                     RocchioRFB rfb = new RocchioRFB(ud.getKeyWords(), rfbRMap, rfbNMap, ranking, relevant, 1.0, 0.5, 0.1); // With values alpha, beta and gamma respectively
                     System.out.println("Old query: " + ud.getKeyWords());
-                    System.out.println("Rocchio Relevance Feedback, new search query: " + rfb.getUpdatedQuery());
+                    List<String> newQuery = rfb.getUpdatedQuery();
+                    System.out.println("Rocchio Relevance Feedback, new search query: " + newQuery);
+                    List<Score> newQueryAsScore = new ArrayList<>();
+                    for(String keyword:newQuery){
+                        Score s = new Score(0,keyword);
+                        newQueryAsScore.add(s);
+                    }
+                    try {
+                        performQuery(newQueryAsScore);
+                    } catch (FaceppParseException ex) {
+                        Logger.getLogger(TwitTwinsGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    kpanel.keywords.clear();
+                    for(Score s:newQueryAsScore){
+                        kpanel.keywords.add(s);
+                    }
+
 
                 }
 
@@ -499,6 +521,7 @@ public class TwitTwinsGUI extends JFrame {
             super.paint(gr);
             rankingBoxes.clear();
             rfbBoxes.clear();
+            pcbBoxes.clear();
             Graphics2D g = (Graphics2D) gr;
             Font tfont = new Font("Times New Roman", Font.BOLD, 18);
             Font rfont = new Font("Times New Roman", Font.BOLD, 16);
@@ -519,7 +542,7 @@ public class TwitTwinsGUI extends JFrame {
             for (RankingEntry re : ranking) {
 
                 g.setColor(Color.BLACK);
-                Rectangle r = new Rectangle(x_start + ranknum, y_start + row * hmargin, width - ranknum, height);
+                Rectangle r = new Rectangle(x_start + ranknum + picmargin, y_start + row * hmargin, width - ranknum -picmargin, height);
                 g.draw(r);
                 rankingBoxes.add(r);
                 Rectangle rlfb = new Rectangle(x_start, y_start + row * hmargin, ranknum, height);
@@ -534,6 +557,15 @@ public class TwitTwinsGUI extends JFrame {
                     g.setColor(Color.BLACK);
                 }
                 rfbBoxes.add(rlfb);
+                Rectangle r2 = new Rectangle(x_start + ranknum, y_start + row * hmargin, picmargin, height);
+                BufferedImage img = null;
+                try {
+                    img = ImageIO.read(new File("src/Datafiles/Twitlink.png"));
+                } catch (IOException e) {
+                }
+                g.draw(r);
+                g.drawImage(img, r2.x, r2.y, r2.width, r2.height, null);
+                pcbBoxes.add(r2);
                 g.setFont(rfont);
                 g.drawString(row + 1 + ".", x_start + ranknum / 3 - ((row == 9) ? 4 : 0), y_start + 2 * height / 3 + row * hmargin);
 
@@ -586,7 +618,7 @@ public class TwitTwinsGUI extends JFrame {
                     List<Score> scores_temporary = new ArrayList<>();
                     List<Score> scores_updated = new ArrayList<>();
 
-                    UserData.User user = ud.getUser(re.getUserName());
+                    UserData.User user = ud.getUser(re.getUserName());             
                     //double tot = user.getWordTweetCount();
                     for (Object o : user) {
                         UserData.KeyWord kw = (UserData.KeyWord) o;
@@ -607,6 +639,21 @@ public class TwitTwinsGUI extends JFrame {
                         relevant.remove(re);
                     } else {
                         relevant.add(re);
+                    }
+                }
+            }
+            for (Rectangle r : pcbBoxes) {
+                if (r.contains(p)) {
+                    RankingEntry re = ranking.get(pcbBoxes.indexOf(r));
+                    if(Desktop.isDesktopSupported())
+                    {
+                        try {
+                            Desktop.getDesktop().browse(new URI("http://www.twitter.com/"+re.getUserName()));
+                        } catch (IOException ex) {
+                            Logger.getLogger(TwitTwinsGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (URISyntaxException ex) {
+                            Logger.getLogger(TwitTwinsGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 }
             }
@@ -747,9 +794,9 @@ public class TwitTwinsGUI extends JFrame {
     }
 
     private UserData queryRelatedUsers(List<String> keywords) throws FaceppParseException {
-        UserData udata = new UserData(keywords);
-        Queue<Tweet> names = te.query(keywords);
         int n = 20;
+        UserData udata = new UserData(keywords);
+        Queue<Tweet> names = te.query(keywords, n);
         while (n > 0 && !names.isEmpty()) {
             n--;
 

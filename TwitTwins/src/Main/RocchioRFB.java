@@ -19,7 +19,7 @@ public class RocchioRFB {
     Map<String, Word> rfbNInputMap = new HashMap<>();
     List<TwitTwinsGUI.RankingEntry> ranking = new ArrayList<>();
     List<TwitTwinsGUI.RankingEntry> relevant = new ArrayList<>();
-    List<String> UserKeywords;
+    Map<String, Score> alphaScores = new HashMap<>();
     Map<String, Score> betaScores = new HashMap<>();
     Map<String, Score> gammaScores = new HashMap<>();
     Map<String, Score> totalScores = new HashMap<>();
@@ -29,6 +29,8 @@ public class RocchioRFB {
         this.OldQuery = OldQuery;
         this.rfbRInputMap = rfbRMap;
         this.rfbNInputMap = rfbNMap;
+        this.ranking = ranking;
+        this.relevant = relevant;
         this.alpha = alpha;
         this.beta = beta;
         this.gamma = gamma;   
@@ -37,8 +39,10 @@ public class RocchioRFB {
     public List<String> getUpdatedQuery() {
         NewQuery = OldQuery;
         
-        for(String w:OldQuery){
-            
+        for(String s:OldQuery){
+            Word w = new Word(s,1);
+            Score x = new Score(calculateScore(w,alpha), s);
+            alphaScores.put(s, x);
         }
         
         for(String key:rfbRInputMap.keySet()){
@@ -53,11 +57,11 @@ public class RocchioRFB {
             gammaScores.put(w.getWord(), s);
         }
         
-        int betaScoreLength = betaScores.size();
-        int gammaScoreLength = gammaScores.size();
+        int relevantLength = relevant.size();
+        int irrelevantLength = ranking.size()-relevantLength;
         
         for(String key:betaScores.keySet()){
-            double Score = betaScores.get(key).getScore()/betaScoreLength;
+            double Score = betaScores.get(key).getScore()/relevantLength;
             Score s = new Score(Score, key);
             totalScores.put(key, s);
         }
@@ -65,13 +69,13 @@ public class RocchioRFB {
             double Score;
             if(totalScores.containsKey(key)){
                Score a = totalScores.get(key);
-               Score = a.getScore()-gammaScores.get(key).getScore()/gammaScoreLength;
+               Score = a.getScore()-gammaScores.get(key).getScore()/irrelevantLength;
                Score s = new Score(Score, key);
                totalScores.remove(key);
                totalScores.put(key, s);
             }
             else{
-            Score = gammaScores.get(key).getScore()/gammaScoreLength;
+            Score = gammaScores.get(key).getScore()/irrelevantLength;
             Score s = new Score(Score, key);
             totalScores.put(key, s);
             }
@@ -81,45 +85,25 @@ public class RocchioRFB {
         for(String key:totalScores.keySet()){
             sortedScores.put(totalScores.get(key).getScore(), key);
         }
-        double rfbTreshold = 0.000001;
-        while(sortedScores.lastKey()>rfbTreshold){
+        double rfbTreshold = 0;
+        int i=0;
+        int maxNewTerms = 10;
+        while(sortedScores.lastKey()>rfbTreshold&&i<maxNewTerms){
             NewQuery.add(sortedScores.pollLastEntry().getValue());
+            i++;
         }
-        
-//        for (int i = 0; i < ranking.size(); i++) {
-//           UserKeywords = ranking.get(i).getKeywords();
-//           for (int j = 0; j < UserKeywords.size(); j++ ) {
-//               if ( UserKeywords.get(j) in BetaScores.get() ) {
-//                   
-//               }
-//               BetaScores.add(new Score( 1.0, UserKeywords.get(j) ));
-//           }
-//        }
-//        
-//        
-//        for (Object o : ranking) {
-//            TwitTwinsGUI.RankingEntry u = (TwitTwinsGUI.RankingEntry) o;
-//            Iterator iter = u.iterator();
-//            while( iter.hasNext() ) {
-//                UserData.KeyWord keyW = (UserData.KeyWord)iter.next(); // Get next keyword of user
-//                word = keyW.getKeyWord();
-//                tf = (double) keyW.getCount();
-//                KwTfdata.put(word, tf);
-//                //System.out.println(word +"\t" + tf); //For testing
-//            }
-//        
-//        
-//        if (relevant.get) {
-//            
-//        }
         
         return NewQuery;
     }
     
-    private double calculateScore(Word w, double a){
+    private double calculateScore(Word w, double d){
         double s;
-        s=w.getFrequency()*a;
+        s=w.getFrequency()*d;
         return s;
+    }
+    
+    private void addToVocabulary(String s){
+        
     }
     
 }
