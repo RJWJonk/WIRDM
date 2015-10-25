@@ -114,7 +114,7 @@ public class TwitTwinsGUI extends JFrame {
         setTitle("TwitTwins");
         BufferedImage icon = null;
         try {
-            icon = ImageIO.read(new File("src/Datafiles/TwitTwins_icon.png"));
+            icon = ImageIO.read(TwitTwinsGUI.class.getResourceAsStream("/Datafiles/TwitTwins_icon.png"));
         } catch (IOException e) {
         }
         this.setIconImage(icon);
@@ -150,8 +150,7 @@ public class TwitTwinsGUI extends JFrame {
         public UsernamePanel() {
             preferred = new Dimension(600, 100 + 60);
             try {
-                banner = ImageIO.read(new File("src/Datafiles/TwitTwins_banner.png"));
-                //banner = null;
+                banner = ImageIO.read(TwitTwinsGUI.class.getResourceAsStream("/Datafiles/TwitTwins_banner.png"));
             } catch (IOException e) {
             }
             this.setLayout(null);
@@ -557,7 +556,7 @@ public class TwitTwinsGUI extends JFrame {
                 Rectangle r2 = new Rectangle(x_start + ranknum, y_start + row * hmargin, picmargin, height);
                 BufferedImage img = null;
                 try {
-                    img = ImageIO.read(new File("src/Datafiles/Twitlink.png"));
+                    img = ImageIO.read(TwitTwinsGUI.class.getResourceAsStream("/Datafiles/TwitLink.png"));
                 } catch (IOException e) {
                 }
                 g.draw(r);

@@ -8,6 +8,7 @@ package Main;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -22,8 +23,8 @@ public class NameLookup {
     private static final Map<String, Double> nameMapMale = new HashMap<>();
     
     public NameLookup(){
-        readStoreNames(nameMapFemale, "src/Datafiles/dist.female.first.txt");
-        readStoreNames(nameMapMale, "src/Datafiles/dist.male.first.txt");
+        readStoreNames(nameMapFemale, "/Datafiles/dist.female.first.txt");
+        readStoreNames(nameMapMale, "/Datafiles/dist.male.first.txt");
     }
     
     public static void readStoreNames(Map<String, Double> nameMap, String file) {
@@ -31,7 +32,7 @@ public class NameLookup {
 
         try {
             String sCurrentLine;
-            br = new BufferedReader(new FileReader(file));
+            br = new BufferedReader(new InputStreamReader(TweetsExtractor.class.getResourceAsStream(file)));
 
             int i=0;
             while ((sCurrentLine = br.readLine()) != null) {

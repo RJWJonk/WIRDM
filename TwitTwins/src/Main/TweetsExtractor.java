@@ -13,6 +13,7 @@ import edu.smu.tspell.wordnet.NounSynset;
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.SynsetType;
 import edu.smu.tspell.wordnet.WordNetDatabase;
+import java.io.InputStreamReader;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -252,7 +253,8 @@ public class TweetsExtractor {
      */
     public void readStoreStopWords() {
         // TODO Auto-generated method stub
-        try (BufferedReader br = new BufferedReader(new FileReader("src/Datafiles/terrier-stop.txt"))) {
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(TweetsExtractor.class.getResourceAsStream("/Datafiles/terrier-stop.txt")));
             String sCurrentLine;
             //extract text, Just for testing on a large file with text
             while ((sCurrentLine = br.readLine()) != null) {
