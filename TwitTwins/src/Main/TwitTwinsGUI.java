@@ -567,7 +567,7 @@ public class TwitTwinsGUI extends JFrame {
                 g.drawString(row + 1 + ".", x_start + ranknum / 3 - ((row == 9) ? 4 : 0), y_start + 2 * height / 3 + row * hmargin);
 
                 String age;
-                if (re.age == -1) {
+                if (re.age < 1) {
                     age = "n.a.";
                 } else {
                     age = Integer.toString(re.age);

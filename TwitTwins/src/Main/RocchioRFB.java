@@ -10,9 +10,11 @@ import java.util.*;
 
 /**
  *
- * @author Philip
+ * @author s119503
  */
 public class RocchioRFB {
+    static int maxNewTerms = 10;
+    static int maxTerms = 15;
     List<String> OldQuery = new ArrayList();
     List<String> newQuery = new ArrayList();
     Map<String, Word> rfbRInputMap = new HashMap<>();
@@ -58,41 +60,9 @@ public class RocchioRFB {
         int relevantLength = relevant.size();
         int irrelevantLength = ranking.size()-relevantLength;
         
-        for(String key:alphaScores.keySet()){
-            double Score = alphaScores.get(key).getScore();
-            Score s = new Score(Score, key);
-            totalScores.put(key, s);
-        }
-        for(String key:betaScores.keySet()){
-            double Score;
-            if(totalScores.containsKey(key)){
-               Score a = totalScores.get(key);
-               Score = a.getScore()+betaScores.get(key).getScore()/relevantLength;
-               Score s = new Score(Score, key);
-               totalScores.remove(key);
-               totalScores.put(key, s);
-            }
-            else{
-            Score = betaScores.get(key).getScore()/irrelevantLength;
-            Score s = new Score(Score, key);
-            totalScores.put(key, s);
-            }
-        }
-        for(String key:gammaScores.keySet()){
-            double Score;
-            if(totalScores.containsKey(key)){
-               Score a = totalScores.get(key);
-               Score = a.getScore()-gammaScores.get(key).getScore()/irrelevantLength;
-               Score s = new Score(Score, key);
-               totalScores.remove(key);
-               totalScores.put(key, s);
-            }
-            else{
-            Score = -gammaScores.get(key).getScore()/irrelevantLength;
-            Score s = new Score(Score, key);
-            totalScores.put(key, s);
-            }
-        }
+        putInTotalScores(alphaScores, 1, 1);
+        putInTotalScores(betaScores, 1, relevantLength);
+        putInTotalScores(gammaScores, -1, irrelevantLength);
         
         TreeMap<Double, String> sortedScores = new TreeMap<>();
         for(String key:totalScores.keySet()){
@@ -100,8 +70,6 @@ public class RocchioRFB {
         }
         double rfbTreshold = 0.1;
         int i=0;
-        int maxNewTerms = 10;
-        int maxTerms = 15;
         while(sortedScores.lastKey()>rfbTreshold&&i<maxNewTerms&&newQuery.size()<maxTerms){
             newQuery.add(sortedScores.pollLastEntry().getValue());
             i++;
@@ -114,6 +82,24 @@ public class RocchioRFB {
         double s;
         s=w.getFrequency()*d;
         return s;
+    }
+    
+    private void putInTotalScores(Map<String, Score> scoreMap, int plusmin, int numberOfDocs){
+        for(String key:scoreMap.keySet()){
+            double Score;
+            if(totalScores.containsKey(key)){
+               Score a = totalScores.get(key);
+               Score = a.getScore()+plusmin*scoreMap.get(key).getScore()/numberOfDocs;
+               Score s = new Score(Score, key);
+               totalScores.remove(key);
+               totalScores.put(key, s);
+            }
+            else{
+            Score = plusmin*scoreMap.get(key).getScore()/numberOfDocs;
+            Score s = new Score(Score, key);
+            totalScores.put(key, s);
+            }
+        }
     }
     
 }

@@ -33,18 +33,18 @@ public class KMeans {
 
     }
 
-    public static void main(String[] args) {
-        List<String> keywords = new ArrayList<String>();
-        keywords.add("ICT");
-        keywords.add("school");
-        keywords.add("girls");
-        keywords.add("technology");
-        keywords.add("testing");
-
-        KMeans km = new KMeans(4, KMeans.createTestingData(keywords));
-        boolean clusteringOK = km.calculateClusteringSetK();
-
-    }
+//    public static void main(String[] args) {
+//        List<String> keywords = new ArrayList<String>();
+//        keywords.add("ICT");
+//        keywords.add("school");
+//        keywords.add("girls");
+//        keywords.add("technology");
+//        keywords.add("testing");
+//
+//        KMeans km = new KMeans(4, KMeans.createTestingData(keywords));
+//        boolean clusteringOK = km.calculateClusteringSetK();
+//
+//    }
 
     private static UserData createTestingData(List<String> keywords) {
         UserData newUdata = new UserData(keywords);
